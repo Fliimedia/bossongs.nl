@@ -35,104 +35,195 @@ const IMG = {
   dresscode: "images/dresscode.jpg",
 };
 
+const SECTIONS = [
+  { id: "over", nl: "Over ons", en: "About us" },
+  { id: "agenda", nl: "Agenda trouwdag", en: "Wedding day schedule" },
+  { id: "locatie", nl: "Vervoer en locaties", en: "Travel and venues" },
+  { id: "faq", nl: "Vraag en antwoord", en: "Questions and answers" },
+];
+
+const URBANUS = "https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA";
+const AMSTELKERK = "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7";
+const ROUTE =
+  "https://www.google.com/maps/dir/St.+Urbanuskerk,+Noorddammerlaan+126,+1187+AG+Amstelveen/Amstelkerk,+Kerkstraat+11,+1191+JB+Ouderkerk+aan+de+Amstel/";
+
 const TIMELINE = [
   {
     time: "13.30",
-    title: "Inloop bij de kerk",
-    location: "St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen",
-    map: "https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA",
+    nl: { title: "Inloop bij de kerk", location: "St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen" },
+    en: { title: "Doors open at the church", location: "St. Urbanus church, Noorddammerlaan 124-126, Amstelveen" },
+    map: URBANUS,
   },
   {
     time: "14.00",
-    title: "Start ceremonie",
-    location: "St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen",
-    map: "https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA",
+    nl: { title: "Start ceremonie", location: "St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen" },
+    en: { title: "Ceremony begins", location: "St. Urbanus church, Noorddammerlaan 124-126, Amstelveen" },
+    map: URBANUS,
   },
   {
     time: "15.00",
-    title: "Vertrek naar Amstelkerk",
-    location: "Van Bovenkerk naar Ouderkerk a/d Amstel",
-    map: "https://www.google.com/maps/dir/St.+Urbanuskerk,+Noorddammerlaan+126,+1187+AG+Amstelveen/Amstelkerk,+Kerkstraat+11,+1191+JB+Ouderkerk+aan+de+Amstel/",
+    nl: { title: "Vertrek naar Amstelkerk", location: "Van Bovenkerk naar Ouderkerk a/d Amstel" },
+    en: { title: "Leaving for the Amstelkerk", location: "From Bovenkerk to Ouderkerk aan de Amstel" },
+    map: ROUTE,
   },
   {
     time: "15.30",
-    title: "Receptie",
-    location: "Tuin Amstelkerk, Ouderkerk a/d Amstel",
-    map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
+    nl: { title: "Receptie", location: "Tuin Amstelkerk, Ouderkerk a/d Amstel" },
+    en: { title: "Reception", location: "Amstelkerk garden, Ouderkerk aan de Amstel" },
+    map: AMSTELKERK,
   },
   {
     time: "18.00",
-    title: "Diner",
-    location: "Amstelkerk, Ouderkerk a/d Amstel",
-    map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
+    nl: { title: "Diner", location: "Amstelkerk, Ouderkerk a/d Amstel" },
+    en: { title: "Dinner", location: "Amstelkerk, Ouderkerk aan de Amstel" },
+    map: AMSTELKERK,
   },
   {
     time: "20.00",
-    title: "Feest",
-    location: "SIBIZ, Amstelkerk, Ouderkerk a/d Amstel",
-    map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
+    nl: { title: "Feest", location: "SIBIZ, Amstelkerk, Ouderkerk a/d Amstel" },
+    en: { title: "Party", location: "SIBIZ, Amstelkerk, Ouderkerk aan de Amstel" },
+    map: AMSTELKERK,
   },
   {
     time: "00.00 tot 00.30",
-    title: "Uitloop",
-    location: "Amstelkerk, Ouderkerk a/d Amstel",
-    map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
+    nl: { title: "Uitloop", location: "Amstelkerk, Ouderkerk a/d Amstel" },
+    en: { title: "Last call", location: "Amstelkerk, Ouderkerk aan de Amstel" },
+    map: AMSTELKERK,
   },
 ];
 
 const TABS = [
   {
-    title: "Uitnodiging",
     image: IMG.urbanusBinnen,
-    body: "Wij nodigen iedereen uit om de volledige dag met ons mee te maken: van ceremonie, tot diner en trouwfeest.",
+    nl: {
+      title: "Uitnodiging",
+      body: "Wij nodigen iedereen uit om de volledige dag met ons mee te maken: van ceremonie, tot diner en trouwfeest.",
+    },
+    en: {
+      title: "The invitation",
+      body: "We would love you to join us for the whole day: the ceremony, the dinner and the party afterwards.",
+    },
   },
   {
-    title: "Aankomst",
     image: IMG.urbanusBuiten,
-    body: "Kom je met de auto? Parkeren in Bovenkerk is gratis.\n\nFietsen kun je parkeren tegenover de kerk, in de stalling van Silversant.\n\nDe dichtsbijzijnde bushalte is direct naast de kerk, halte Zwarte Pad.",
+    nl: {
+      title: "Aankomst",
+      body: "Kom je met de auto? Parkeren in Bovenkerk is gratis.\n\nFietsen kun je parkeren tegenover de kerk, in de stalling van Silversant.\n\nDe dichtsbijzijnde bushalte is direct naast de kerk, halte Zwarte Pad.",
+    },
+    en: {
+      title: "Arriving",
+      body: "Coming by car? Parking in Bovenkerk is free.\n\nBicycles can be left opposite the church, in the Silversant rack.\n\nThe nearest bus stop is right beside the church, Zwarte Pad.",
+    },
   },
   {
-    title: "Vervoer naar Ouderkerk",
     image: IMG.amstelkerk,
-    body: "Van Bovenkerk naar Ouderkerk kun je met eigen vervoer, openbaar vervoer of met de taxi: 15 minuten met de auto of 25 minuten met de fiets.\n\nParkeren in Ouderkerk is gratis aan de Kerkweg. Er is een parkeerterrein direct naast de kerk. Let wel op: de straat ernaast begint een Groene parkeerzone. Hier mag je 1.5 uur parkeren met een blauwe schijf.",
+    nl: {
+      title: "Vervoer naar Ouderkerk",
+      body: "Van Bovenkerk naar Ouderkerk kun je met eigen vervoer, openbaar vervoer of met de taxi: 15 minuten met de auto of 25 minuten met de fiets.\n\nParkeren in Ouderkerk is gratis aan de Kerkweg. Er is een parkeerterrein direct naast de kerk. Let wel op: de straat ernaast begint een Groene parkeerzone. Hier mag je 1.5 uur parkeren met een blauwe schijf.",
+    },
+    en: {
+      title: "Getting to Ouderkerk",
+      body: "From Bovenkerk to Ouderkerk you can drive, cycle, take public transport or a taxi: 15 minutes by car, 25 by bicycle.\n\nParking in Ouderkerk is free on the Kerkweg, with a car park right next to the church. Do note that the next street over is a green zone, where you may park for 1.5 hours with a parking disc.",
+    },
   },
-];
-
-const SECTIONS = [
-  { id: "over", label: "Over ons" },
-  { id: "agenda", label: "Agenda trouwdag" },
-  { id: "locatie", label: "Vervoer en locaties" },
-  { id: "faq", label: "Vraag en antwoord" },
 ];
 
 const FAQ = [
   {
     n: "01",
-    q: "Mag ik gasten meenemen?",
-    a: "Het is vanwege de locatie beperkingen niet mogelijk om extra gasten mee te nemen.",
+    nl: {
+      q: "Mag ik gasten meenemen?",
+      a: "Het is vanwege de locatie beperkingen niet mogelijk om extra gasten mee te nemen.",
+    },
+    en: {
+      q: "Can I bring extra guests?",
+      a: "Because of the capacity of the venues we are not able to welcome additional guests.",
+    },
   },
   {
     n: "02",
-    q: "Zijn kinderen welkom?",
-    a: "In overleg is dat waarschijnlijk mogelijk. Neem even contact met ons op via bruiloft@flii.nl, dan kijken we samen wat er kan.",
+    nl: {
+      q: "Zijn kinderen welkom?",
+      a: "In overleg is dat waarschijnlijk mogelijk. Neem even contact met ons op via bruiloft@flii.nl, dan kijken we samen wat er kan.",
+    },
+    en: {
+      q: "Are children welcome?",
+      a: "Most likely yes, in consultation. Send us a note at bruiloft@flii.nl and we will work it out together.",
+    },
     linkText: "bruiloft@flii.nl",
     link: "mailto:bruiloft@flii.nl",
   },
   {
     n: "03",
-    q: "Hoe kom ik van Bovenkerk naar Ouderkerk?",
-    a: "Je kunt met eigen vervoer, zoals de auto of fiets.\n\nOpenbaar vervoer: direct naast de kerk is er bushalte Zwarte Pad. Hier pak je lijn 171 tot Amstelveen busstation en stap je over op lijn 356 tot halte Ouderkerk West. Vanaf hier is het 8 minuten lopen naar de Amstelkerk.\n\nHeb je geen vervoer? Laat het ons dan weten, dan kijken we mee.\n\nNa afloop rijdt er geen bus meer. Regel je terugreis vooraf, met eigen vervoer of een taxi.",
+    nl: {
+      q: "Hoe kom ik van Bovenkerk naar Ouderkerk?",
+      a: "Je kunt met eigen vervoer, zoals de auto of fiets.\n\nOpenbaar vervoer: direct naast de kerk is er bushalte Zwarte Pad. Hier pak je lijn 171 tot Amstelveen busstation en stap je over op lijn 356 tot halte Ouderkerk West. Vanaf hier is het 8 minuten lopen naar de Amstelkerk.\n\nHeb je geen vervoer? Laat het ons dan weten, dan kijken we mee.\n\nNa afloop rijdt er geen bus meer. Regel je terugreis vooraf, met eigen vervoer of een taxi.",
+    },
+    en: {
+      q: "How do I get from Bovenkerk to Ouderkerk?",
+      a: "You can drive or cycle.\n\nBy public transport: the Zwarte Pad stop is right beside the church. Take line 171 to Amstelveen bus station, change to line 356 and get off at Ouderkerk West. From there it is an 8 minute walk to the Amstelkerk.\n\nNo transport of your own? Let us know and we will help.\n\nThere are no buses after the party, so please arrange your journey home in advance, by car or taxi.",
+    },
     linkText: "Route van Bovenkerk naar Ouderkerk",
-    link: "https://www.google.com/maps/dir/St.+Urbanuskerk,+Noorddammerlaan+126,+1187+AG+Amstelveen/Amstelkerk,+Kerkstraat+11,+1191+JB+Ouderkerk+aan+de+Amstel/",
+    linkTextEn: "Route from Bovenkerk to Ouderkerk",
+    link: ROUTE,
   },
   {
     n: "04",
-    q: "Ik heb een allergie of dieetwens, waar meld ik dat?",
-    a: "Stuur ons een bericht met wat je niet kunt of wilt eten. Geef het uiterlijk twee weken voor de bruiloft door, dan kan de keuken er nog rekening mee houden.",
+    nl: {
+      q: "Ik heb een allergie of dieetwens, waar meld ik dat?",
+      a: "Stuur ons een bericht met wat je niet kunt of wilt eten. Geef het uiterlijk twee weken voor de bruiloft door, dan kan de keuken er nog rekening mee houden.",
+    },
+    en: {
+      q: "I have an allergy or dietary requirement, where do I share it?",
+      a: "Send us a note telling us what you cannot or would rather not eat. Please let us know at least two weeks before the wedding so the kitchen can still account for it.",
+    },
     linkText: "bruiloft@flii.nl",
     link: "mailto:bruiloft@flii.nl",
   },
 ];
+
+const COPY = {
+  nl: {
+    date: "Zaterdag 19 september 2026",
+    heroBtn: "Bekijk agenda",
+    story:
+      "Alweer 12 jaar delen wij ons leven. We lachen, leren en groeien samen nog elke dag.\n\nWe kijken dankbaar terug op alles dat ons hier heeft gebracht. Met vertrouwen en vreugde kijken we uit naar de toekomst, omdat het mooiste nog komen gaat.\n\nWe voelen ons gezegend met elkaar, de mensen om ons heen en alles dat het leven ons geeft.\n\nOnder het oog van God, omringd door onze familie en vrienden, geven wij elkaar het jawoord en vieren onze liefde.\n\nWe kijken ernaar uit om deze bijzondere dag samen met jou te beleven.",
+    venue: "St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen",
+    dress: "Dress code: Tenue de Ville",
+    gift: "Cadeautip:",
+    dressLabel: "Dresscode",
+    dressTitle: "Wat is Tenue de Ville?",
+    dressLink: "Bekijk stijl en voorbeelden",
+    dressAlt: "Voorbeeld Tenue de Ville",
+    travelTitle: "Van ceremonie naar diner en feest",
+    contactLead: "Heb je een andere vraag?",
+    coupleAlt: "Nyarayek en Sten",
+    ringAlt: "De verlovingsring",
+    menuOpen: "Menu openen",
+    menuClose: "Menu sluiten",
+    sealLabel: "Open de uitnodiging",
+  },
+  en: {
+    date: "Saturday 19 September 2026",
+    heroBtn: "See the schedule",
+    story:
+      "We have shared our lives for twelve years now. We still laugh, learn and grow together every single day.\n\nWe look back with gratitude on everything that brought us here. We look ahead with confidence and joy, because the best is still to come.\n\nWe feel blessed with each other, with the people around us and with everything life gives us.\n\nBefore God, surrounded by our family and friends, we will say yes to each other and celebrate our love.\n\nWe cannot wait to share this day with you.",
+    venue: "St. Urbanus church, Noorddammerlaan 124-126, Amstelveen",
+    dress: "Dress code: Tenue de Ville",
+    gift: "Gift tip:",
+    dressLabel: "Dress code",
+    dressTitle: "What is Tenue de Ville?",
+    dressLink: "See the style and examples",
+    dressAlt: "Tenue de Ville example",
+    travelTitle: "From ceremony to dinner and party",
+    contactLead: "Have another question?",
+    coupleAlt: "Nyarayek and Sten",
+    ringAlt: "The engagement ring",
+    menuOpen: "Open menu",
+    menuClose: "Close menu",
+    sealLabel: "Open the invitation",
+  },
+};
 
 const CSS = `
 .bruiloft{
@@ -293,11 +384,21 @@ const CSS = `
 
 .nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.92);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--shade-2);}
-.nav-in{position:relative;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
+.nav-in{position:relative;display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);
   padding:var(--space-2) var(--space-3);max-width:72rem;margin:0 auto;}
 .nav-links{display:flex;gap:var(--space-3);}
 .nav-links a{font-size:1rem;font-weight:500;transition:opacity 200ms ease;}
 .nav-links a:hover{opacity:0.6;}
+.lang{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.55rem;
+  border:1px solid rgba(177,135,63,0.35);border-radius:999px;
+  background:rgba(255,255,255,0.6);}
+.lang-btn{padding:0.1rem 0.25rem;border-radius:999px;
+  font-size:0.72rem;font-weight:600;letter-spacing:0.1em;
+  color:var(--shade-4);transition:color 200ms ease;}
+.lang-btn:hover{color:var(--gold);}
+.lang-btn.is-on{color:var(--gold);}
+.lang-sep{width:1px;height:0.75rem;background:rgba(177,135,63,0.4);}
+
 .nav-toggle{display:none;align-items:center;justify-content:center;color:var(--gold);
   width:2.75rem;height:2.75rem;margin-right:calc(var(--space-1) * -1);border-radius:6px;
   transition:background-color 200ms ease;}
@@ -327,6 +428,7 @@ const CSS = `
   .card-img{flex:none;}
   .nav-links{display:none;}
   .nav-toggle{display:inline-flex;}
+  .lang{margin-left:auto;}
   .nav-panel{display:grid;grid-template-rows:0fr;
     transition:grid-template-rows 250ms cubic-bezier(.165,.84,.44,1);}
   .nav-panel.open{grid-template-rows:1fr;}
@@ -803,6 +905,7 @@ function Fact({ icon, children }) {
 
 export default function BruiloftSiteV2() {
   const [tab, setTab] = useState(0);
+  const [lang, setLang] = useState("nl");
   const [menuOpen, setMenuOpen] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const [introOpening, setIntroOpening] = useState(false);
@@ -812,6 +915,7 @@ export default function BruiloftSiteV2() {
   const [open, setOpen] = useState(null);
 
   const closeMenu = () => setMenuOpen(false);
+  const c = COPY[lang];
 
   const openInvitation = () => {
     if (introOpening) return;
@@ -831,6 +935,30 @@ export default function BruiloftSiteV2() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  // Dutch is the default; only switch when the browser clearly asks for English.
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("taal");
+      if (stored === "nl" || stored === "en") {
+        setLang(stored);
+        return;
+      }
+    } catch (e) {
+      // storage unavailable, fall through to browser detection
+    }
+    const nav = typeof navigator !== "undefined" ? navigator.language || "" : "";
+    if (nav.toLowerCase().startsWith("en")) setLang("en");
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    try {
+      localStorage.setItem("taal", lang);
+    } catch (e) {
+      // not fatal, the choice simply is not remembered
+    }
+  }, [lang]);
 
   // The cloud bank parts almost immediately and the doves ride it out.
   useEffect(() => {
@@ -961,7 +1089,7 @@ export default function BruiloftSiteV2() {
                 className="seal"
                 type="button"
                 onClick={openInvitation}
-                aria-label="Open de uitnodiging"
+                aria-label={c.sealLabel}
               >
                 <WaxSeal />
               </button>
@@ -985,10 +1113,30 @@ export default function BruiloftSiteV2() {
           <nav className="nav-links">
             {SECTIONS.map((sec) => (
               <a key={sec.id} href={"#" + sec.id}>
-                {sec.label}
+                {sec[lang]}
               </a>
             ))}
           </nav>
+          <div className="lang" role="group" aria-label="Taal / Language">
+            <button
+              type="button"
+              className={"lang-btn" + (lang === "nl" ? " is-on" : "")}
+              aria-pressed={lang === "nl"}
+              onClick={() => setLang("nl")}
+            >
+              NL
+            </button>
+            <span className="lang-sep" aria-hidden="true" />
+            <button
+              type="button"
+              className={"lang-btn" + (lang === "en" ? " is-on" : "")}
+              aria-pressed={lang === "en"}
+              onClick={() => setLang("en")}
+            >
+              EN
+            </button>
+          </div>
+
           <button
             className="nav-toggle"
             type="button"
@@ -997,7 +1145,7 @@ export default function BruiloftSiteV2() {
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <IconMenu open={menuOpen} />
-            <span className="sr-only">{menuOpen ? "Menu sluiten" : "Menu openen"}</span>
+            <span className="sr-only">{menuOpen ? c.menuClose : c.menuOpen}</span>
           </button>
         </div>
         <div id="nav-panel" className={"nav-panel" + (menuOpen ? " open" : "")}>
@@ -1005,7 +1153,7 @@ export default function BruiloftSiteV2() {
             <nav className="nav-panel-links">
               {SECTIONS.map((sec) => (
                 <a key={sec.id} href={"#" + sec.id} onClick={closeMenu}>
-                  {sec.label}
+                  {sec[lang]}
                 </a>
               ))}
             </nav>
@@ -1028,18 +1176,18 @@ export default function BruiloftSiteV2() {
               <h1 className="serif hero-names">
                 Nyarayek <span className="hero-amp">&amp;</span> Sten
               </h1>
-              <p className="hero-date">Zaterdag 19 september 2026</p>
+              <p className="hero-date">{c.date}</p>
               <a className="btn hero-btn" href="#agenda">
-                Bekijk agenda
+                {c.heroBtn}
               </a>
             </div>
 
             <div className="hero-frames">
               <figure className="hero-frame frame-a">
-                <img src={IMG.couple} alt="Nyarayek en Sten" />
+                <img src={IMG.couple} alt={c.coupleAlt} />
               </figure>
               <figure className="hero-frame frame-b">
-                <img src={IMG.verloving} alt="De verlovingsring" />
+                <img src={IMG.verloving} alt={c.ringAlt} />
               </figure>
             </div>
           </div>
@@ -1048,16 +1196,14 @@ export default function BruiloftSiteV2() {
         <section id="over" className="sec">
           <div className="wrap">
             <p className="serif intro">
-              {"Alweer 12 jaar delen wij ons leven. We lachen, leren en groeien samen nog elke dag.\n\nWe kijken dankbaar terug op alles dat ons hier heeft gebracht. Met vertrouwen en vreugde kijken we uit naar de toekomst, omdat het mooiste nog komen gaat.\n\nWe voelen ons gezegend met elkaar, de mensen om ons heen en alles dat het leven ons geeft.\n\nOnder het oog van God, omringd door onze familie en vrienden, geven wij elkaar het jawoord en vieren onze liefde.\n\nWe kijken ernaar uit om deze bijzondere dag samen met jou te beleven."}
+{c.story}
             </p>
             <div className="facts">
-              <Fact icon={<IconTime />}>Zaterdag 19 september 2026</Fact>
-              <Fact icon={<IconMap />}>
-                St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen
-              </Fact>
-              <Fact icon={<IconDress />}>Dress code: Tenue de Ville</Fact>
+              <Fact icon={<IconTime />}>{c.date}</Fact>
+<Fact icon={<IconMap />}>{c.venue}</Fact>
+              <Fact icon={<IconDress />}>{c.dress}</Fact>
               <Fact icon={<IconGift />}>
-                Cadeautip:
+                {c.gift}
                 <span className="fact-inline">
                   <IconEnvelope size={18} />
                 </span>
@@ -1069,18 +1215,18 @@ export default function BruiloftSiteV2() {
         <section id="agenda" className="sec">
           <div className="wrap">
             <h2 className="serif h1" style={{ marginBottom: "2.5rem" }}>
-              Agenda trouwdag
+              {SECTIONS[1][lang]}
             </h2>
             <div className="timeline">
               {TIMELINE.map((item, i) => (
                 <div className="tl-item" key={i}>
                   <div className="tl-time">{item.time}</div>
                   <div className="tl-body">
-                    <div className="tl-title h2 serif">{item.title}</div>
-                    {item.body && <p className="prose">{item.body}</p>}
+                    <div className="tl-title h2 serif">{item[lang].title}</div>
+                    {item.body && <p className="prose">{item[lang].body}</p>}
                     <a className="fact" href={item.map} target="_blank" rel="noreferrer">
                       <IconMap />
-                      <span className="meta">{item.location}</span>
+                      <span className="meta">{item[lang].location}</span>
                     </a>
                   </div>
                 </div>
@@ -1098,14 +1244,14 @@ export default function BruiloftSiteV2() {
               rel="noreferrer"
             >
               <div className="card-text">
-                <p className="label" style={{ color: "var(--shade-4)" }}>Dresscode</p>
+                <p className="label" style={{ color: "var(--shade-4)" }}>{c.dressLabel}</p>
                 <h2 className="serif h2" style={{ margin: "0.5rem 0" }}>
-                  Wat is Tenue de Ville?
+                  {c.dressTitle}
                 </h2>
-                <p className="link-u">Bekijk stijl en voorbeelden</p>
+                <p className="link-u">{c.dressLink}</p>
               </div>
               <div className="card-img">
-                <img src={IMG.dresscode} alt="Voorbeeld Tenue de Ville" />
+                <img src={IMG.dresscode} alt={c.dressAlt} />
               </div>
             </a>
           </div>
@@ -1113,13 +1259,13 @@ export default function BruiloftSiteV2() {
 
         <section id="locatie" className="sec">
           <div className="wrap">
-            <p className="label" style={{ color: "var(--shade-4)" }}>Vervoer en locaties</p>
+            <p className="label" style={{ color: "var(--shade-4)" }}>{SECTIONS[2][lang]}</p>
             <h2 className="serif h1" style={{ margin: "0.75rem 0 2.5rem", maxWidth: "20ch" }}>
-              Van ceremonie naar diner en feest
+              {c.travelTitle}
             </h2>
             <div className="tabs">
               <div className="tab-img">
-                <img src={TABS[tab].image} alt={TABS[tab].title} />
+                <img src={TABS[tab].image} alt={TABS[tab][lang].title} />
               </div>
               <div className="tab-list" role="tablist">
                 {TABS.map((t, i) => (
@@ -1130,8 +1276,8 @@ export default function BruiloftSiteV2() {
                     aria-selected={tab === i}
                     onClick={() => setTab(i)}
                   >
-                    <div className="tab-title">{t.title}</div>
-                    <p className="prose">{t.body}</p>
+                    <div className="tab-title">{t[lang].title}</div>
+                    <p className="prose">{t[lang].body}</p>
                   </button>
                 ))}
               </div>
@@ -1142,7 +1288,7 @@ export default function BruiloftSiteV2() {
         <section id="faq" className="sec">
           <div className="wrap">
             <h2 className="serif h1" style={{ marginBottom: "2.5rem" }}>
-              Vraag en antwoord
+              {SECTIONS[3][lang]}
             </h2>
             <div className="faq">
               {FAQ.map((item, i) => (
@@ -1153,16 +1299,16 @@ export default function BruiloftSiteV2() {
                     onClick={() => setOpen(open === i ? null : i)}
                   >
                     <span className="faq-n">{item.n}</span>
-                    <span className="faq-q">{item.q}</span>
+                    <span className="faq-q">{item[lang].q}</span>
                     <span className="faq-icon"><IconPlus /></span>
                   </button>
                   <div className="faq-panel">
                     <div>
                       <div className="faq-inner">
-                        <p className="prose">{item.a}</p>
+                        <p className="prose">{item[lang].a}</p>
                         {item.link && (
                           <a className="link-u" href={item.link} target="_blank" rel="noreferrer">
-                            {item.linkText}
+                            {lang === "en" && item.linkTextEn ? item.linkTextEn : item.linkText}
                           </a>
                         )}
                       </div>
@@ -1172,7 +1318,7 @@ export default function BruiloftSiteV2() {
               ))}
             </div>
             <div className="contact">
-              <p className="serif contact-lead">Heb je een andere vraag?</p>
+              <p className="serif contact-lead">{c.contactLead}</p>
               <a className="serif contact-mail" href="mailto:bruiloft@flii.nl">
                 bruiloft@flii.nl
               </a>
@@ -1186,7 +1332,7 @@ export default function BruiloftSiteV2() {
         <nav className="footer-nav">
           {SECTIONS.map((sec) => (
             <a key={sec.id} href={"#" + sec.id}>
-              {sec.label}
+              {sec[lang]}
             </a>
           ))}
         </nav>
