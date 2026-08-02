@@ -348,29 +348,33 @@ const CSS = `
 .fact span{font-size:1rem;}
 
 .timeline{border-top:1px solid var(--gold-line-soft);}
-.tl-item{--tl-line:clamp(0.95rem,3.5vw,1.35rem);
-  display:grid;grid-template-columns:0.85rem 1fr;column-gap:0.85rem;
-  padding:var(--space-3) 0;border-bottom:1px solid var(--gold-line-soft);}
+.tl-item{--tl-line:clamp(0.95rem,3.5vw,1.35rem);--tl-gut:3.4em;
+  display:grid;grid-template-columns:0.85rem var(--tl-gut) 1fr;
+  column-gap:0.85rem;align-items:baseline;
+  padding:var(--space-3) 0;border-bottom:1px solid var(--gold-line-soft);
+  font-size:var(--tl-line);}
 
 /* the marker centres on the first line rather than on the whole block */
-.tl-marker{display:flex;align-items:center;justify-content:center;
+.tl-marker{align-self:start;display:flex;align-items:center;justify-content:center;
   height:calc(var(--tl-line) * 1.35);}
 .tl-marker i{width:0.3rem;height:0.3rem;transform:rotate(45deg);
   background:var(--gold);border-radius:1px;}
 
-/* the location sits on the row's own left edge, under the marker as well */
-.tl-where{grid-column:1 / -1;margin-top:0.3rem;}
 
 /* time and title on one line, sitting on a shared baseline */
-.tl-head{display:flex;align-items:baseline;column-gap:0.85rem;
-  flex-wrap:nowrap;margin:0;line-height:1.35;font-size:var(--tl-line);}
-.tl-time{flex:0 0 auto;min-width:3.4em;font-variant-numeric:tabular-nums;
-  font-weight:600;font-size:1em;letter-spacing:0.01em;color:var(--gold);
-  white-space:nowrap;}
-.tl-title{flex:1 1 auto;min-width:0;font-size:1em;font-weight:400;
-  color:var(--shade-6);white-space:nowrap;}
+.tl-time{font-variant-numeric:tabular-nums;font-weight:600;font-size:1em;
+  letter-spacing:0.01em;color:var(--gold);white-space:nowrap;line-height:1.35;}
+.tl-title{min-width:0;font-size:1em;font-weight:400;color:var(--shade-6);
+  white-space:nowrap;line-height:1.35;}
+
+/* the location repeats the row grid, so its text lands under the title
+   while the pin sits in the gutter the time occupies above it */
+.tl-where{grid-column:2 / -1;display:grid;
+  grid-template-columns:var(--tl-gut) 1fr;column-gap:0.85rem;
+  align-items:center;margin-top:0.3rem;}
+.tl-pin{display:flex;justify-content:flex-end;color:var(--gold);}
+.tl-pin svg{width:calc(var(--tl-line) * 0.8);height:auto;}
 .tl-where .meta{font-size:calc(var(--tl-line) * 0.78);line-height:1.4;}
-.tl-where svg{width:calc(var(--tl-line) * 0.78);height:auto;}
 
 .card{position:relative;display:flex;align-items:center;gap:var(--space-4);
   padding:var(--space-4);background:var(--brand);border-radius:14px;
@@ -1322,12 +1326,12 @@ export default function BruiloftSiteV2() {
                   <span className="tl-marker" aria-hidden="true">
                     <i />
                   </span>
-                  <p className="tl-head">
-                    <span className="tl-time">{item.time}</span>
-                    <span className="tl-title serif">{item[lang].title}</span>
-                  </p>
-                  <a className="fact tl-where" href={item.map} target="_blank" rel="noreferrer">
-                    <IconMap />
+                  <span className="tl-time">{item.time}</span>
+                  <span className="tl-title serif">{item[lang].title}</span>
+                  <a className="tl-where" href={item.map} target="_blank" rel="noreferrer">
+                    <span className="tl-pin">
+                      <IconMap />
+                    </span>
                     <span className="meta">{item[lang].location}</span>
                   </a>
                 </div>
