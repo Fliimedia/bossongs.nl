@@ -1,23 +1,15 @@
 import { useState } from "react";
 
-const CDN = "https://cdn.prod.website-files.com/69e49026e4804a6bbdd63cb0/";
-const asset = (f) => CDN + f;
-
 const IMG = {
-  logo: asset("69ee23f4ecbac4553e60ea38_IMG_20260426_164032.png"),
-  heroLeft: asset("69ee110aa9d1ead9c0b8fd3c_IMG20230813002900.avif"),
-  heroRight: asset("69ee110a3ab1b5cf646cccd7_IMG20240907234350.jpg"),
-  iconTime: asset("69e49028e4804a6bbdd63d05_icon__time.svg"),
-  iconMap: asset("69e49028e4804a6bbdd63d04_icon__map.svg"),
-  iconDress: asset("69e49028e4804a6bbdd63d06_icon__dress.svg"),
-  iconOpen: asset("69e49028e4804a6bbdd63d08_icon__open.svg"),
-  dresscode: asset("69f4c8bbd4cfea7df32a65c4_download.jpeg"),
-  tab1: asset("69f4a1d9943816a673322788_urbanuskerk_bovenkerk.jpg"),
-  tab2: asset("69ee174703026877e0d37063_unnamed.webp"),
-  tab3: asset("69f4a2d90a92124a5749e145_PDF1_P1_IMG1.png"),
-  footerLogo: asset("69ee23646a563a81fb3969f1_ChatGPT%20Image%2026%20apr%202026%2C%2016_38_01.png"),
-  instagram: asset("69e49028e4804a6bbdd63d15_instagram-line.svg"),
-  arrow: asset("69e49028e4804a6bbdd63cf7_icon__arrow-north-east.svg"),
+  logoIcon: "/images/logo-icoon.png",
+  logoCompact: "/images/logo-compact.png",
+  logoFull: "/images/logo-volledig.png",
+  couple: "/images/bruidspaar.jpg",
+  amstelkerkTuin: "/images/amstelkerk-tuin.webp",
+  amstelkerk: "/images/amstelkerk-exterieur.jpg",
+  urbanusBuiten: "/images/urbanuskerk-exterieur.jpg",
+  urbanusBinnen: "/images/urbanuskerk-interieur.jpg",
+  dresscode: "/images/dresscode.jpg",
 };
 
 const TIMELINE = [
@@ -68,17 +60,17 @@ const TIMELINE = [
 const TABS = [
   {
     title: "Uitnodiging",
-    image: IMG.tab1,
+    image: IMG.urbanusBinnen,
     body: "Wij nodigen iedereen uit om de volledige dag met ons mee te maken: van ceremonie, tot diner en trouwfeest.",
   },
   {
     title: "Aankomst",
-    image: IMG.tab2,
+    image: IMG.urbanusBuiten,
     body: "Kom je met de auto? Parkeren in Bovenkerk is gratis.\n\nFietsen kun je parkeren tegenover de kerk, in de stalling van Silversant.\n\nDe dichtsbijzijnde bushalte is direct naast de kerk, halte Zwarte Pad.",
   },
   {
     title: "Vervoer naar Ouderkerk",
-    image: IMG.tab3,
+    image: IMG.amstelkerk,
     body: "Van Bovenkerk naar Ouderkerk kun je met eigen vervoer, openbaar vervoer of met de taxi: 15 minuten met de auto of 25 minuten met de fiets.\n\nParkeren in Ouderkerk is gratis aan de Kerkweg. Er is een parkeerterrein direct naast de kerk. Let wel op: de straat ernaast begint een Groene parkeerzone. Hier mag je 1.5 uur parkeren met een blauwe schijf.",
   },
 ];
@@ -160,6 +152,7 @@ const CSS = `
 .hero{position:relative;padding:var(--space-5) 0 var(--space-6);text-align:center;}
 .hero-bg{position:absolute;inset:0 var(--space-4) 40% var(--space-4);background:var(--brand);border-radius:10px;z-index:0;}
 .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);}
+.hero-monogram{width:5.5rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
 .hero-eyebrow{color:var(--shade-4);}
 .hero-names{font-size:var(--type-hero);line-height:1.05;margin:var(--space-2) 0 var(--space-1);}
 .hero-date{font-size:var(--type-3);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;}
@@ -179,7 +172,7 @@ const CSS = `
 
 .facts{display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4);}
 .fact{display:flex;align-items:center;gap:var(--space-2);}
-.fact img{width:1rem;height:1rem;flex:0 0 auto;}
+.fact svg{flex:0 0 auto;color:var(--shade-4);}
 .fact span{font-size:1rem;}
 
 .timeline{border-top:1px solid var(--shade-3);}
@@ -210,7 +203,7 @@ const CSS = `
   width:100%;padding:var(--space-4) 0;text-align:left;}
 .faq-n{color:var(--shade-4);font-size:1rem;font-variant-numeric:tabular-nums;padding-top:0.2rem;}
 .faq-q{font-size:var(--type-3);font-weight:600;line-height:1.3;}
-.faq-icon{width:1.25rem;justify-self:end;transition:transform 200ms ease;}
+.faq-icon{display:inline-flex;justify-self:end;transition:transform 200ms ease;}
 .faq-row.open .faq-icon{transform:rotate(45deg);}
 .faq-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows 250ms ease;}
 .faq-row.open .faq-panel{grid-template-rows:1fr;}
@@ -243,7 +236,10 @@ const CSS = `
 .footer-nav a:hover{opacity:0.6;}
 .footer-names{font-weight:600;margin-bottom:var(--space-2);}
 .socials{display:flex;justify-content:center;gap:var(--space-2);}
-.socials img{width:1.25rem;height:1.25rem;}
+.socials a{display:inline-flex;padding:var(--space-1);transition:opacity 200ms ease;}
+.socials a:hover{opacity:0.6;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0;}
 
 @media (max-width:900px){
   .bruiloft{--type-hero:3.5rem;--type-1:2.25rem;--type-2:1.75rem;--space-6:4rem;--space-5:3rem;}
@@ -266,10 +262,69 @@ const CSS = `
 }
 `;
 
+const Icon = ({ children, size = 20 }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    {children}
+  </svg>
+);
+
+const IconTime = () => (
+  <Icon size={16}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </Icon>
+);
+
+const IconMap = () => (
+  <Icon size={16}>
+    <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+    <circle cx="12" cy="10" r="2.5" />
+  </Icon>
+);
+
+const IconDress = () => (
+  <Icon size={16}>
+    <path d="M10 3l2 2 2-2" />
+    <path d="M10 3v3.5L6 12l1.5 9h9L18 12l-4-5.5V3" />
+  </Icon>
+);
+
+const IconPlus = ({ size = 20 }) => (
+  <Icon size={size}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+
+const IconInstagram = () => (
+  <Icon size={20}>
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
+const IconArrow = () => (
+  <Icon size={20}>
+    <path d="M7 17L17 7" />
+    <path d="M8 7h9v9" />
+  </Icon>
+);
+
 function Fact({ icon, children }) {
   return (
     <div className="fact">
-      <img src={icon} alt="" />
+      {icon}
       <span>{children}</span>
     </div>
   );
@@ -286,7 +341,7 @@ export default function BruiloftSiteV2() {
       <header className="nav">
         <div className="nav-in">
           <a href="#top">
-            <img className="nav-logo" src={IMG.logo} alt="Nya en Sten" />
+            <img className="nav-logo" src={IMG.logoIcon} alt="Nya en Sten" />
           </a>
           <nav className="nav-links">
             <a href="#over">Over</a>
@@ -301,16 +356,17 @@ export default function BruiloftSiteV2() {
         <section className="hero">
           <div className="hero-bg" />
           <div className="wrap hero-inner">
+            <img className="hero-monogram" src={IMG.logoCompact} alt="" />
             <p className="label hero-eyebrow">Uitnodiging bruiloft</p>
             <h1 className="serif hero-names">Sten &amp; Nyarayek</h1>
             <p className="hero-date">Zaterdag 19 september 2026</p>
             <a className="btn" href="#agenda">Bekijk de dag</a>
             <div className="hero-images">
               <div className="hero-img">
-                <img src={IMG.heroLeft} alt="Nya en Sten" />
+                <img src={IMG.couple} alt="Nya en Sten" />
               </div>
               <div className="hero-img">
-                <img src={IMG.heroRight} alt="Nya en Sten" />
+                <img src={IMG.amstelkerkTuin} alt="Tuin bij de Amstelkerk" />
               </div>
             </div>
           </div>
@@ -322,11 +378,11 @@ export default function BruiloftSiteV2() {
               {"Alweer 12 jaar delen wij ons leven. We lachen, leren en groeien samen nog elke dag.\n\nWe kijken dankbaar terug op alles dat ons hier heeft gebracht. Met vertrouwen en vreugde kijken we uit naar de toekomst, omdat het mooiste nog komen gaat.\n\nWe voelen ons gezegend met elkaar, de mensen om ons heen en alles dat het leven ons geeft.\n\nOnder het oog van God, omringd door onze familie en vrienden, geven wij elkaar het jawoord en vieren onze liefde.\n\nWe kijken ernaar uit om deze bijzondere dag samen met jou te beleven."}
             </p>
             <div className="facts">
-              <Fact icon={IMG.iconTime}>Zaterdag 19 september 2026</Fact>
-              <Fact icon={IMG.iconMap}>
+              <Fact icon={<IconTime />}>Zaterdag 19 september 2026</Fact>
+              <Fact icon={<IconMap />}>
                 St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen
               </Fact>
-              <Fact icon={IMG.iconDress}>Dress code: Tenue de Ville</Fact>
+              <Fact icon={<IconDress />}>Dress code: Tenue de Ville</Fact>
             </div>
           </div>
         </section>
@@ -344,7 +400,7 @@ export default function BruiloftSiteV2() {
                     <div className="tl-title h2 serif">{item.title}</div>
                     {item.body && <p className="prose">{item.body}</p>}
                     <a className="fact" href={item.map} target="_blank" rel="noreferrer">
-                      <img src={IMG.iconMap} alt="" />
+                      <IconMap />
                       <span className="meta">{item.location}</span>
                     </a>
                   </div>
@@ -419,7 +475,7 @@ export default function BruiloftSiteV2() {
                   >
                     <span className="faq-n">{item.n}</span>
                     <span className="faq-q">{item.q}</span>
-                    <img className="faq-icon" src={IMG.iconOpen} alt="" />
+                    <span className="faq-icon"><IconPlus /></span>
                   </button>
                   <div className="faq-panel">
                     <div>
@@ -447,7 +503,7 @@ export default function BruiloftSiteV2() {
       </main>
 
       <footer className="footer">
-        <img className="footer-logo" src={IMG.footerLogo} alt="" />
+        <img className="footer-logo" src={IMG.logoFull} alt="" />
         <nav className="footer-nav">
           <a href="#over">Invite</a>
           <a href="#agenda">Agenda trouwdag</a>
@@ -457,10 +513,12 @@ export default function BruiloftSiteV2() {
         <p className="footer-names">Nya en Sten</p>
         <div className="socials">
           <a href="https://www.instagram.com/nveronica1/" target="_blank" rel="noreferrer">
-            <img src={IMG.instagram} alt="Instagram" />
+            <IconInstagram />
+            <span className="sr-only">Instagram</span>
           </a>
           <a href="https://flii.nl" target="_blank" rel="noreferrer">
-            <img src={IMG.arrow} alt="Flii" />
+            <IconArrow />
+            <span className="sr-only">Flii Media</span>
           </a>
         </div>
       </footer>
