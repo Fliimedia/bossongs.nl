@@ -143,6 +143,7 @@ const CSS = `
   --shade-5:hsl(240,1.6%,12.4%);
   --shade-6:hsl(0,0%,0%);
   --brand:hsl(48,35.7%,94.5%);
+  --gold:#b1873f;
 
   --space-1:0.5rem;
   --space-2:1rem;
@@ -195,7 +196,7 @@ const CSS = `
 .hero-monogram{width:5.5rem;height:auto;margin:0;}
 .hero-names{margin:0;font-size:clamp(2.6rem,6.4vw,4.6rem);line-height:0.98;
   letter-spacing:-0.012em;}
-.hero-amp{font-style:italic;color:#b1873f;padding:0 0.06em;}
+.hero-amp{font-style:italic;color:var(--gold);padding:0 0.06em;}
 .hero-date{display:flex;align-items:center;gap:0.75rem;margin:0;
   font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--shade-4);}
@@ -242,8 +243,8 @@ const CSS = `
 
 .facts{display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4);}
 .fact{display:flex;align-items:center;gap:var(--space-2);}
-.fact svg{flex:0 0 auto;color:var(--shade-4);}
-.fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--shade-6);}
+.fact svg{flex:0 0 auto;color:var(--gold);}
+.fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--gold);}
 .fact span{font-size:1rem;}
 
 .timeline{border-top:1px solid var(--shade-3);}
@@ -272,9 +273,9 @@ const CSS = `
 .faq-row{border-bottom:1px solid var(--shade-3);}
 .faq-btn{display:grid;grid-template-columns:3.5rem 1fr 2rem;gap:var(--space-2);align-items:start;
   width:100%;padding:var(--space-4) 0;text-align:left;}
-.faq-n{color:var(--shade-4);font-size:1rem;font-variant-numeric:tabular-nums;padding-top:0.2rem;}
+.faq-n{color:var(--gold);font-size:1rem;font-variant-numeric:tabular-nums;padding-top:0.2rem;}
 .faq-q{font-size:var(--type-3);font-weight:600;line-height:1.3;}
-.faq-icon{display:inline-flex;justify-self:end;transition:transform 200ms ease;}
+.faq-icon{display:inline-flex;justify-self:end;color:var(--gold);transition:transform 200ms ease;}
 .faq-row.open .faq-icon{transform:rotate(45deg);}
 .faq-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows 250ms ease;}
 .faq-row.open .faq-panel{grid-template-rows:1fr;}
@@ -297,7 +298,7 @@ const CSS = `
 .nav-links{display:flex;gap:var(--space-3);}
 .nav-links a{font-size:1rem;font-weight:500;transition:opacity 200ms ease;}
 .nav-links a:hover{opacity:0.6;}
-.nav-toggle{display:none;align-items:center;justify-content:center;
+.nav-toggle{display:none;align-items:center;justify-content:center;color:var(--gold);
   width:2.75rem;height:2.75rem;margin-right:calc(var(--space-1) * -1);border-radius:6px;
   transition:background-color 200ms ease;}
 .nav-toggle:hover{background:var(--brand);}
@@ -314,7 +315,7 @@ const CSS = `
 .footer-names{font-weight:600;margin-bottom:var(--space-2);}
 .footer-heart{margin:0 0.15rem;font-size:0.9em;}
 .socials{display:flex;justify-content:center;gap:var(--space-2);}
-.socials a{display:inline-flex;padding:var(--space-1);transition:opacity 200ms ease;}
+.socials a{display:inline-flex;padding:var(--space-1);color:var(--gold);transition:opacity 200ms ease;}
 .socials a:hover{opacity:0.6;}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;border:0;}
