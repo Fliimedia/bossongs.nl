@@ -607,9 +607,9 @@ const IconInstagram = () => (
   </Icon>
 );
 
-// A struck wax seal, built to match a photographed reference: a thick rounded
-// rim, a recessed matte field, one engraved keyline, and a raised monogram.
-// The warp is applied to the wax only, so the engraving stays crisp.
+// A struck wax seal. The monogram is real glyph outlines pulled from Playfair
+// Display and Great Vibes at build time, not live <text>, so it can never fall
+// back to a system font and never reflows. Placement is measured, not guessed.
 const WaxSeal = () => (
   <svg className="wax" viewBox="0 0 200 200" aria-hidden="true">
     <defs>
@@ -618,8 +618,6 @@ const WaxSeal = () => (
         <stop offset="45%" stopColor="#cfa246" />
         <stop offset="100%" stopColor="#8e6620" />
       </radialGradient>
-
-      {/* the rim is a torus: lit along the upper left, dark at the lower right */}
       <linearGradient id="waxRim" x1="18%" y1="10%" x2="82%" y2="92%">
         <stop offset="0%" stopColor="#fbeab8" />
         <stop offset="22%" stopColor="#e9c979" />
@@ -627,7 +625,6 @@ const WaxSeal = () => (
         <stop offset="78%" stopColor="#a87d2c" />
         <stop offset="100%" stopColor="#7d5716" />
       </linearGradient>
-
       <radialGradient id="waxField" cx="38%" cy="30%" r="80%">
         <stop offset="0%" stopColor="#dcb567" />
         <stop offset="52%" stopColor="#c69a41" />
@@ -651,16 +648,17 @@ const WaxSeal = () => (
           k1="0" k2="1" k3="1" k4="0" />
       </filter>
 
+      {/* gentler on the monogram: a hard specular blows out serif hairlines */}
       <filter id="reliefFine" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="1.1" result="b" />
-        <feSpecularLighting in="b" surfaceScale="3.6" specularConstant="1"
-          specularExponent="24" lightingColor="#fff6db" result="sp">
-          <feDistantLight azimuth="225" elevation="55" />
+        <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="b" />
+        <feSpecularLighting in="b" surfaceScale="2.4" specularConstant="0.72"
+          specularExponent="30" lightingColor="#fff4d4" result="sp">
+          <feDistantLight azimuth="225" elevation="60" />
         </feSpecularLighting>
         <feComposite in="sp" in2="SourceAlpha" operator="in" result="spc" />
-        <feOffset in="SourceAlpha" dx="0.9" dy="1.1" result="sh" />
-        <feGaussianBlur in="sh" stdDeviation="0.8" result="shb" />
-        <feFlood floodColor="#59390b" floodOpacity="0.6" result="shc" />
+        <feOffset in="SourceAlpha" dx="0.7" dy="0.9" result="sh" />
+        <feGaussianBlur in="sh" stdDeviation="0.6" result="shb" />
+        <feFlood floodColor="#5b3a0c" floodOpacity="0.55" result="shc" />
         <feComposite in="shc" in2="shb" operator="in" result="shadow" />
         <feMerge>
           <feMergeNode in="shadow" />
@@ -669,7 +667,6 @@ const WaxSeal = () => (
         </feMerge>
       </filter>
 
-      {/* the sandy tooth of matte metallic wax */}
       <filter id="waxGrain">
         <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="4" result="n" />
         <feColorMatrix in="n" type="saturate" values="0" result="g" />
@@ -680,7 +677,6 @@ const WaxSeal = () => (
       </filter>
     </defs>
 
-    {/* poured wax and rim, organically warped */}
     <g filter="url(#waxWarp)">
       <circle cx="100" cy="100" r="95" fill="url(#waxBody)" />
       <circle cx="100" cy="100" r="85" fill="none" stroke="url(#waxRim)"
@@ -689,34 +685,41 @@ const WaxSeal = () => (
         strokeOpacity="0.5" strokeWidth="7" strokeLinecap="round" />
     </g>
 
-    {/* recessed field */}
     <circle cx="100" cy="100" r="74" fill="url(#waxField)" filter="url(#waxGrain)" />
     <circle cx="100" cy="100" r="74" fill="none" stroke="#7f5a17"
       strokeOpacity="0.35" strokeWidth="2.5" />
 
-    {/* engraving stays crisp, outside the warp */}
-    <g filter="url(#reliefFine)">
+    <g filter="url(#reliefFine)" fill="#cfa14c">
       <circle cx="100" cy="100" r="66" fill="none" stroke="#c99a45" strokeWidth="2" />
 
-      <g fill="#cfa14c">
-        {/* laurel sprig, lower left */}
-        <path d="M63 156C56 140 52 126 55 110" fill="none" stroke="#cfa14c"
-          strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M58 145c-6-1-11-5-13-11 7-1 12 2 14 7z" />
-        <path d="M56 133c-6-2-10-7-11-13 7 0 12 3 13 9z" />
-        <path d="M55 121c-5-3-8-8-8-14 6 1 10 5 10 11z" />
-        <path d="M64 149c6-2 10-6 12-12-7-1-12 2-14 8z" />
-        <path d="M61 137c6-2 10-7 11-13-7 0-12 3-13 9z" />
-        <path d="M58 125c5-3 8-8 8-14-6 1-10 5-10 11z" />
+      {/* a die cannot hold a hairline, so the outlines carry a slight stroke */}
+      <g stroke="#cfa14c" strokeWidth="1.6" strokeLinejoin="round">
+      <g transform="translate(0.64, 1.0)">
+        <path
+          transform="translate(49.61, 99.81) scale(0.0647)"
+          d="M685 -708V-688Q653 -685 636.0 -673.5Q619 -662 613.5 -637.5Q608 -613 608 -568V3Q599 2 588.5 2.0Q578 2 566 3L137 -580V-148Q137 -100 143.0 -73.5Q149 -47 169.5 -35.5Q190 -24 232 -20V0Q213 -2 183.0 -2.5Q153 -3 126 -3Q102 -3 77.5 -2.5Q53 -2 37 0V-20Q70 -24 86.5 -35.0Q103 -46 108.5 -71.0Q114 -96 114 -140V-602Q114 -639 108.5 -656.5Q103 -674 86.5 -680.5Q70 -687 37 -688V-708Q53 -707 77.5 -706.0Q102 -705 126 -705Q149 -705 171.0 -706.0Q193 -707 210 -708L585 -209V-560Q585 -609 579.0 -635.0Q573 -661 553.0 -673.0Q533 -685 490 -688V-708Q509 -707 539.5 -706.0Q570 -705 596 -705Q621 -705 645.5 -706.0Q670 -707 685 -708Z"
+        />
+        <path
+          transform="translate(102.43, 145.12) scale(0.06267)"
+          d="M274 -720Q330 -720 360.0 -708.0Q390 -696 412 -682Q424 -675 431.5 -671.5Q439 -668 446 -668Q456 -668 460.5 -679.0Q465 -690 468 -712H491Q490 -693 488.5 -668.0Q487 -643 486.5 -601.5Q486 -560 486 -492H463Q460 -543 440.5 -590.0Q421 -637 385.5 -667.5Q350 -698 295 -698Q246 -698 213.5 -669.0Q181 -640 181 -591Q181 -549 202.0 -520.5Q223 -492 261.5 -465.5Q300 -439 353 -405Q402 -373 441.0 -341.5Q480 -310 502.5 -272.0Q525 -234 525 -179Q525 -114 493.0 -71.0Q461 -28 407.0 -7.0Q353 14 289 14Q230 14 195.5 2.0Q161 -10 136 -23Q114 -37 102 -37Q92 -37 87.5 -26.0Q83 -15 80 7H57Q59 -16 59.5 -47.0Q60 -78 60.5 -127.5Q61 -177 61 -253H84Q88 -189 106.5 -133.5Q125 -78 163.5 -44.0Q202 -10 266 -10Q301 -10 329.5 -22.5Q358 -35 375.0 -61.5Q392 -88 392 -129Q392 -170 373.0 -201.0Q354 -232 320.0 -259.0Q286 -286 240 -314Q193 -344 152.0 -375.0Q111 -406 86.5 -445.5Q62 -485 62 -541Q62 -603 92.0 -642.5Q122 -682 170.5 -701.0Q219 -720 274 -720Z"
+        />
+        <path
+          className="amp-stroke"
+          transform="translate(72.92, 131.57) scale(0.09854)"
+          d="M263 45Q178 45 122.0 18.5Q66 -8 38.5 -51.5Q11 -95 11 -144Q11 -199 44.0 -253.5Q77 -308 142.5 -347.5Q208 -387 303 -397Q289 -416 282.0 -440.5Q275 -465 275 -487Q276 -540 305.0 -580.5Q334 -621 379.5 -649.0Q425 -677 477.0 -691.5Q529 -706 575 -706Q603 -706 632.0 -698.5Q661 -691 681.0 -672.0Q701 -653 701 -618Q701 -589 683.0 -566.0Q665 -543 639 -543Q620 -543 606.0 -557.0Q592 -571 592 -589Q592 -610 605.5 -623.5Q619 -637 639 -637Q648 -637 659.5 -631.0Q671 -625 674 -619Q675 -623 675 -630Q675 -657 653.0 -668.0Q631 -679 606 -679Q566 -679 513.0 -659.5Q460 -640 410 -596Q392 -580 373.0 -554.0Q354 -528 341.0 -498.5Q328 -469 328 -439Q328 -416 336 -399Q351 -399 370.5 -400.5Q390 -402 411 -402Q437 -402 452.0 -391.0Q467 -380 467 -366Q467 -356 455.0 -347.0Q443 -338 417 -338Q384 -338 357.5 -352.5Q331 -367 316 -382Q250 -373 204.0 -333.0Q158 -293 134.0 -238.5Q110 -184 110 -130Q110 -87 126.5 -50.0Q143 -13 177.0 9.5Q211 32 263 32Q317 32 361.5 12.5Q406 -7 438.0 -38.0Q470 -69 487.5 -103.5Q505 -138 505 -168Q505 -194 486.5 -211.5Q468 -229 438.0 -237.5Q408 -246 374 -246Q339 -246 304.5 -236.5Q270 -227 246.0 -207.5Q222 -188 217 -158Q217 -156 216.5 -153.5Q216 -151 216 -149Q216 -127 232.5 -105.5Q249 -84 284 -66Q293 -62 293 -51Q293 -40 283 -45Q228 -74 202.5 -108.5Q177 -143 177 -174Q177 -219 225.5 -251.5Q274 -284 364 -284H541Q557 -284 588.5 -291.0Q620 -298 653.0 -311.5Q686 -325 709.5 -343.5Q733 -362 733 -386Q733 -399 724 -414Q722 -417 722 -421Q722 -427 727 -427Q731 -427 734 -422Q749 -400 749 -377Q749 -350 729.5 -327.0Q710 -304 677.0 -286.5Q644 -269 603.5 -260.0Q563 -251 521 -252Q540 -236 549.0 -216.0Q558 -196 558 -174Q558 -137 536.0 -98.5Q514 -60 474.0 -27.5Q434 5 380.5 25.0Q327 45 263 45ZM417 -355Q450 -355 450 -368Q450 -373 441.5 -378.5Q433 -384 419 -385Q413 -386 399.0 -386.0Q385 -386 369.5 -386.0Q354 -386 344 -386Q369 -355 417 -355Z"
+        />
+      </g>
+      </g>
 
-        <text x="78" y="102" textAnchor="middle"
-          fontFamily="Playfair Display, Instrument Serif, Georgia, serif"
-          fontWeight="500" fontSize="66">N</text>
-        <text x="130" y="152" textAnchor="middle"
-          fontFamily="Playfair Display, Instrument Serif, Georgia, serif"
-          fontWeight="500" fontSize="66">S</text>
-        <text x="104" y="134" textAnchor="middle"
-          fontFamily="Great Vibes, cursive" fontSize="72">&amp;</text>
+      {/* laurel sprig, lower left, clear of the lockup */}
+      <g stroke="none">
+        <path d="M52 158C45 143 42 129 45 114" fill="none" stroke="#cfa14c"
+          strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M47 147c-6-1-11-5-13-11 7-1 12 2 14 7z" />
+        <path d="M45 135c-6-2-10-7-11-13 7 0 12 3 13 9z" />
+        <path d="M44 123c-5-3-8-8-8-14 6 1 10 5 10 11z" />
+        <path d="M53 151c6-2 10-6 12-12-7-1-12 2-14 8z" />
+        <path d="M50 139c6-2 10-7 11-13-7 0-12 3-13 9z" />
       </g>
     </g>
   </svg>
