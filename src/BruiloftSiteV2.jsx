@@ -650,14 +650,14 @@ const WaxSeal = () => (
 
       {/* gentler on the monogram: a hard specular blows out serif hairlines */}
       <filter id="reliefFine" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="b" />
+        <feGaussianBlur in="SourceAlpha" stdDeviation="0.45" result="b" />
         <feSpecularLighting in="b" surfaceScale="2.4" specularConstant="0.72"
           specularExponent="30" lightingColor="#fff4d4" result="sp">
           <feDistantLight azimuth="225" elevation="60" />
         </feSpecularLighting>
         <feComposite in="sp" in2="SourceAlpha" operator="in" result="spc" />
-        <feOffset in="SourceAlpha" dx="0.7" dy="0.9" result="sh" />
-        <feGaussianBlur in="sh" stdDeviation="0.6" result="shb" />
+        <feOffset in="SourceAlpha" dx="0.45" dy="0.6" result="sh" />
+        <feGaussianBlur in="sh" stdDeviation="0.4" result="shb" />
         <feFlood floodColor="#5b3a0c" floodOpacity="0.55" result="shc" />
         <feComposite in="shc" in2="shb" operator="in" result="shadow" />
         <feMerge>
@@ -693,7 +693,7 @@ const WaxSeal = () => (
       <circle cx="100" cy="100" r="66" fill="none" stroke="#c99a45" strokeWidth="2" />
 
       {/* a die cannot hold a hairline, so the outlines carry a slight stroke */}
-      <g stroke="#cfa14c" strokeWidth="1.6" strokeLinejoin="round">
+      <g stroke="#cfa14c" strokeWidth="0.5" strokeLinejoin="round">
       <g transform="translate(0.64, 1.0)">
         <path
           transform="translate(49.61, 99.81) scale(0.0647)"
@@ -845,8 +845,22 @@ export default function BruiloftSiteV2() {
   // The title lands first, the envelope arrives a beat later.
   useEffect(() => {
     if (introDone) return;
-    const t = window.setTimeout(() => setEnvelopeIn(true), 1000);
-    return () => window.clearTimeout(t);
+    let cancelled = false;
+    let t = 0;
+    // The seal is set in real type, so it must not paint in a fallback serif.
+    const fonts =
+      typeof document !== "undefined" && document.fonts
+        ? document.fonts.ready
+        : Promise.resolve();
+    const cap = new Promise((res) => window.setTimeout(res, 1500));
+    Promise.race([fonts, cap]).then(() => {
+      if (cancelled) return;
+      t = window.setTimeout(() => setEnvelopeIn(true), 1000);
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
   }, [introDone]);
 
   // Browsers restore the previous scroll position on reload, which lands you
