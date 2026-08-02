@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const IMG = {
   logoIcon: "images/logo-icoon.png",
@@ -73,6 +73,13 @@ const TABS = [
     image: IMG.amstelkerk,
     body: "Van Bovenkerk naar Ouderkerk kun je met eigen vervoer, openbaar vervoer of met de taxi: 15 minuten met de auto of 25 minuten met de fiets.\n\nParkeren in Ouderkerk is gratis aan de Kerkweg. Er is een parkeerterrein direct naast de kerk. Let wel op: de straat ernaast begint een Groene parkeerzone. Hier mag je 1.5 uur parkeren met een blauwe schijf.",
   },
+];
+
+const SECTIONS = [
+  { id: "over", label: "Over ons" },
+  { id: "agenda", label: "Agenda trouwdag" },
+  { id: "locatie", label: "Vervoer en locaties" },
+  { id: "faq", label: "Vraag en antwoord" },
 ];
 
 const FAQ = [
@@ -152,7 +159,7 @@ const CSS = `
 .hero{position:relative;padding:var(--space-5) 0 var(--space-6);text-align:center;}
 .hero-bg{position:absolute;inset:0 var(--space-4) 40% var(--space-4);background:var(--brand);border-radius:10px;z-index:0;}
 .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);}
-.hero-monogram{width:5.5rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
+.hero-monogram{width:2.75rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
 .hero-eyebrow{color:var(--shade-4);}
 .hero-names{font-size:var(--type-hero);line-height:1.05;margin:var(--space-2) 0 var(--space-1);}
 .hero-date{font-size:var(--type-3);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;}
@@ -219,18 +226,23 @@ const CSS = `
 .contact-lead{font-size:var(--type-2);color:var(--shade-4);}
 .contact-mail{font-size:var(--type-2);}
 
-.nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.9);
+.nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.92);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--shade-2);}
-.nav-in{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
+.nav-in{position:relative;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
   padding:var(--space-2) var(--space-3);max-width:72rem;margin:0 auto;}
 .nav-links{display:flex;gap:var(--space-3);}
 .nav-links a{font-size:1rem;font-weight:500;transition:opacity 200ms ease;}
 .nav-links a:hover{opacity:0.6;}
-.nav-logo{width:2.75rem;}
+.nav-toggle{display:none;align-items:center;justify-content:center;
+  width:2.75rem;height:2.75rem;margin-right:calc(var(--space-1) * -1);border-radius:6px;
+  transition:background-color 200ms ease;}
+.nav-toggle:hover{background:var(--brand);}
+.nav-panel{display:none;}
+.nav-logo{width:2.25rem;height:auto;display:block;}
 
 .footer{margin-top:var(--space-6);background:var(--brand);border-radius:10px 10px 0 0;
   padding:var(--space-5) var(--space-3);text-align:center;}
-.footer-logo{width:10rem;margin:0 auto var(--space-4);}
+.footer-logo{width:7rem;height:auto;margin:0 auto var(--space-4);}
 .footer-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-3);}
 .footer-nav a{font-size:1rem;transition:opacity 200ms ease;}
 .footer-nav a:hover{opacity:0.6;}
@@ -247,6 +259,15 @@ const CSS = `
   .card{flex-direction:column-reverse;align-items:stretch;}
   .card-img{flex:none;}
   .nav-links{display:none;}
+  .nav-toggle{display:inline-flex;}
+  .nav-panel{display:grid;grid-template-rows:0fr;
+    transition:grid-template-rows 250ms cubic-bezier(.165,.84,.44,1);}
+  .nav-panel.open{grid-template-rows:1fr;}
+  .nav-panel > div{overflow:hidden;}
+  .nav-panel-links{display:flex;flex-direction:column;padding:0 var(--space-3) var(--space-2);}
+  .nav-panel-links a{padding:var(--space-2) 0;font-size:1rem;font-weight:500;
+    border-bottom:1px solid var(--shade-2);}
+  .nav-panel-links a:last-child{border-bottom:none;}
 }
 @media (max-width:600px){
   .bruiloft{--type-hero:2.75rem;--type-1:1.875rem;--type-2:1.5rem;--type-3:1.2rem;}
@@ -314,6 +335,16 @@ const IconInstagram = () => (
   </Icon>
 );
 
+const IconMenu = ({ open }) => (
+  <Icon size={22}>
+    {open ? (
+      <path d="M6 6l12 12M18 6L6 18" />
+    ) : (
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    )}
+  </Icon>
+);
+
 const IconArrow = () => (
   <Icon size={20}>
     <path d="M7 17L17 7" />
@@ -332,7 +363,28 @@ function Fact({ icon, children }) {
 
 export default function BruiloftSiteV2() {
   const [tab, setTab] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(null);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
   return (
     <div className="bruiloft">
@@ -340,15 +392,43 @@ export default function BruiloftSiteV2() {
 
       <header className="nav">
         <div className="nav-in">
-          <a href="#top">
-            <img className="nav-logo" src={IMG.logoIcon} alt="Nya en Sten" />
+          <a className="nav-brand" href="#top" onClick={closeMenu}>
+            <img
+              className="nav-logo"
+              src={IMG.logoIcon}
+              width="192"
+              height="192"
+              alt="Nya en Sten"
+            />
           </a>
           <nav className="nav-links">
-            <a href="#over">Over</a>
-            <a href="#agenda">Agenda</a>
-            <a href="#locatie">Locatie</a>
-            <a href="#faq">FAQ</a>
+            {SECTIONS.map((sec) => (
+              <a key={sec.id} href={"#" + sec.id}>
+                {sec.label}
+              </a>
+            ))}
           </nav>
+          <button
+            className="nav-toggle"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="nav-panel"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <IconMenu open={menuOpen} />
+            <span className="sr-only">{menuOpen ? "Menu sluiten" : "Menu openen"}</span>
+          </button>
+        </div>
+        <div id="nav-panel" className={"nav-panel" + (menuOpen ? " open" : "")}>
+          <div>
+            <nav className="nav-panel-links">
+              {SECTIONS.map((sec) => (
+                <a key={sec.id} href={"#" + sec.id} onClick={closeMenu}>
+                  {sec.label}
+                </a>
+              ))}
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -356,7 +436,13 @@ export default function BruiloftSiteV2() {
         <section className="hero">
           <div className="hero-bg" />
           <div className="wrap hero-inner">
-            <img className="hero-monogram" src={IMG.logoCompact} alt="" />
+            <img
+              className="hero-monogram"
+              src={IMG.logoCompact}
+              width="539"
+              height="701"
+              alt=""
+            />
             <p className="label hero-eyebrow">Uitnodiging bruiloft</p>
             <h1 className="serif hero-names">Sten &amp; Nyarayek</h1>
             <p className="hero-date">Zaterdag 19 september 2026</p>
@@ -503,12 +589,13 @@ export default function BruiloftSiteV2() {
       </main>
 
       <footer className="footer">
-        <img className="footer-logo" src={IMG.logoFull} alt="" />
+        <img className="footer-logo" src={IMG.logoFull} width="800" height="800" alt="" />
         <nav className="footer-nav">
-          <a href="#over">Invite</a>
-          <a href="#agenda">Agenda trouwdag</a>
-          <a href="#locatie">Vervoer</a>
-          <a href="#faq">FAQ</a>
+          {SECTIONS.map((sec) => (
+            <a key={sec.id} href={"#" + sec.id}>
+              {sec.label}
+            </a>
+          ))}
         </nav>
         <p className="footer-names">Nya en Sten</p>
         <div className="socials">
