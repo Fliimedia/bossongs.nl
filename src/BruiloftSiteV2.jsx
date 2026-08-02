@@ -15,6 +15,7 @@ const SPARKLES = [
 
 const IMG = {
   hemel: "images/hemel.webp",
+  zegelMonogram: "images/zegel-monogram.png",
   logoIcon: "images/logo-icoon.png",
   logoCompact: "images/logo-compact.png",
   logoFull: "images/logo-volledig.png",
@@ -407,8 +408,6 @@ const CSS = `
   transition:transform 500ms ease, opacity 500ms ease, box-shadow 300ms ease;}
 .seal:hover{box-shadow:0 12px 24px rgba(80,52,14,0.5), inset 0 2px 6px rgba(255,232,183,0.65),
              inset 0 -5px 12px rgba(70,42,10,0.5);}
-.seal-mark{font-family:"Great Vibes",cursive;font-size:2.5rem;line-height:1;
-  padding-bottom:0.35rem;text-shadow:0 1px 2px rgba(70,42,10,0.6);}
 .opener.opening .seal{opacity:0;transform:scale(0.55) rotate(-14deg);animation:none;}
 
 @keyframes seal-breathe{
@@ -450,6 +449,32 @@ const CSS = `
   50%{opacity:1;transform:scale(1) rotate(45deg);}
 }
 
+/* calligraphic names, pressed into the parchment light */
+.opener-names{position:relative;z-index:2;margin:0;text-align:center;
+  font-family:"Great Vibes",cursive;font-weight:400;
+  font-size:clamp(1.7rem,6.5vw,3.1rem);line-height:1.25;letter-spacing:0.01em;
+  color:#d9c096;
+  text-shadow:
+    -1px -1px 0 rgba(255,252,242,0.9),
+     1px  1px 1px rgba(112,80,32,0.55),
+     0 3px 6px rgba(112,80,32,0.22);
+  opacity:0;transform:translateY(0.8rem);
+  transition:opacity 1000ms ease 150ms, transform 1000ms cubic-bezier(.2,.75,.3,1) 150ms;}
+.opener-names.arrived{opacity:1;transform:translateY(0);}
+.opener-names .amp{font-size:0.82em;padding:0 0.15em;}
+
+/* the monogram struck into the wax */
+.seal-emblem{position:absolute;inset:20%;
+  -webkit-mask-image:url("images/zegel-monogram.png");
+  mask-image:url("images/zegel-monogram.png");
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  background:linear-gradient(168deg, #f6e3b6 0%, #d8ae60 38%, #a87a30 68%, #855c1e 100%);
+  filter:drop-shadow(0 1px 0 rgba(255,244,214,0.6))
+         drop-shadow(0 -1px 1px rgba(58,34,6,0.6))
+         drop-shadow(0 2px 3px rgba(58,34,6,0.35));}
+
 .opener-hint{position:relative;z-index:2;margin:0;
   font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;
   font-size:1.05rem;letter-spacing:0.12em;color:#7a5c28;opacity:0;
@@ -460,7 +485,6 @@ const CSS = `
 @media (max-width:600px){
   .stage{width:88vw;}
   .seal{width:5rem;height:5rem;margin:-2.5rem 0 0 -2.5rem;}
-  .seal-mark{font-size:2.1rem;}
   .opener-frame{inset:var(--space-1);}
 }
 
@@ -650,6 +674,10 @@ export default function BruiloftSiteV2() {
             <p className="opener-sub">You&rsquo;re cordially invited</p>
           </div>
 
+          <p className={"opener-names" + (envelopeIn ? " arrived" : "")}>
+            Sten <span className="amp">&amp;</span> Nyarayek
+          </p>
+
           <div className={"stage" + (envelopeIn ? " arrived" : "")}>
             <div className="sparkles" aria-hidden="true">
               {SPARKLES.map((sp, i) => (
@@ -682,9 +710,7 @@ export default function BruiloftSiteV2() {
                 onClick={openInvitation}
                 aria-label="Open de uitnodiging"
               >
-                <span className="seal-mark" aria-hidden="true">
-                  S&amp;N
-                </span>
+                <span className="seal-emblem" aria-hidden="true" />
               </button>
             </div>
           </div>
