@@ -57,12 +57,6 @@ const TIMELINE = [
   },
   {
     time: "15.30",
-    title: "Inloop receptie",
-    location: "Amstelkerk, Ouderkerk a/d Amstel",
-    map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
-  },
-  {
-    time: "16.00",
     title: "Receptie",
     location: "Tuin Amstelkerk, Ouderkerk a/d Amstel",
     map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
@@ -338,6 +332,16 @@ const CSS = `
   border:1px solid rgba(178,138,66,0.6);}
 .opener-frame::before{top:0.6rem;left:0.6rem;border-right:0;border-bottom:0;}
 .opener-frame::after{bottom:0.6rem;right:0.6rem;border-left:0;border-top:0;}
+
+.opener-invite{position:relative;z-index:2;margin:0;text-align:center;
+  font-family:"Great Vibes",cursive;font-weight:400;
+  font-size:clamp(1.5rem,6vw,2.8rem);line-height:1.2;
+  color:#c9a86a;
+  text-shadow:0 1px 0 rgba(255,252,242,0.8), 0 2px 6px rgba(112,80,32,0.28);
+  opacity:0;transform:translateY(0.7rem);
+  transition:opacity 1000ms ease, transform 1000ms cubic-bezier(.2,.75,.3,1);}
+.opener-invite.arrived{opacity:1;transform:translateY(0);}
+.opener.opening .opener-invite{opacity:0;transition:opacity 600ms ease;}
 
 /* the envelope arrives a beat later */
 .stage{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;
@@ -742,6 +746,10 @@ export default function BruiloftSiteV2() {
           <div className="opener-sky" />
           <div className="opener-veil" />
           <div className="opener-frame" />
+
+          <p className={"opener-invite" + (envelopeIn ? " arrived" : "")}>
+            You&rsquo;re cordially invited
+          </p>
 
           <div className={"stage" + (envelopeIn ? " arrived" : "")}>
             <div className="sparkles" aria-hidden="true">
