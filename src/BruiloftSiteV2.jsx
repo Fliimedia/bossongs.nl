@@ -10,19 +10,19 @@ const DOVES = [
 const CLOUDS = [1, 2, 3, 4, 5, 6, 7];
 
 const REEL = [
-  "images/reel/r01-74f144d3.webp",
-  "images/reel/r02-b147a15f.webp",
-  "images/reel/r03-ef79d884.webp",
-  "images/reel/r04-c1699637.webp",
-  "images/reel/r05-cbbae328.webp",
-  "images/reel/r06-0e44be35.webp",
-  "images/reel/r07-af430f51.webp",
-  "images/reel/r08-4383e71a.webp",
-  "images/reel/r09-98628d28.webp",
-  "images/reel/r10-1af7e0a6.webp",
-  "images/reel/r11-951700ad.webp",
-  "images/reel/r12-a8e7d8a6.webp",
-  "images/reel/r13-01ac36b6.webp",
+  { src: "images/reel/r01-74f144d3.webp", w: 768, h: 512 },
+  { src: "images/reel/r02-b147a15f.webp", w: 933, h: 700 },
+  { src: "images/reel/r03-ef79d884.webp", w: 525, h: 700 },
+  { src: "images/reel/r04-c1699637.webp", w: 315, h: 700 },
+  { src: "images/reel/r05-cbbae328.webp", w: 932, h: 700 },
+  { src: "images/reel/r06-0e44be35.webp", w: 315, h: 700 },
+  { src: "images/reel/r07-af430f51.webp", w: 932, h: 700 },
+  { src: "images/reel/r08-4383e71a.webp", w: 931, h: 700 },
+  { src: "images/reel/r09-98628d28.webp", w: 526, h: 700 },
+  { src: "images/reel/r10-1af7e0a6.webp", w: 315, h: 700 },
+  { src: "images/reel/r11-951700ad.webp", w: 526, h: 700 },
+  { src: "images/reel/r12-a8e7d8a6.webp", w: 525, h: 700 },
+  { src: "images/reel/r13-01ac36b6.webp", w: 525, h: 700 },
 ];
 
 
@@ -475,16 +475,16 @@ const CSS = `
 
 /* a continuous strip of photographs, doubled so the loop never shows a seam */
 .reel-sec{padding-bottom:var(--space-5);}
-.reel{position:relative;overflow:hidden;
+.reel{--reel-h:clamp(11rem,26vw,17rem);position:relative;overflow:hidden;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
 .reel-track{display:flex;width:max-content;gap:var(--space-2);
   animation:reel-run 72s linear infinite;}
 .reel:hover .reel-track{animation-play-state:paused;}
-.reel-item{flex:0 0 auto;height:clamp(11rem,26vw,17rem);
-  overflow:hidden;border-radius:10px;background:var(--brand);
-  box-shadow:0 10px 22px rgba(96,74,40,0.16);}
-.reel-item img{height:100%;width:auto;display:block;object-fit:cover;}
+.reel-item{flex:0 0 auto;margin:0;overflow:hidden;border-radius:10px;
+  background:var(--brand);box-shadow:0 10px 22px rgba(96,74,40,0.16);}
+.reel-item img{height:var(--reel-h);width:auto;max-width:none;
+  display:block;object-fit:cover;}
 @keyframes reel-run{
   from{transform:translate3d(0,0,0);}
   to{transform:translate3d(-50%,0,0);}
@@ -1510,9 +1510,15 @@ export default function BruiloftSiteV2() {
           </div>
           <div className="reel">
             <div className="reel-track">
-              {REEL.concat(REEL).map((src, i) => (
+              {REEL.concat(REEL).map((shot, i) => (
                 <figure className="reel-item" key={i}>
-                  <img src={src} alt={i < REEL.length ? c.reelAlt : ""} loading="lazy" />
+                  <img
+                    src={shot.src}
+                    width={shot.w}
+                    height={shot.h}
+                    alt={i < REEL.length ? c.reelAlt : ""}
+                    loading="lazy"
+                  />
                 </figure>
               ))}
             </div>
