@@ -38,6 +38,12 @@ const TIMELINE = [
     map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
   },
   {
+    time: "16.00",
+    title: "Receptie",
+    location: "Tuin Amstelkerk, Ouderkerk a/d Amstel",
+    map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
+  },
+  {
     time: "18.00",
     title: "Diner",
     location: "Amstelkerk, Ouderkerk a/d Amstel",
@@ -98,16 +104,9 @@ const FAQ = [
   {
     n: "03",
     q: "Hoe kom ik van Bovenkerk naar Ouderkerk?",
-    a: "Je kunt met eigen vervoer, zoals de auto of fiets.\n\nOpenbaar vervoer: direct naast de kerk is er bushalte Zwarte Pad. Hier pak je lijn 171 tot Amstelveen busstation en stap je over op lijn 356 tot halte Ouderkerk West. Vanaf hier is het 8 minuten lopen naar de Amstelkerk.\n\nHeb je geen vervoer? Laat het ons dan weten via het formulier.",
+    a: "Je kunt met eigen vervoer, zoals de auto of fiets.\n\nOpenbaar vervoer: direct naast de kerk is er bushalte Zwarte Pad. Hier pak je lijn 171 tot Amstelveen busstation en stap je over op lijn 356 tot halte Ouderkerk West. Vanaf hier is het 8 minuten lopen naar de Amstelkerk.\n\nHeb je geen vervoer? Laat het ons dan weten, dan kijken we mee.\n\nNa afloop rijdt er geen bus meer. Regel je terugreis vooraf, met eigen vervoer of een taxi.",
     linkText: "Route van Bovenkerk naar Ouderkerk",
     link: "https://www.google.com/maps/dir/St.+Urbanuskerk,+Noorddammerlaan+126,+1187+AG+Amstelveen/Amstelkerk,+Kerkstraat+11,+1191+JB+Ouderkerk+aan+de+Amstel/",
-  },
-  {
-    n: "04",
-    q: "Wat als ik toch moet afzeggen?",
-    a: "Laat ons dit dan tijdig weten.",
-    linkText: "Mail ons",
-    link: "mailto:bruiloft@flii.nl",
   },
 ];
 
