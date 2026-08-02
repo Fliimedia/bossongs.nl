@@ -9,6 +9,23 @@ const DOVES = [
 
 const CLOUDS = [1, 2, 3, 4, 5, 6, 7];
 
+const REEL = [
+  "images/reel/r01-74f144d3.webp",
+  "images/reel/r02-b147a15f.webp",
+  "images/reel/r03-ef79d884.webp",
+  "images/reel/r04-c1699637.webp",
+  "images/reel/r05-cbbae328.webp",
+  "images/reel/r06-0e44be35.webp",
+  "images/reel/r07-af430f51.webp",
+  "images/reel/r08-4383e71a.webp",
+  "images/reel/r09-98628d28.webp",
+  "images/reel/r10-1af7e0a6.webp",
+  "images/reel/r11-951700ad.webp",
+  "images/reel/r12-a8e7d8a6.webp",
+  "images/reel/r13-01ac36b6.webp",
+];
+
+
 const SPARKLES = [
   { top: "8%", left: "14%", delay: "0s", size: "0.5rem" },
   { top: "4%", left: "62%", delay: "0.7s", size: "0.35rem" },
@@ -198,6 +215,9 @@ const COPY = {
     travelTitle: "Van ceremonie naar diner en feest",
     agendaEyebrow: "De dag",
     weddingWord: "bruiloft",
+    reelEyebrow: "Momenten",
+    reelTitle: "Twaalf jaar samen",
+    reelAlt: "Herinnering",
     factsEyebrow: "Overzicht",
     factsTitle: "Wie, wat, waar",
     faqEyebrow: "Goed om te weten",
@@ -223,6 +243,9 @@ const COPY = {
     travelTitle: "From ceremony to dinner and party",
     agendaEyebrow: "The day",
     weddingWord: "wedding",
+    reelEyebrow: "Moments",
+    reelTitle: "Twelve years together",
+    reelAlt: "Memory",
     factsEyebrow: "Overview",
     factsTitle: "Who, what, where",
     faqEyebrow: "Good to know",
@@ -449,6 +472,27 @@ const CSS = `
   text-transform:uppercase;border-bottom:1px solid var(--gold-line);padding-bottom:2px;
   transition:border-color 200ms ease;}
 .link-u:hover{border-bottom-color:var(--gold);}
+
+/* a continuous strip of photographs, doubled so the loop never shows a seam */
+.reel-sec{padding-bottom:var(--space-5);}
+.reel{position:relative;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
+.reel-track{display:flex;width:max-content;gap:var(--space-2);
+  animation:reel-run 72s linear infinite;}
+.reel:hover .reel-track{animation-play-state:paused;}
+.reel-item{flex:0 0 auto;height:clamp(11rem,26vw,17rem);
+  overflow:hidden;border-radius:10px;background:var(--brand);
+  box-shadow:0 10px 22px rgba(96,74,40,0.16);}
+.reel-item img{height:100%;width:auto;display:block;object-fit:cover;}
+@keyframes reel-run{
+  from{transform:translate3d(0,0,0);}
+  to{transform:translate3d(-50%,0,0);}
+}
+@media (prefers-reduced-motion:reduce){
+  .reel{overflow-x:auto;}
+  .reel-track{animation:none;}
+}
 
 .contact{display:flex;flex-direction:column;align-items:center;gap:var(--space-1);
   padding:var(--space-5) 0;text-align:center;}
@@ -1457,6 +1501,20 @@ export default function BruiloftSiteV2() {
               <a className="serif contact-mail" href="mailto:bruiloft@flii.nl">
                 bruiloft@flii.nl
               </a>
+            </div>
+          </div>
+        </section>
+        <section className="sec reel-sec">
+          <div className="wrap">
+            <SectionHead eyebrow={c.reelEyebrow} title={c.reelTitle} />
+          </div>
+          <div className="reel">
+            <div className="reel-track">
+              {REEL.concat(REEL).map((src, i) => (
+                <figure className="reel-item" key={i}>
+                  <img src={src} alt={i < REEL.length ? c.reelAlt : ""} loading="lazy" />
+                </figure>
+              ))}
             </div>
           </div>
         </section>
