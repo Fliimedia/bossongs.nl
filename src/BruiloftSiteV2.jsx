@@ -465,11 +465,6 @@ export default function BruiloftSiteV2() {
   const openInvitation = () => {
     if (introOpening) return;
     setIntroOpening(true);
-    try {
-      sessionStorage.setItem("intro-gezien", "ja");
-    } catch (e) {
-      // storage unavailable, the intro simply plays again next time
-    }
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia &&
@@ -485,17 +480,6 @@ export default function BruiloftSiteV2() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
-
-  // The intro only plays once per browser session.
-  useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem("intro-gezien") === "ja";
-    } catch (e) {
-      seen = false;
-    }
-    if (seen) setIntroDone(true);
-  }, []);
 
   // Hold the page still while the envelope is on screen.
   useEffect(() => {
