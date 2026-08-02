@@ -367,26 +367,30 @@ const CSS = `
 .tl-title{min-width:0;font-size:1em;font-weight:400;color:var(--shade-6);
   white-space:nowrap;line-height:1.35;}
 
-/* the location repeats the row grid, so its text lands under the title
-   while the pin sits in the gutter the time occupies above it */
-.tl-where{grid-column:2 / -1;display:grid;
-  grid-template-columns:var(--tl-gut) 1fr;column-gap:0.85rem;
+/* the pin sits in the marker column, directly beneath the diamond,
+   and the text starts on the same axis as the time above it */
+.tl-where{grid-column:1 / -1;display:grid;
+  grid-template-columns:0.85rem 1fr;column-gap:0.85rem;
   align-items:center;margin-top:0.3rem;}
-.tl-pin{display:flex;justify-content:flex-end;color:var(--gold);}
+.tl-pin{display:flex;justify-content:center;color:var(--gold);}
 .tl-pin svg{width:calc(var(--tl-line) * 0.8);height:auto;}
 .tl-where .meta{font-size:calc(var(--tl-line) * 0.78);line-height:1.4;}
 
-.card{position:relative;display:flex;align-items:center;gap:var(--space-4);
+.card{position:relative;display:block;max-width:34rem;margin:0 auto;
   padding:var(--space-4);background:var(--brand);border-radius:14px;
   transition:transform 200ms ease, box-shadow 200ms ease;}
 .card::after{content:"";position:absolute;inset:0.6rem;border-radius:10px;
   border:1px solid var(--gold-line-soft);pointer-events:none;}
 .card:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(96,74,40,0.14);}
 .card-text{display:flex;flex-direction:column;align-items:flex-start;
-  gap:var(--space-1);flex:1 1 0;}
-.card-title{margin:0 0 var(--space-1);font-size:var(--type-2);line-height:1.15;}
-.card-img{flex:0 0 12rem;}
-.card-img img{width:100%;border-radius:6px;}
+  gap:var(--space-1);}
+.card-title{margin:0;font-size:var(--type-2);line-height:1.15;}
+.card-img{width:100%;margin:var(--space-2) 0 var(--space-1);overflow:hidden;
+  border-radius:8px;}
+.card-img img{width:100%;height:100%;object-fit:cover;
+  aspect-ratio:16/10;display:block;
+  transition:transform 400ms cubic-bezier(.2,.7,.3,1);}
+.card:hover .card-img img{transform:scale(1.03);}
 
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);align-items:center;}
 .tab-img{aspect-ratio:1/1;overflow:hidden;border-radius:10px;}
@@ -1356,10 +1360,10 @@ export default function BruiloftSiteV2() {
                   <span />
                 </div>
                 <h3 className="serif card-title">{c.dressTitle}</h3>
+                <figure className="card-img">
+                  <img src={IMG.dresscode} alt={c.dressAlt} />
+                </figure>
                 <p className="link-u">{c.dressLink}</p>
-              </div>
-              <div className="card-img">
-                <img src={IMG.dresscode} alt={c.dressAlt} />
               </div>
             </a>
           </div>
