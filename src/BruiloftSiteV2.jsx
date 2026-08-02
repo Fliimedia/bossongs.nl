@@ -432,15 +432,24 @@ const CSS = `
 .nav-links{display:flex;gap:var(--space-3);}
 .nav-links a{font-size:1rem;font-weight:500;transition:opacity 200ms ease;}
 .nav-links a:hover{opacity:0.6;}
-.lang{display:inline-flex;align-items:center;gap:0.05rem;}
-.lang-btn{display:inline-flex;align-items:center;justify-content:center;
-  width:1.25rem;height:1.25rem;padding:0;border-radius:999px;
-  font-size:0.72rem;line-height:1;
-  filter:grayscale(1);opacity:0.42;
-  transition:opacity 200ms ease, filter 200ms ease, box-shadow 200ms ease;}
-.lang-btn:hover{opacity:0.8;filter:grayscale(0.3);}
-.lang-btn.is-on{opacity:1;filter:none;
-  box-shadow:0 0 0 1px rgba(177,135,63,0.55);}
+.lang{position:relative;display:inline-flex;align-items:center;
+  padding:0.15rem;border-radius:999px;
+  border:1px solid var(--gold-line-soft);background:rgba(255,255,255,0.7);}
+.lang-thumb{position:absolute;top:0.15rem;left:0.15rem;
+  width:calc(50% - 0.15rem);height:calc(100% - 0.3rem);
+  border-radius:999px;background:var(--shade-1);
+  box-shadow:0 1px 3px rgba(96,74,40,0.18);
+  transition:transform 260ms cubic-bezier(.4,0,.2,1);}
+.lang-thumb[data-on="en"]{transform:translateX(100%);}
+.lang-opt{position:relative;z-index:1;display:inline-flex;align-items:center;
+  gap:0.28rem;padding:0.2rem 0.5rem;border-radius:999px;line-height:1;
+  color:var(--shade-4);transition:color 200ms ease;}
+.lang-opt:hover{color:var(--shade-6);}
+.lang-opt.is-on{color:var(--gold);}
+.lang-flag{font-size:0.72rem;filter:grayscale(1);opacity:0.55;
+  transition:filter 200ms ease, opacity 200ms ease;}
+.lang-opt.is-on .lang-flag{filter:none;opacity:1;}
+.lang-code{font-size:0.65rem;font-weight:600;letter-spacing:0.08em;}
 
 .nav-toggle{display:none;align-items:center;justify-content:center;color:var(--gold);
   width:2.75rem;height:2.75rem;margin-right:calc(var(--space-1) * -1);border-radius:6px;
@@ -1202,22 +1211,25 @@ export default function BruiloftSiteV2() {
             ))}
           </nav>
           <div className="lang" role="group" aria-label="Taal / Language">
+            <span className="lang-thumb" data-on={lang} aria-hidden="true" />
             <button
               type="button"
-              className={"lang-btn" + (lang === "nl" ? " is-on" : "")}
+              className={"lang-opt" + (lang === "nl" ? " is-on" : "")}
               aria-pressed={lang === "nl"}
               onClick={() => setLang("nl")}
             >
-              <span aria-hidden="true">🇳🇱</span>
+              <span className="lang-flag" aria-hidden="true">&#127475;&#127473;</span>
+              <span className="lang-code">NL</span>
               <span className="sr-only">Nederlands</span>
             </button>
             <button
               type="button"
-              className={"lang-btn" + (lang === "en" ? " is-on" : "")}
+              className={"lang-opt" + (lang === "en" ? " is-on" : "")}
               aria-pressed={lang === "en"}
               onClick={() => setLang("en")}
             >
-              <span aria-hidden="true">🇬🇧</span>
+              <span className="lang-flag" aria-hidden="true">&#127468;&#127463;</span>
+              <span className="lang-code">EN</span>
               <span className="sr-only">English</span>
             </button>
           </div>
