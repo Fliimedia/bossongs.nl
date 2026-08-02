@@ -197,8 +197,8 @@ const COPY = {
     dressAlt: "Voorbeeld Tenue de Ville",
     travelTitle: "Van ceremonie naar diner en feest",
     agendaEyebrow: "De dag",
-    factsEyebrow: "Praktisch",
-    factsTitle: "In het kort",
+    factsEyebrow: "Overzicht",
+    factsTitle: "Wie, wat, waar",
     faqEyebrow: "Goed om te weten",
     contactLead: "Heb je een andere vraag?",
     coupleAlt: "Nyarayek en Sten",
@@ -221,8 +221,8 @@ const COPY = {
     dressAlt: "Tenue de Ville example",
     travelTitle: "From ceremony to dinner and party",
     agendaEyebrow: "The day",
-    factsEyebrow: "Practical",
-    factsTitle: "At a glance",
+    factsEyebrow: "Overview",
+    factsTitle: "Who, what, where",
     faqEyebrow: "Good to know",
     contactLead: "Have another question?",
     coupleAlt: "Nyarayek and Sten",
@@ -351,8 +351,7 @@ const CSS = `
 .facts{display:flex;flex-direction:column;align-items:flex-start;
   gap:var(--space-1);margin-top:var(--space-5);padding:var(--space-4) var(--space-4) var(--space-3);}
 .facts .card-title{margin-bottom:var(--space-2);}
-.facts .fact{width:100%;padding:0.55rem 0.2rem;}
-.facts .fact + .fact{border-top:1px solid var(--gold-line-soft);}
+.facts .fact{width:100%;padding:0.3rem 0.2rem;}
 .fact{display:flex;align-items:center;gap:0.7rem;}
 .fact svg{flex:0 0 auto;color:var(--gold);}
 .fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--gold);}
@@ -1323,7 +1322,7 @@ export default function BruiloftSiteV2() {
             <p className="serif intro">
 {c.story}
             </p>
-            <div className="panel facts">
+            <a className="panel card facts" href="#agenda">
               <p className="sec-eyebrow">{c.factsEyebrow}</p>
               <div className="sec-rule" aria-hidden="true">
                 <span />
@@ -1341,7 +1340,7 @@ export default function BruiloftSiteV2() {
                   <IconEnvelope size={18} />
                 </span>
               </Fact>
-            </div>
+            </a>
           </div>
         </section>
 
