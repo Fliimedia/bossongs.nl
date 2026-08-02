@@ -9,18 +9,19 @@ const DOVES = [
 
 const CLOUDS = [1, 2, 3, 4, 5, 6, 7];
 
-const CANDLES = [1, 2, 3, 4, 5];
-
 const PETALS = [
-  { left: "6%", top: "62%", rot: -22, scale: 1.0, fall: false },
-  { left: "16%", top: "78%", rot: 34, scale: 0.8, fall: false },
-  { left: "27%", top: "58%", rot: 8, scale: 1.15, fall: true, delay: "0s" },
-  { left: "38%", top: "82%", rot: -48, scale: 0.85, fall: false },
-  { left: "49%", top: "66%", rot: 20, scale: 1.05, fall: true, delay: "3.1s" },
-  { left: "60%", top: "80%", rot: -14, scale: 0.78, fall: false },
-  { left: "70%", top: "60%", rot: 44, scale: 1.1, fall: false },
-  { left: "80%", top: "76%", rot: -36, scale: 0.82, fall: true, delay: "5.4s" },
-  { left: "90%", top: "64%", rot: 12, scale: 1.0, fall: false },
+  { left: "3%", top: "54%", rot: -28, scale: 1.05, shape: "a", fill: "pFlesh" },
+  { left: "11%", top: "76%", rot: 42, scale: 0.72, shape: "c", fill: "pFleshPale" },
+  { left: "19%", top: "60%", rot: -8, scale: 0.92, shape: "b", fill: "pFleshDeep" },
+  { left: "27%", top: "82%", rot: 64, scale: 0.66, shape: "a", fill: "pFleshPale" },
+  { left: "35%", top: "58%", rot: 14, scale: 1.12, shape: "c", fill: "pFlesh", fall: true, delay: "0s" },
+  { left: "44%", top: "80%", rot: -52, scale: 0.78, shape: "b", fill: "pFleshPale" },
+  { left: "52%", top: "62%", rot: 26, scale: 0.98, shape: "a", fill: "pFleshDeep" },
+  { left: "60%", top: "84%", rot: -18, scale: 0.7, shape: "c", fill: "pFlesh" },
+  { left: "68%", top: "57%", rot: 48, scale: 1.08, shape: "b", fill: "pFleshPale", fall: true, delay: "3.4s" },
+  { left: "77%", top: "79%", rot: -38, scale: 0.75, shape: "a", fill: "pFlesh" },
+  { left: "85%", top: "61%", rot: 10, scale: 0.95, shape: "c", fill: "pFleshDeep" },
+  { left: "93%", top: "78%", rot: -60, scale: 0.68, shape: "b", fill: "pFleshPale", fall: true, delay: "6.1s" },
 ];
 
 const SPARKLES = [
@@ -344,61 +345,19 @@ const CSS = `
   100%{transform:scale(1.12) translate3d(0,-1.5%,0);}
 }
 
-/* candles and rose petals at the foot of the envelope */
-.altar{position:relative;z-index:3;width:min(86vw,32rem);height:6.5rem;margin-top:-1rem;
+/* rose petals at the foot of the envelope */
+.altar{position:relative;z-index:3;width:min(86vw,32rem);height:5rem;margin-top:-0.5rem;
   opacity:0;transform:translateY(1.2rem);
   transition:opacity 1100ms ease 500ms, transform 1100ms cubic-bezier(.2,.75,.3,1) 500ms;}
 .altar.lit{opacity:1;transform:translateY(0);}
 .opener.opening .altar{opacity:0;transform:translateY(1rem);transition-delay:0ms;}
 
-.candles{position:absolute;left:50%;bottom:1.5rem;transform:translateX(-50%);
-  display:flex;align-items:flex-end;gap:clamp(0.9rem,3.6vw,1.6rem);}
-.candle{position:relative;width:clamp(0.55rem,2vw,0.8rem);
-  border-radius:0.18rem 0.18rem 0.1rem 0.1rem;
-  background:linear-gradient(96deg, #fffaf0 0%, #f6ead2 38%, #e2cfa9 72%, #cfb98e 100%);
-  box-shadow:0 1px 3px rgba(90,66,26,0.35), inset -1px 0 2px rgba(150,120,70,0.28);}
-.candle::after{content:"";position:absolute;left:50%;top:-0.18rem;width:0.09rem;height:0.3rem;
-  transform:translateX(-50%);background:#4a3a24;border-radius:1px;}
-.candle-1{height:2.6rem;}
-.candle-2{height:3.9rem;}
-.candle-3{height:4.8rem;}
-.candle-4{height:3.4rem;}
-.candle-5{height:2.9rem;}
-
-.flame{position:absolute;left:50%;bottom:100%;margin-bottom:0.16rem;
-  width:0.62rem;height:1.15rem;transform:translateX(-50%);
-  background:radial-gradient(ellipse at 50% 78%, #fffdf2 0%, #ffe9a8 22%, #ffb648 52%, #f0821f 76%, rgba(224,110,20,0) 100%);
-  border-radius:50% 50% 46% 46% / 62% 62% 38% 38%;
-  transform-origin:50% 100%;
-  animation:flicker 1.9s ease-in-out infinite;}
-.flame::before{content:"";position:absolute;left:50%;bottom:0;width:0.26rem;height:0.42rem;
-  transform:translateX(-50%);border-radius:50% 50% 40% 40% / 60% 60% 40% 40%;
-  background:radial-gradient(ellipse at 50% 70%, rgba(120,175,235,0.85), rgba(120,175,235,0) 72%);}
-.glow{position:absolute;left:50%;bottom:100%;width:5rem;height:5rem;
-  transform:translate(-50%,42%);pointer-events:none;
-  background:radial-gradient(circle, rgba(255,206,122,0.5) 0%, rgba(255,196,110,0.2) 38%, rgba(255,190,100,0) 70%);
-  animation:glow-pulse 2.6s ease-in-out infinite;}
-
-.candle-2 .flame{animation-delay:-0.5s;}
-.candle-3 .flame{animation-delay:-1.1s;}
-.candle-4 .flame{animation-delay:-0.8s;}
-.candle-5 .flame{animation-delay:-1.5s;}
-
-@keyframes flicker{
-  0%,100%{transform:translateX(-50%) scaleY(1) skewX(0deg);opacity:0.95;}
-  22%{transform:translateX(-50%) scaleY(1.09) skewX(-3deg);opacity:1;}
-  47%{transform:translateX(-50%) scaleY(0.94) skewX(2.5deg);opacity:0.88;}
-  71%{transform:translateX(-50%) scaleY(1.05) skewX(-1.5deg);opacity:1;}
-}
-@keyframes glow-pulse{
-  0%,100%{opacity:0.75;transform:translate(-50%,42%) scale(1);}
-  50%{opacity:1;transform:translate(-50%,42%) scale(1.12);}
-}
-
 /* petals scattered across the base */
+.petal-defs{position:absolute;width:0;height:0;overflow:hidden;}
 .petals{position:absolute;inset:0;pointer-events:none;}
-.petal{position:absolute;width:1.5rem;height:1.5rem;
-  filter:drop-shadow(0 2px 3px rgba(140,90,95,0.25));}
+.petal{position:absolute;width:2rem;height:2rem;
+  filter:drop-shadow(0 3px 4px rgba(130,72,78,0.3))
+         drop-shadow(0 10px 14px rgba(130,72,78,0.16));}
 .petal svg{width:100%;height:100%;display:block;}
 .petal-fall{animation:petal-drift 9s ease-in-out infinite;}
 
@@ -410,21 +369,16 @@ const CSS = `
 }
 
 @media (max-width:600px){
-  .altar{height:5.2rem;margin-top:-0.5rem;}
-  .candle-3{height:3.8rem;}
-  .candle-2{height:3.1rem;}
-  .candle-4{height:2.7rem;}
-  .candle-1{height:2.1rem;}
-  .candle-5{height:2.3rem;}
-  .petal{width:1.15rem;height:1.15rem;}
+  .altar{height:4.2rem;margin-top:-0.25rem;}
+  .petal{width:1.5rem;height:1.5rem;}
 }
 @media (max-height:720px){
-  .altar{height:4.4rem;}
+  .altar{height:3.6rem;}
   .stage{width:min(70vw,24rem);}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .flame,.glow,.petal-fall{animation:none;}
+  .petal-fall{animation:none;}
 }
 
 /* renaissance gold frame */
@@ -682,20 +636,89 @@ const IconInstagram = () => (
   </Icon>
 );
 
-const Petal = () => (
-  <svg viewBox="0 0 40 40" aria-hidden="true">
+// Gradients and filters live once in the DOM; each petal references them by id.
+const PetalDefs = () => (
+  <svg className="petal-defs" aria-hidden="true" focusable="false">
     <defs>
-      <radialGradient id="petalFill" cx="34%" cy="26%" r="82%">
-        <stop offset="0%" stopColor="#fdeceb" />
-        <stop offset="46%" stopColor="#f2c3c2" />
-        <stop offset="100%" stopColor="#cf8a8d" />
+      <radialGradient id="pFlesh" cx="38%" cy="22%" r="88%">
+        <stop offset="0%" stopColor="#fff2f0" />
+        <stop offset="30%" stopColor="#fbdcda" />
+        <stop offset="62%" stopColor="#eeb2b2" />
+        <stop offset="88%" stopColor="#d3868a" />
+        <stop offset="100%" stopColor="#bb6b71" />
       </radialGradient>
+      <radialGradient id="pFleshPale" cx="34%" cy="20%" r="90%">
+        <stop offset="0%" stopColor="#fffaf9" />
+        <stop offset="38%" stopColor="#fce8e5" />
+        <stop offset="72%" stopColor="#f2c6c3" />
+        <stop offset="100%" stopColor="#d59a9b" />
+      </radialGradient>
+      <radialGradient id="pFleshDeep" cx="42%" cy="26%" r="86%">
+        <stop offset="0%" stopColor="#fbdedb" />
+        <stop offset="34%" stopColor="#eeb0b0" />
+        <stop offset="70%" stopColor="#d0797f" />
+        <stop offset="100%" stopColor="#a9535c" />
+      </radialGradient>
+
+      {/* the shadow cast where the petal curls over on itself */}
+      <linearGradient id="pFold" x1="8%" y1="4%" x2="88%" y2="96%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
+        <stop offset="34%" stopColor="#ffffff" stopOpacity="0.05" />
+        <stop offset="68%" stopColor="#8d4a52" stopOpacity="0.16" />
+        <stop offset="100%" stopColor="#7c3d46" stopOpacity="0.34" />
+      </linearGradient>
+
+      {/* light catching the rolled edge */}
+      <linearGradient id="pRim" x1="0%" y1="10%" x2="100%" y2="70%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+        <stop offset="45%" stopColor="#fff4f2" stopOpacity="0.35" />
+        <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+      </linearGradient>
+
+      {/* velvet grain, very subtle */}
+      <filter id="pVelvet" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="3" result="n" />
+        <feColorMatrix in="n" type="saturate" values="0" result="g" />
+        <feComponentTransfer in="g" result="soft">
+          <feFuncA type="linear" slope="0.12" intercept="0" />
+        </feComponentTransfer>
+        <feComposite in="soft" in2="SourceGraphic" operator="in" result="grain" />
+        <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
+      </filter>
     </defs>
+  </svg>
+);
+
+const PETAL_SHAPES = {
+  // broad open petal, the classic rose outer
+  a: "M50 97C34 90 13 73 11 49 9 27 25 8 41 4c5-1 9 4 9 9 0-5 4-10 9-9 16 4 32 23 30 45-2 24-23 41-39 48z",
+  // narrower, slightly cupped
+  b: "M50 96C37 88 20 71 19 50 18 30 32 11 46 6c4-2 8 2 8 7 1-5 5-8 9-6 14 6 26 25 24 44-2 21-18 37-37 45z",
+  // curled, seen at an angle
+  c: "M52 95C36 89 16 70 17 47 18 27 34 9 49 5c5-1 8 5 7 10 2-5 7-8 11-5 13 8 22 27 19 46-3 21-20 33-34 39z",
+};
+
+const Petal = ({ shape = "a", fill = "pFlesh" }) => (
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <g filter="url(#pVelvet)">
+      <path d={PETAL_SHAPES[shape]} fill={"url(#" + fill + ")"} />
+      <path d={PETAL_SHAPES[shape]} fill="url(#pFold)" />
+    </g>
+    {/* veins fanning from the base */}
+    <g stroke="#a85f66" strokeOpacity="0.22" strokeWidth="0.9" fill="none" strokeLinecap="round">
+      <path d="M50 92C46 74 44 52 47 24" />
+      <path d="M50 92C41 76 33 58 31 36" />
+      <path d="M50 92C58 76 66 59 68 38" />
+      <path d="M50 92C49 70 52 44 58 22" strokeOpacity="0.14" />
+    </g>
+    {/* the lit, rolled outer edge */}
     <path
-      d="M20 3c7 4 13 11 13 19 0 8-6 15-13 15S7 30 7 22C7 14 13 7 20 3z"
-      fill="url(#petalFill)"
+      d={PETAL_SHAPES[shape]}
+      fill="none"
+      stroke="url(#pRim)"
+      strokeWidth="2.6"
+      strokeLinejoin="round"
     />
-    <path d="M20 8c-4 6-5 14-3 22" fill="none" stroke="rgba(163,92,96,0.32)" strokeWidth="1" />
   </svg>
 );
 
@@ -937,6 +960,7 @@ export default function BruiloftSiteV2() {
           </div>
 
           <div className={"altar" + (envelopeIn ? " lit" : "")} aria-hidden="true">
+            <PetalDefs />
             <div className="petals">
               {PETALS.map((pt, i) => (
                 <span
@@ -949,16 +973,8 @@ export default function BruiloftSiteV2() {
                     animationDelay: pt.delay,
                   }}
                 >
-                  <Petal />
+                  <Petal shape={pt.shape} fill={pt.fill} />
                 </span>
-              ))}
-            </div>
-            <div className="candles">
-              {CANDLES.map((n) => (
-                <div key={n} className={"candle candle-" + n}>
-                  <span className="glow" />
-                  <span className="flame" />
-                </div>
               ))}
             </div>
           </div>
