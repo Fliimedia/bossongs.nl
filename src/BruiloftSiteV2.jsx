@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const BUILD = "b8";
+const BUILD = "b9";
 
 const IMG = {
   logoIcon: "images/logo-icoon.png",
