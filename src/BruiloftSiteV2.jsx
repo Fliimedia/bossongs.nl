@@ -1,5 +1,19 @@
 import { useEffect, useState } from "react";
 
+const CANDLES = [1, 2, 3, 4, 5];
+
+const PETALS = [
+  { left: "6%", top: "62%", rot: -22, scale: 1.0, fall: false },
+  { left: "16%", top: "78%", rot: 34, scale: 0.8, fall: false },
+  { left: "27%", top: "58%", rot: 8, scale: 1.15, fall: true, delay: "0s" },
+  { left: "38%", top: "82%", rot: -48, scale: 0.85, fall: false },
+  { left: "49%", top: "66%", rot: 20, scale: 1.05, fall: true, delay: "3.1s" },
+  { left: "60%", top: "80%", rot: -14, scale: 0.78, fall: false },
+  { left: "70%", top: "60%", rot: 44, scale: 1.1, fall: false },
+  { left: "80%", top: "76%", rot: -36, scale: 0.82, fall: true, delay: "5.4s" },
+  { left: "90%", top: "64%", rot: 12, scale: 1.0, fall: false },
+];
+
 const SPARKLES = [
   { top: "8%", left: "14%", delay: "0s", size: "0.5rem" },
   { top: "4%", left: "62%", delay: "0.7s", size: "0.35rem" },
@@ -321,6 +335,89 @@ const CSS = `
   100%{transform:scale(1.12) translate3d(0,-1.5%,0);}
 }
 
+/* candles and rose petals at the foot of the envelope */
+.altar{position:relative;z-index:3;width:min(86vw,32rem);height:6.5rem;margin-top:-1rem;
+  opacity:0;transform:translateY(1.2rem);
+  transition:opacity 1100ms ease 500ms, transform 1100ms cubic-bezier(.2,.75,.3,1) 500ms;}
+.altar.lit{opacity:1;transform:translateY(0);}
+.opener.opening .altar{opacity:0;transform:translateY(1rem);transition-delay:0ms;}
+
+.candles{position:absolute;left:50%;bottom:1.5rem;transform:translateX(-50%);
+  display:flex;align-items:flex-end;gap:clamp(0.9rem,3.6vw,1.6rem);}
+.candle{position:relative;width:clamp(0.55rem,2vw,0.8rem);
+  border-radius:0.18rem 0.18rem 0.1rem 0.1rem;
+  background:linear-gradient(96deg, #fffaf0 0%, #f6ead2 38%, #e2cfa9 72%, #cfb98e 100%);
+  box-shadow:0 1px 3px rgba(90,66,26,0.35), inset -1px 0 2px rgba(150,120,70,0.28);}
+.candle::after{content:"";position:absolute;left:50%;top:-0.18rem;width:0.09rem;height:0.3rem;
+  transform:translateX(-50%);background:#4a3a24;border-radius:1px;}
+.candle-1{height:2.6rem;}
+.candle-2{height:3.9rem;}
+.candle-3{height:4.8rem;}
+.candle-4{height:3.4rem;}
+.candle-5{height:2.9rem;}
+
+.flame{position:absolute;left:50%;bottom:100%;margin-bottom:0.16rem;
+  width:0.62rem;height:1.15rem;transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 78%, #fffdf2 0%, #ffe9a8 22%, #ffb648 52%, #f0821f 76%, rgba(224,110,20,0) 100%);
+  border-radius:50% 50% 46% 46% / 62% 62% 38% 38%;
+  transform-origin:50% 100%;
+  animation:flicker 1.9s ease-in-out infinite;}
+.flame::before{content:"";position:absolute;left:50%;bottom:0;width:0.26rem;height:0.42rem;
+  transform:translateX(-50%);border-radius:50% 50% 40% 40% / 60% 60% 40% 40%;
+  background:radial-gradient(ellipse at 50% 70%, rgba(120,175,235,0.85), rgba(120,175,235,0) 72%);}
+.glow{position:absolute;left:50%;bottom:100%;width:5rem;height:5rem;
+  transform:translate(-50%,42%);pointer-events:none;
+  background:radial-gradient(circle, rgba(255,206,122,0.5) 0%, rgba(255,196,110,0.2) 38%, rgba(255,190,100,0) 70%);
+  animation:glow-pulse 2.6s ease-in-out infinite;}
+
+.candle-2 .flame{animation-delay:-0.5s;}
+.candle-3 .flame{animation-delay:-1.1s;}
+.candle-4 .flame{animation-delay:-0.8s;}
+.candle-5 .flame{animation-delay:-1.5s;}
+
+@keyframes flicker{
+  0%,100%{transform:translateX(-50%) scaleY(1) skewX(0deg);opacity:0.95;}
+  22%{transform:translateX(-50%) scaleY(1.09) skewX(-3deg);opacity:1;}
+  47%{transform:translateX(-50%) scaleY(0.94) skewX(2.5deg);opacity:0.88;}
+  71%{transform:translateX(-50%) scaleY(1.05) skewX(-1.5deg);opacity:1;}
+}
+@keyframes glow-pulse{
+  0%,100%{opacity:0.75;transform:translate(-50%,42%) scale(1);}
+  50%{opacity:1;transform:translate(-50%,42%) scale(1.12);}
+}
+
+/* petals scattered across the base */
+.petals{position:absolute;inset:0;pointer-events:none;}
+.petal{position:absolute;width:1.5rem;height:1.5rem;
+  filter:drop-shadow(0 2px 3px rgba(140,90,95,0.25));}
+.petal svg{width:100%;height:100%;display:block;}
+.petal-fall{animation:petal-drift 9s ease-in-out infinite;}
+
+@keyframes petal-drift{
+  0%{transform:translate3d(0,-2.5rem,0) rotate(-12deg);opacity:0;}
+  12%{opacity:0.9;}
+  55%{transform:translate3d(0.7rem,0.6rem,0) rotate(16deg);opacity:0.95;}
+  100%{transform:translate3d(-0.4rem,2.6rem,0) rotate(-6deg);opacity:0;}
+}
+
+@media (max-width:600px){
+  .altar{height:5.2rem;margin-top:-0.5rem;}
+  .candle-3{height:3.8rem;}
+  .candle-2{height:3.1rem;}
+  .candle-4{height:2.7rem;}
+  .candle-1{height:2.1rem;}
+  .candle-5{height:2.3rem;}
+  .petal{width:1.15rem;height:1.15rem;}
+}
+@media (max-height:720px){
+  .altar{height:4.4rem;}
+  .stage{width:min(70vw,24rem);}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .flame,.glow,.petal-fall{animation:none;}
+}
+
 /* renaissance gold frame */
 .opener-frame{position:absolute;inset:var(--space-2);pointer-events:none;
   border:1px solid rgba(178,138,66,0.45);
@@ -542,6 +639,23 @@ const IconInstagram = () => (
   </Icon>
 );
 
+const Petal = () => (
+  <svg viewBox="0 0 40 40" aria-hidden="true">
+    <defs>
+      <radialGradient id="petalFill" cx="34%" cy="26%" r="82%">
+        <stop offset="0%" stopColor="#fdeceb" />
+        <stop offset="46%" stopColor="#f2c3c2" />
+        <stop offset="100%" stopColor="#cf8a8d" />
+      </radialGradient>
+    </defs>
+    <path
+      d="M20 3c7 4 13 11 13 19 0 8-6 15-13 15S7 30 7 22C7 14 13 7 20 3z"
+      fill="url(#petalFill)"
+    />
+    <path d="M20 8c-4 6-5 14-3 22" fill="none" stroke="rgba(163,92,96,0.32)" strokeWidth="1" />
+  </svg>
+);
+
 const Dove = ({ className }) => (
   <svg className={className} viewBox="0 0 64 44" fill="currentColor" aria-hidden="true">
     <path d="M4 26c6 1 11-1 15-5 2 5 6 8 12 8 8 0 14-5 17-12 2 3 5 5 9 5 3 0 5-1 7-3-4 0-6-2-7-5 3-1 5-3 6-6-3 1-6 1-8-1-3-3-7-5-11-5-7 0-13 4-16 10-3-5-8-8-14-8C10 4 4 9 2 16c3-1 6 0 8 2-3 2-5 4-6 8z" />
@@ -701,6 +815,33 @@ export default function BruiloftSiteV2() {
               >
                 <span className="seal-emblem" aria-hidden="true" />
               </button>
+            </div>
+          </div>
+
+          <div className={"altar" + (envelopeIn ? " lit" : "")} aria-hidden="true">
+            <div className="petals">
+              {PETALS.map((pt, i) => (
+                <span
+                  key={i}
+                  className={"petal" + (pt.fall ? " petal-fall" : "")}
+                  style={{
+                    left: pt.left,
+                    top: pt.top,
+                    transform: pt.fall ? undefined : "rotate(" + pt.rot + "deg) scale(" + pt.scale + ")",
+                    animationDelay: pt.delay,
+                  }}
+                >
+                  <Petal />
+                </span>
+              ))}
+            </div>
+            <div className="candles">
+              {CANDLES.map((n) => (
+                <div key={n} className={"candle candle-" + n}>
+                  <span className="glow" />
+                  <span className="flame" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
