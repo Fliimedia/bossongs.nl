@@ -9,21 +9,6 @@ const DOVES = [
 
 const CLOUDS = [1, 2, 3, 4, 5, 6, 7];
 
-const PETALS = [
-  { left: "3%", top: "54%", rot: -28, scale: 1.05, shape: "a", fill: "pFlesh" },
-  { left: "11%", top: "76%", rot: 42, scale: 0.72, shape: "c", fill: "pFleshPale" },
-  { left: "19%", top: "60%", rot: -8, scale: 0.92, shape: "b", fill: "pFleshDeep" },
-  { left: "27%", top: "82%", rot: 64, scale: 0.66, shape: "a", fill: "pFleshPale" },
-  { left: "35%", top: "58%", rot: 14, scale: 1.12, shape: "c", fill: "pFlesh", fall: true, delay: "0s" },
-  { left: "44%", top: "80%", rot: -52, scale: 0.78, shape: "b", fill: "pFleshPale" },
-  { left: "52%", top: "62%", rot: 26, scale: 0.98, shape: "a", fill: "pFleshDeep" },
-  { left: "60%", top: "84%", rot: -18, scale: 0.7, shape: "c", fill: "pFlesh" },
-  { left: "68%", top: "57%", rot: 48, scale: 1.08, shape: "b", fill: "pFleshPale", fall: true, delay: "3.4s" },
-  { left: "77%", top: "79%", rot: -38, scale: 0.75, shape: "a", fill: "pFlesh" },
-  { left: "85%", top: "61%", rot: 10, scale: 0.95, shape: "c", fill: "pFleshDeep" },
-  { left: "93%", top: "78%", rot: -60, scale: 0.68, shape: "b", fill: "pFleshPale", fall: true, delay: "6.1s" },
-];
-
 const SPARKLES = [
   { top: "8%", left: "14%", delay: "0s", size: "0.5rem" },
   { top: "4%", left: "62%", delay: "0.7s", size: "0.35rem" },
@@ -345,42 +330,6 @@ const CSS = `
   100%{transform:scale(1.12) translate3d(0,-1.5%,0);}
 }
 
-/* rose petals at the foot of the envelope */
-.altar{position:relative;z-index:3;width:min(86vw,32rem);height:5rem;margin-top:-0.5rem;
-  opacity:0;transform:translateY(1.2rem);
-  transition:opacity 1100ms ease 500ms, transform 1100ms cubic-bezier(.2,.75,.3,1) 500ms;}
-.altar.lit{opacity:1;transform:translateY(0);}
-.opener.opening .altar{opacity:0;transform:translateY(1rem);transition-delay:0ms;}
-
-/* petals scattered across the base */
-.petal-defs{position:absolute;width:0;height:0;overflow:hidden;}
-.petals{position:absolute;inset:0;pointer-events:none;}
-.petal{position:absolute;width:2rem;height:2rem;
-  filter:drop-shadow(0 3px 4px rgba(130,72,78,0.3))
-         drop-shadow(0 10px 14px rgba(130,72,78,0.16));}
-.petal svg{width:100%;height:100%;display:block;}
-.petal-fall{animation:petal-drift 9s ease-in-out infinite;}
-
-@keyframes petal-drift{
-  0%{transform:translate3d(0,-2.5rem,0) rotate(-12deg);opacity:0;}
-  12%{opacity:0.9;}
-  55%{transform:translate3d(0.7rem,0.6rem,0) rotate(16deg);opacity:0.95;}
-  100%{transform:translate3d(-0.4rem,2.6rem,0) rotate(-6deg);opacity:0;}
-}
-
-@media (max-width:600px){
-  .altar{height:4.2rem;margin-top:-0.25rem;}
-  .petal{width:1.5rem;height:1.5rem;}
-}
-@media (max-height:720px){
-  .altar{height:3.6rem;}
-  .stage{width:min(70vw,24rem);}
-}
-
-@media (prefers-reduced-motion:reduce){
-  .petal-fall{animation:none;}
-}
-
 /* renaissance gold frame */
 .opener-frame{position:absolute;inset:var(--space-2);pointer-events:none;
   border:1px solid rgba(178,138,66,0.45);
@@ -389,27 +338,6 @@ const CSS = `
   border:1px solid rgba(178,138,66,0.6);}
 .opener-frame::before{top:0.6rem;left:0.6rem;border-right:0;border-bottom:0;}
 .opener-frame::after{bottom:0.6rem;right:0.6rem;border-left:0;border-top:0;}
-
-.opener-head{position:relative;z-index:2;text-align:center;
-  animation:rise-in 1200ms cubic-bezier(.2,.7,.3,1) both;}
-.opener-title{margin:0;font-family:"Cinzel Decorative",Georgia,serif;font-weight:700;
-  font-size:clamp(3rem,13vw,7rem);line-height:1;letter-spacing:0.04em;
-  background:linear-gradient(172deg, #fdf3d6 4%, #d8ae5c 32%, #a97c31 54%, #e7cd8e 74%, #c39543 96%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 2px 1px rgba(120,88,30,0.35)) drop-shadow(0 6px 18px rgba(160,120,50,0.25));}
-.opener-rule{display:flex;align-items:center;justify-content:center;gap:0.6rem;
-  margin:var(--space-2) auto var(--space-1);max-width:22rem;color:rgba(168,126,54,0.8);}
-.opener-rule span{flex:1 1 0;height:1px;
-  background:linear-gradient(90deg, transparent, currentColor 35%, currentColor 65%, transparent);}
-.opener-rule i{width:0.45rem;height:0.45rem;transform:rotate(45deg);
-  background:currentColor;border-radius:1px;}
-.opener-sub{margin:0;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;
-  font-size:clamp(1.05rem,3.4vw,1.6rem);letter-spacing:0.06em;color:#7a5c28;}
-
-@keyframes rise-in{
-  0%{opacity:0;transform:translateY(1.5rem);}
-  100%{opacity:1;transform:translateY(0);}
-}
 
 /* the envelope arrives a beat later */
 .stage{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;
@@ -544,16 +472,6 @@ const CSS = `
 }
 
 /* calligraphic names, pressed into the parchment light */
-.opener-names{margin:0 0 -0.15em;text-align:center;
-  font-family:"Great Vibes",cursive;font-weight:400;
-  font-size:clamp(1.35rem,5.2vw,2.4rem);line-height:1.15;letter-spacing:0.01em;
-  color:#d9c096;
-  text-shadow:
-    -1px -1px 0 rgba(255,252,242,0.9),
-     1px  1px 1px rgba(112,80,32,0.55),
-     0 3px 6px rgba(112,80,32,0.22);}
-.opener-names .amp{font-size:0.82em;padding:0 0.15em;}
-
 /* the monogram struck into the wax */
 .seal-emblem{position:absolute;inset:13%;
   -webkit-mask-image:url("images/zegel-monogram-d341eb63.png");
@@ -634,92 +552,6 @@ const IconInstagram = () => (
     <circle cx="12" cy="12" r="4" />
     <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
   </Icon>
-);
-
-// Gradients and filters live once in the DOM; each petal references them by id.
-const PetalDefs = () => (
-  <svg className="petal-defs" aria-hidden="true" focusable="false">
-    <defs>
-      <radialGradient id="pFlesh" cx="38%" cy="22%" r="88%">
-        <stop offset="0%" stopColor="#fff2f0" />
-        <stop offset="30%" stopColor="#fbdcda" />
-        <stop offset="62%" stopColor="#eeb2b2" />
-        <stop offset="88%" stopColor="#d3868a" />
-        <stop offset="100%" stopColor="#bb6b71" />
-      </radialGradient>
-      <radialGradient id="pFleshPale" cx="34%" cy="20%" r="90%">
-        <stop offset="0%" stopColor="#fffaf9" />
-        <stop offset="38%" stopColor="#fce8e5" />
-        <stop offset="72%" stopColor="#f2c6c3" />
-        <stop offset="100%" stopColor="#d59a9b" />
-      </radialGradient>
-      <radialGradient id="pFleshDeep" cx="42%" cy="26%" r="86%">
-        <stop offset="0%" stopColor="#fbdedb" />
-        <stop offset="34%" stopColor="#eeb0b0" />
-        <stop offset="70%" stopColor="#d0797f" />
-        <stop offset="100%" stopColor="#a9535c" />
-      </radialGradient>
-
-      {/* the shadow cast where the petal curls over on itself */}
-      <linearGradient id="pFold" x1="8%" y1="4%" x2="88%" y2="96%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
-        <stop offset="34%" stopColor="#ffffff" stopOpacity="0.05" />
-        <stop offset="68%" stopColor="#8d4a52" stopOpacity="0.16" />
-        <stop offset="100%" stopColor="#7c3d46" stopOpacity="0.34" />
-      </linearGradient>
-
-      {/* light catching the rolled edge */}
-      <linearGradient id="pRim" x1="0%" y1="10%" x2="100%" y2="70%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-        <stop offset="45%" stopColor="#fff4f2" stopOpacity="0.35" />
-        <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-      </linearGradient>
-
-      {/* velvet grain, very subtle */}
-      <filter id="pVelvet" x="-12%" y="-12%" width="124%" height="124%">
-        <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="3" result="n" />
-        <feColorMatrix in="n" type="saturate" values="0" result="g" />
-        <feComponentTransfer in="g" result="soft">
-          <feFuncA type="linear" slope="0.12" intercept="0" />
-        </feComponentTransfer>
-        <feComposite in="soft" in2="SourceGraphic" operator="in" result="grain" />
-        <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
-      </filter>
-    </defs>
-  </svg>
-);
-
-const PETAL_SHAPES = {
-  // broad open petal, the classic rose outer
-  a: "M50 97C34 90 13 73 11 49 9 27 25 8 41 4c5-1 9 4 9 9 0-5 4-10 9-9 16 4 32 23 30 45-2 24-23 41-39 48z",
-  // narrower, slightly cupped
-  b: "M50 96C37 88 20 71 19 50 18 30 32 11 46 6c4-2 8 2 8 7 1-5 5-8 9-6 14 6 26 25 24 44-2 21-18 37-37 45z",
-  // curled, seen at an angle
-  c: "M52 95C36 89 16 70 17 47 18 27 34 9 49 5c5-1 8 5 7 10 2-5 7-8 11-5 13 8 22 27 19 46-3 21-20 33-34 39z",
-};
-
-const Petal = ({ shape = "a", fill = "pFlesh" }) => (
-  <svg viewBox="0 0 100 100" aria-hidden="true">
-    <g filter="url(#pVelvet)">
-      <path d={PETAL_SHAPES[shape]} fill={"url(#" + fill + ")"} />
-      <path d={PETAL_SHAPES[shape]} fill="url(#pFold)" />
-    </g>
-    {/* veins fanning from the base */}
-    <g stroke="#a85f66" strokeOpacity="0.22" strokeWidth="0.9" fill="none" strokeLinecap="round">
-      <path d="M50 92C46 74 44 52 47 24" />
-      <path d="M50 92C41 76 33 58 31 36" />
-      <path d="M50 92C58 76 66 59 68 38" />
-      <path d="M50 92C49 70 52 44 58 22" strokeOpacity="0.14" />
-    </g>
-    {/* the lit, rolled outer edge */}
-    <path
-      d={PETAL_SHAPES[shape]}
-      fill="none"
-      stroke="url(#pRim)"
-      strokeWidth="2.6"
-      strokeLinejoin="round"
-    />
-  </svg>
 );
 
 const Dove = () => (
@@ -911,19 +743,6 @@ export default function BruiloftSiteV2() {
           <div className="opener-veil" />
           <div className="opener-frame" />
 
-          <div className="opener-head">
-            <p className="opener-names">
-              Sten <span className="amp">&amp;</span> Nyarayek&rsquo;s
-            </p>
-            <h1 className="opener-title">Wedding</h1>
-            <div className="opener-rule" aria-hidden="true">
-              <span />
-              <i />
-              <span />
-            </div>
-            <p className="opener-sub">You&rsquo;re cordially invited</p>
-          </div>
-
           <div className={"stage" + (envelopeIn ? " arrived" : "")}>
             <div className="sparkles" aria-hidden="true">
               {SPARKLES.map((sp, i) => (
@@ -959,25 +778,6 @@ export default function BruiloftSiteV2() {
             </div>
           </div>
 
-          <div className={"altar" + (envelopeIn ? " lit" : "")} aria-hidden="true">
-            <PetalDefs />
-            <div className="petals">
-              {PETALS.map((pt, i) => (
-                <span
-                  key={i}
-                  className={"petal" + (pt.fall ? " petal-fall" : "")}
-                  style={{
-                    left: pt.left,
-                    top: pt.top,
-                    transform: pt.fall ? undefined : "rotate(" + pt.rot + "deg) scale(" + pt.scale + ")",
-                    animationDelay: pt.delay,
-                  }}
-                >
-                  <Petal shape={pt.shape} fill={pt.fill} />
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
