@@ -196,6 +196,8 @@ const COPY = {
     dressLink: "Bekijk stijl en voorbeelden",
     dressAlt: "Voorbeeld Tenue de Ville",
     travelTitle: "Van ceremonie naar diner en feest",
+    agendaEyebrow: "De dag",
+    faqEyebrow: "Goed om te weten",
     contactLead: "Heb je een andere vraag?",
     coupleAlt: "Nyarayek en Sten",
     ringAlt: "De verlovingsring",
@@ -216,6 +218,8 @@ const COPY = {
     dressLink: "See the style and examples",
     dressAlt: "Tenue de Ville example",
     travelTitle: "From ceremony to dinner and party",
+    agendaEyebrow: "The day",
+    faqEyebrow: "Good to know",
     contactLead: "Have another question?",
     coupleAlt: "Nyarayek and Sten",
     ringAlt: "The engagement ring",
@@ -234,7 +238,12 @@ const CSS = `
   --shade-5:hsl(240,1.6%,12.4%);
   --shade-6:hsl(0,0%,0%);
   --brand:hsl(48,35.7%,94.5%);
+  --gold-pale:#f3e0b4;
+  --gold-light:#d9b268;
   --gold:#b1873f;
+  --gold-deep:#8a6524;
+  --gold-line:rgba(177,135,63,0.42);
+  --gold-line-soft:rgba(177,135,63,0.22);
 
   --space-1:0.5rem;
   --space-2:1rem;
@@ -277,7 +286,7 @@ const CSS = `
 .hero-bg{position:absolute;inset:0 var(--space-3) 22% var(--space-3);
   background:var(--brand);border-radius:14px;z-index:0;}
 .hero-bg::after{content:"";position:absolute;inset:0.75rem;border-radius:10px;
-  border:1px solid rgba(178,138,66,0.28);}
+  border:1px solid var(--gold-line-soft);}
 
 .hero-grid{position:relative;z-index:1;display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
@@ -291,7 +300,7 @@ const CSS = `
 .hero-date{display:flex;align-items:center;gap:0.75rem;margin:0;
   font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--shade-4);}
-.hero-date::before{content:"";width:2.5rem;height:1px;background:rgba(178,138,66,0.65);}
+.hero-date::before{content:"";width:2.5rem;height:1px;background:var(--gold);}
 .hero-btn{margin-top:var(--space-2);}
 
 /* two prints, laid down rather than pasted in */
@@ -338,16 +347,26 @@ const CSS = `
 .fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--gold);}
 .fact span{font-size:1rem;}
 
-.timeline{border-top:1px solid var(--shade-3);}
-.tl-item{display:grid;grid-template-columns:7rem 1fr;gap:var(--space-4);
-  padding:var(--space-4) 0;border-bottom:1px solid var(--shade-3);}
-.tl-time{font-variant-numeric:tabular-nums;font-weight:600;font-size:var(--type-3);}
+.timeline{border-top:1px solid var(--gold-line-soft);}
+.tl-item{position:relative;display:grid;grid-template-columns:7rem 1fr;
+  gap:var(--space-4);padding:var(--space-4) 0;
+  border-bottom:1px solid var(--gold-line-soft);}
+.tl-item::before{content:"";position:absolute;left:0;top:calc(var(--space-4) + 0.55rem);
+  width:0.3rem;height:0.3rem;transform:rotate(45deg);
+  background:var(--gold);border-radius:1px;}
+.tl-time{padding-left:0.9rem;font-variant-numeric:tabular-nums;font-weight:600;
+  font-size:var(--type-3);color:var(--gold);}
 .tl-body{display:flex;flex-direction:column;gap:var(--space-2);}
 
-.card{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4);
-  background:var(--brand);border-radius:10px;transition:transform 200ms ease;}
-.card:hover{transform:translateY(-2px);}
-.card-text{flex:1 1 0;}
+.card{position:relative;display:flex;align-items:center;gap:var(--space-4);
+  padding:var(--space-4);background:var(--brand);border-radius:14px;
+  transition:transform 200ms ease, box-shadow 200ms ease;}
+.card::after{content:"";position:absolute;inset:0.6rem;border-radius:10px;
+  border:1px solid var(--gold-line-soft);pointer-events:none;}
+.card:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(96,74,40,0.14);}
+.card-text{display:flex;flex-direction:column;align-items:flex-start;
+  gap:var(--space-1);flex:1 1 0;}
+.card-title{margin:0 0 var(--space-1);font-size:var(--type-2);line-height:1.15;}
 .card-img{flex:0 0 12rem;}
 .card-img img{width:100%;border-radius:6px;}
 
@@ -357,8 +376,23 @@ const CSS = `
 .tab-list{display:flex;flex-direction:column;gap:var(--space-3);}
 .tab{text-align:left;opacity:0.45;padding:var(--space-2) 0 var(--space-2) var(--space-2);
   border-left:2px solid transparent;transition:opacity 200ms ease,border-color 200ms ease;}
-.tab[aria-selected="true"]{opacity:1;border-left-color:var(--shade-6);}
+.tab[aria-selected="true"]{opacity:1;border-left-color:var(--gold);}
 .tab-title{font-size:var(--type-3);font-weight:600;margin-bottom:var(--space-1);}
+.tab[aria-selected="true"] .tab-title{color:var(--shade-6);}
+
+/* every section opens the same way: eyebrow, ornament, serif title */
+.sec-head{display:flex;flex-direction:column;align-items:flex-start;
+  gap:var(--space-1);margin-bottom:var(--space-4);max-width:34ch;}
+.sec-eyebrow{margin:0;font-size:var(--type-label);font-weight:600;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);}
+.sec-rule{display:flex;align-items:center;gap:0.5rem;width:7rem;
+  margin:0.15rem 0 0.35rem;color:var(--gold);}
+.sec-rule span{flex:1 1 0;height:1px;background:currentColor;}
+.sec-rule span:last-child{background:linear-gradient(90deg,currentColor,transparent);}
+.sec-rule i{width:0.32rem;height:0.32rem;transform:rotate(45deg);
+  background:currentColor;border-radius:1px;}
+.sec-title{margin:0;font-size:var(--type-1);line-height:1.1;}
+.sec-head-wide{max-width:22ch;}
 
 .faq{border-top:1px solid var(--shade-3);}
 .faq-row{border-bottom:1px solid var(--shade-3);}
@@ -373,9 +407,9 @@ const CSS = `
 .faq-panel > div{overflow:hidden;}
 .faq-inner{padding:0 2rem var(--space-4) 3.5rem;display:flex;flex-direction:column;gap:var(--space-3);}
 .link-u{align-self:flex-start;font-size:var(--type-label);font-weight:600;letter-spacing:0.1em;
-  text-transform:uppercase;border-bottom:1px solid var(--shade-3);padding-bottom:2px;
+  text-transform:uppercase;border-bottom:1px solid var(--gold-line);padding-bottom:2px;
   transition:border-color 200ms ease;}
-.link-u:hover{border-bottom-color:var(--shade-6);}
+.link-u:hover{border-bottom-color:var(--gold);}
 
 .contact{display:flex;flex-direction:column;align-items:center;gap:var(--space-1);
   padding:var(--space-5) 0;text-align:center;}
@@ -442,6 +476,7 @@ const CSS = `
   .bruiloft{--type-hero:2.75rem;--type-1:1.875rem;--type-2:1.5rem;--type-3:1.2rem;}
   .intro{font-size:1.25rem;}
   .tl-item{grid-template-columns:1fr;gap:var(--space-2);}
+  .tl-item::before{top:calc(var(--space-4) + 0.5rem);}
   .faq-btn{grid-template-columns:2.5rem 1fr 1.5rem;}
   .faq-inner{padding-left:2.5rem;padding-right:0;}
 }
@@ -473,17 +508,17 @@ const CSS = `
 
 /* renaissance gold frame */
 .opener-frame{position:absolute;inset:var(--space-2);pointer-events:none;
-  border:1px solid rgba(178,138,66,0.45);
-  box-shadow:inset 0 0 0 5px rgba(255,255,255,0.28), inset 0 0 60px rgba(190,150,80,0.14);}
+  border:1px solid var(--gold-line);
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,0.28), inset 0 0 60px rgba(177,135,63,0.14);}
 .opener-frame::before,.opener-frame::after{content:"";position:absolute;width:2.5rem;height:2.5rem;
-  border:1px solid rgba(178,138,66,0.6);}
+  border:1px solid var(--gold-line);}
 .opener-frame::before{top:0.6rem;left:0.6rem;border-right:0;border-bottom:0;}
 .opener-frame::after{bottom:0.6rem;right:0.6rem;border-left:0;border-top:0;}
 
 .opener-invite{position:relative;z-index:2;margin:0;text-align:center;
   font-family:"Great Vibes",cursive;font-weight:400;
   font-size:clamp(1.5rem,6vw,2.8rem);line-height:1.2;
-  color:#c9a86a;
+  color:var(--gold-light);
   text-shadow:0 1px 0 rgba(255,252,242,0.8), 0 2px 6px rgba(112,80,32,0.28);
   opacity:0;transform:translateY(0.7rem);
   transition:opacity 1000ms ease, transform 1000ms cubic-bezier(.2,.75,.3,1);}
@@ -717,20 +752,20 @@ const WaxSeal = () => (
   <svg className="wax" viewBox="0 0 200 200" aria-hidden="true">
     <defs>
       <radialGradient id="waxBody" cx="32%" cy="24%" r="84%">
-        <stop offset="0%" stopColor="#e9c67c" />
-        <stop offset="45%" stopColor="#cfa246" />
-        <stop offset="100%" stopColor="#8e6620" />
+        <stop offset="0%" stopColor="var(--gold-light)" />
+        <stop offset="45%" stopColor="var(--gold)" />
+        <stop offset="100%" stopColor="var(--gold-deep)" />
       </radialGradient>
       <linearGradient id="waxRim" x1="18%" y1="10%" x2="82%" y2="92%">
-        <stop offset="0%" stopColor="#fbeab8" />
-        <stop offset="22%" stopColor="#e9c979" />
-        <stop offset="50%" stopColor="#cfa348" />
+        <stop offset="0%" stopColor="var(--gold-pale)" />
+        <stop offset="22%" stopColor="var(--gold-light)" />
+        <stop offset="50%" stopColor="var(--gold)" />
         <stop offset="78%" stopColor="#a87d2c" />
         <stop offset="100%" stopColor="#7d5716" />
       </linearGradient>
       <radialGradient id="waxField" cx="38%" cy="30%" r="80%">
-        <stop offset="0%" stopColor="#dcb567" />
-        <stop offset="52%" stopColor="#c69a41" />
+        <stop offset="0%" stopColor="var(--gold-light)" />
+        <stop offset="52%" stopColor="var(--gold)" />
         <stop offset="100%" stopColor="#a2762a" />
       </radialGradient>
 
@@ -792,11 +827,11 @@ const WaxSeal = () => (
     <circle cx="100" cy="100" r="74" fill="none" stroke="#7f5a17"
       strokeOpacity="0.35" strokeWidth="2.5" />
 
-    <g filter="url(#reliefFine)" fill="#cfa14c">
-      <circle cx="100" cy="100" r="66" fill="none" stroke="#c99a45" strokeWidth="2" />
+    <g filter="url(#reliefFine)" fill="var(--gold)">
+      <circle cx="100" cy="100" r="66" fill="none" stroke="var(--gold)" strokeWidth="2" />
 
       {/* a die cannot hold a hairline, so the outlines carry a slight stroke */}
-      <g stroke="#cfa14c" strokeWidth="0.5" strokeLinejoin="round">
+      <g stroke="var(--gold)" strokeWidth="0.5" strokeLinejoin="round">
       <g transform="translate(0.64, 1.0)">
         <path
           transform="translate(49.61, 99.81) scale(0.0647)"
@@ -816,7 +851,7 @@ const WaxSeal = () => (
 
       {/* laurel sprig, lower left, clear of the lockup */}
       <g stroke="none">
-        <path d="M52 158C45 143 42 129 45 114" fill="none" stroke="#cfa14c"
+        <path d="M52 158C45 143 42 129 45 114" fill="none" stroke="var(--gold)"
           strokeWidth="1.8" strokeLinecap="round" />
         <path d="M47 147c-6-1-11-5-13-11 7-1 12 2 14 7z" />
         <path d="M45 135c-6-2-10-7-11-13 7 0 12 3 13 9z" />
@@ -893,6 +928,20 @@ const IconArrow = () => (
     <path d="M8 7h9v9" />
   </Icon>
 );
+
+function SectionHead({ eyebrow, title, wide }) {
+  return (
+    <header className={"sec-head" + (wide ? " sec-head-wide" : "")}>
+      {eyebrow ? <p className="sec-eyebrow">{eyebrow}</p> : null}
+      <div className="sec-rule" aria-hidden="true">
+        <span />
+        <i />
+        <span />
+      </div>
+      <h2 className="serif sec-title">{title}</h2>
+    </header>
+  );
+}
 
 function Fact({ icon, children }) {
   return (
@@ -1241,9 +1290,7 @@ export default function BruiloftSiteV2() {
 
         <section id="agenda" className="sec">
           <div className="wrap">
-            <h2 className="serif h1" style={{ marginBottom: "2.5rem" }}>
-              {SECTIONS[1][lang]}
-            </h2>
+<SectionHead eyebrow={c.agendaEyebrow} title={SECTIONS[1][lang]} />
             <div className="timeline">
               {TIMELINE.map((item, i) => (
                 <div className="tl-item" key={i}>
@@ -1271,10 +1318,13 @@ export default function BruiloftSiteV2() {
               rel="noreferrer"
             >
               <div className="card-text">
-                <p className="label" style={{ color: "var(--shade-4)" }}>{c.dressLabel}</p>
-                <h2 className="serif h2" style={{ margin: "0.5rem 0" }}>
-                  {c.dressTitle}
-                </h2>
+                <p className="sec-eyebrow">{c.dressLabel}</p>
+                <div className="sec-rule" aria-hidden="true">
+                  <span />
+                  <i />
+                  <span />
+                </div>
+                <h3 className="serif card-title">{c.dressTitle}</h3>
                 <p className="link-u">{c.dressLink}</p>
               </div>
               <div className="card-img">
@@ -1286,10 +1336,7 @@ export default function BruiloftSiteV2() {
 
         <section id="locatie" className="sec">
           <div className="wrap">
-            <p className="label" style={{ color: "var(--shade-4)" }}>{SECTIONS[2][lang]}</p>
-            <h2 className="serif h1" style={{ margin: "0.75rem 0 2.5rem", maxWidth: "20ch" }}>
-              {c.travelTitle}
-            </h2>
+<SectionHead eyebrow={SECTIONS[2][lang]} title={c.travelTitle} wide />
             <div className="tabs">
               <div className="tab-img">
                 <img src={TABS[tab].image} alt={TABS[tab][lang].title} />
@@ -1314,9 +1361,7 @@ export default function BruiloftSiteV2() {
 
         <section id="faq" className="sec">
           <div className="wrap">
-            <h2 className="serif h1" style={{ marginBottom: "2.5rem" }}>
-              {SECTIONS[3][lang]}
-            </h2>
+<SectionHead eyebrow={c.faqEyebrow} title={SECTIONS[3][lang]} />
             <div className="faq">
               {FAQ.map((item, i) => (
                 <div className={"faq-row" + (open === i ? " open" : "")} key={i}>
