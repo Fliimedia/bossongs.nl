@@ -305,7 +305,7 @@ const CSS = `
   background:linear-gradient(160deg, hsl(42,32%,88%), hsl(40,26%,80%));
   box-shadow:inset 0 0 40px rgba(120,95,55,0.18);}
 
-.flap{position:absolute;backface-visibility:hidden;
+.flap{position:absolute;
   background-color:hsl(44,34%,91%);
   background-image:
     linear-gradient(var(--flap-sheen, 155deg), rgba(255,255,255,0.55), rgba(160,130,80,0.14)),
@@ -326,6 +326,9 @@ const CSS = `
   clip-path:polygon(0 100%, 100% 100%, 50% 0);
   transform-origin:bottom center;--flap-sheen:0deg;}
 
+.flap-top,.flap-left,.flap-right,.flap-bottom{transition-property:transform, filter;}
+.intro.opening .flap-top,.intro.opening .flap-left,
+.intro.opening .flap-right,.intro.opening .flap-bottom{filter:brightness(0.93);}
 .intro.opening .flap-top{transform:rotateX(-172deg);transition-delay:0ms;}
 .intro.opening .flap-left{transform:rotateY(-168deg);transition-delay:380ms;}
 .intro.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
