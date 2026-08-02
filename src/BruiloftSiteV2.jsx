@@ -397,7 +397,7 @@ const CSS = `
 
 /* wax seal with calligraphic monogram */
 .seal{position:absolute;top:50%;left:50%;z-index:6;
-  width:6rem;height:6rem;margin:-3rem 0 0 -3rem;padding:0;
+  width:6.75rem;height:6.75rem;margin:-3.375rem 0 0 -3.375rem;padding:0;
   display:flex;align-items:center;justify-content:center;
   border-radius:47% 53% 51% 49% / 49% 47% 53% 51%;
   background:radial-gradient(circle at 34% 30%, #edcd8e 0%, #c9963f 26%, #9d6c26 66%, #7d5219 100%);
@@ -464,7 +464,7 @@ const CSS = `
 .opener-names .amp{font-size:0.82em;padding:0 0.15em;}
 
 /* the monogram struck into the wax */
-.seal-emblem{position:absolute;inset:20%;
+.seal-emblem{position:absolute;inset:13%;
   -webkit-mask-image:url("images/zegel-monogram.png");
   mask-image:url("images/zegel-monogram.png");
   -webkit-mask-size:contain;mask-size:contain;
@@ -484,7 +484,7 @@ const CSS = `
 
 @media (max-width:600px){
   .stage{width:88vw;}
-  .seal{width:5rem;height:5rem;margin:-2.5rem 0 0 -2.5rem;}
+  .seal{width:5.75rem;height:5.75rem;margin:-2.875rem 0 0 -2.875rem;}
   .opener-frame{inset:var(--space-1);}
 }
 
