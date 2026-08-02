@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const DOVES = [
   { cls: "dove-1", start: "48%", top: "52%", size: "clamp(3.2rem,11vw,5.5rem)", delay: "180ms" },
@@ -218,6 +218,10 @@ const COPY = {
     reelEyebrow: "Momenten",
     reelTitle: "Twaalf jaar samen",
     reelAlt: "Herinnering",
+    reelOpen: "Foto vergroten",
+    close: "Sluiten",
+    prev: "Vorige",
+    next: "Volgende",
     factsEyebrow: "Overzicht",
     factsTitle: "Wie, wat, waar",
     faqEyebrow: "Goed om te weten",
@@ -246,6 +250,10 @@ const COPY = {
     reelEyebrow: "Moments",
     reelTitle: "Twelve years together",
     reelAlt: "Memory",
+    reelOpen: "Enlarge photo",
+    close: "Close",
+    prev: "Previous",
+    next: "Next",
     factsEyebrow: "Overview",
     factsTitle: "Who, what, where",
     faqEyebrow: "Good to know",
@@ -475,23 +483,51 @@ const CSS = `
 
 /* a continuous strip of photographs, doubled so the loop never shows a seam */
 .reel-sec{padding-bottom:var(--space-5);}
-.reel{--reel-h:clamp(11rem,26vw,17rem);position:relative;overflow:hidden;
+.reel{--reel-h:clamp(11rem,26vw,17rem);position:relative;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;
+  cursor:grab;touch-action:pan-y pinch-zoom;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
-.reel-track{display:flex;width:max-content;gap:var(--space-2);
-  animation:reel-run 72s linear infinite;}
-.reel:hover .reel-track{animation-play-state:paused;}
-.reel-item{flex:0 0 auto;margin:0;overflow:hidden;border-radius:10px;
-  background:var(--brand);box-shadow:0 10px 22px rgba(96,74,40,0.16);}
+.reel::-webkit-scrollbar{display:none;}
+.reel.dragging{cursor:grabbing;}
+.reel-track{display:flex;width:max-content;gap:var(--space-2);}
+.reel-item{flex:0 0 auto;margin:0;padding:0;border:0;overflow:hidden;border-radius:10px;
+  display:block;line-height:0;
+  background:var(--brand);box-shadow:0 10px 22px rgba(96,74,40,0.16);
+  cursor:zoom-in;transition:transform 260ms cubic-bezier(.2,.7,.3,1);}
+.reel-item:hover{transform:translateY(-3px);}
 .reel-item img{height:var(--reel-h);width:auto;max-width:none;
   display:block;object-fit:cover;}
-@keyframes reel-run{
-  from{transform:translate3d(0,0,0);}
-  to{transform:translate3d(-50%,0,0);}
-}
+/* the pop up: a print laid on a dimmed room */
+.lb{position:fixed;inset:0;z-index:120;display:flex;align-items:center;
+  justify-content:center;padding:var(--space-3);
+  background:rgba(38,28,12,0.72);backdrop-filter:blur(3px);
+  animation:lb-in 220ms ease both;}
+@keyframes lb-in{from{opacity:0;}to{opacity:1;}}
+.lb-frame{position:relative;margin:0;max-width:min(92vw,58rem);max-height:86vh;
+  padding:0.7rem;background:var(--shade-1);border-radius:10px;
+  box-shadow:0 30px 60px rgba(20,12,2,0.5);
+  animation:lb-rise 300ms cubic-bezier(.2,.75,.3,1) both;}
+@keyframes lb-rise{from{opacity:0;transform:translateY(1.2rem) scale(0.97);}
+  to{opacity:1;transform:none;}}
+.lb-frame::after{content:"";position:absolute;inset:0.35rem;border-radius:7px;
+  border:1px solid var(--gold-line-soft);pointer-events:none;}
+.lb-frame img{display:block;max-width:100%;max-height:calc(86vh - 1.4rem);
+  width:auto;height:auto;border-radius:5px;}
+.lb-btn{position:absolute;z-index:2;display:inline-flex;align-items:center;
+  justify-content:center;width:2.75rem;height:2.75rem;border-radius:999px;
+  background:rgba(255,255,255,0.92);color:var(--shade-6);
+  box-shadow:0 4px 12px rgba(20,12,2,0.3);
+  transition:background-color 200ms ease, transform 200ms ease;}
+.lb-btn:hover{background:#fff;transform:scale(1.05);}
+.lb-close{top:var(--space-3);right:var(--space-3);}
+.lb-prev{left:var(--space-2);top:50%;margin-top:-1.375rem;}
+.lb-next{right:var(--space-2);top:50%;margin-top:-1.375rem;}
+.lb-count{position:absolute;bottom:var(--space-3);left:0;right:0;text-align:center;
+  font-size:var(--type-label);letter-spacing:0.14em;color:rgba(255,252,244,0.75);}
+
 @media (prefers-reduced-motion:reduce){
-  .reel{overflow-x:auto;}
-  .reel-track{animation:none;}
+  .lb,.lb-frame{animation:none;}
 }
 
 .contact{display:flex;flex-direction:column;align-items:center;gap:var(--space-1);
@@ -1013,6 +1049,18 @@ const IconMenu = ({ open }) => (
   </Icon>
 );
 
+const IconClose = () => (
+  <Icon size={20}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </Icon>
+);
+
+const IconChevron = ({ back }) => (
+  <Icon size={22}>
+    <path d={back ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
+  </Icon>
+);
+
 const IconArrow = () => (
   <Icon size={20}>
     <path d="M7 17L17 7" />
@@ -1054,6 +1102,9 @@ export default function BruiloftSiteV2() {
   const [mistFlown, setMistFlown] = useState(false);
   const [fontsReady, setFontsReady] = useState(false);
   const [open, setOpen] = useState(null);
+  const [shot, setShot] = useState(null);
+  const reelRef = useRef(null);
+  const dragRef = useRef({ down: false, moved: 0, x: 0, left: 0 });
 
   const closeMenu = () => setMenuOpen(false);
   const c = COPY[lang];
@@ -1067,6 +1118,97 @@ export default function BruiloftSiteV2() {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.setTimeout(() => setIntroDone(true), reduced ? 600 : 2150);
   };
+
+  // The strip drifts on its own, pauses under the pointer, and can be dragged.
+  useEffect(() => {
+    const el = reelRef.current;
+    if (!el) return undefined;
+    const reduced =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let raf = 0;
+    let hovering = false;
+    const half = () => el.scrollWidth / 2;
+
+    const step = () => {
+      if (!dragRef.current.down && !hovering && shot === null && !reduced) {
+        el.scrollLeft += 0.4;
+      }
+      if (el.scrollLeft >= half()) el.scrollLeft -= half();
+      if (el.scrollLeft <= 0) el.scrollLeft += half();
+      raf = window.requestAnimationFrame(step);
+    };
+    raf = window.requestAnimationFrame(step);
+
+    const enter = () => {
+      hovering = true;
+    };
+    const leave = () => {
+      hovering = false;
+    };
+    const down = (e) => {
+      if (e.pointerType === "touch") return; // native scrolling already handles it
+      dragRef.current = { down: true, moved: 0, x: e.clientX, left: el.scrollLeft };
+      el.classList.add("dragging");
+      el.setPointerCapture(e.pointerId);
+    };
+    const move = (e) => {
+      const d = dragRef.current;
+      if (!d.down) return;
+      const dx = e.clientX - d.x;
+      d.moved = Math.max(d.moved, Math.abs(dx));
+      el.scrollLeft = d.left - dx;
+    };
+    const up = (e) => {
+      if (!dragRef.current.down) return;
+      dragRef.current.down = false;
+      el.classList.remove("dragging");
+      if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    };
+
+    el.addEventListener("pointerenter", enter);
+    el.addEventListener("pointerleave", leave);
+    el.addEventListener("pointerdown", down);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+      el.removeEventListener("pointerenter", enter);
+      el.removeEventListener("pointerleave", leave);
+      el.removeEventListener("pointerdown", down);
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", up);
+    };
+  }, [shot]);
+
+  const openShot = useCallback((i) => {
+    // a drag should never be read as a click on a photo
+    if (dragRef.current.moved > 6) return;
+    setShot(i % REEL.length);
+  }, []);
+
+  const stepShot = useCallback((d) => {
+    setShot((v) => (v === null ? v : (v + d + REEL.length) % REEL.length));
+  }, []);
+
+  useEffect(() => {
+    if (shot === null) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setShot(null);
+      if (e.key === "ArrowRight") stepShot(1);
+      if (e.key === "ArrowLeft") stepShot(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [shot, stepShot]);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -1508,23 +1650,77 @@ export default function BruiloftSiteV2() {
           <div className="wrap">
             <SectionHead eyebrow={c.reelEyebrow} title={c.reelTitle} />
           </div>
-          <div className="reel">
+          <div className="reel" ref={reelRef}>
             <div className="reel-track">
-              {REEL.concat(REEL).map((shot, i) => (
-                <figure className="reel-item" key={i}>
+              {REEL.concat(REEL).map((photo, i) => (
+                <button
+                  className="reel-item"
+                  type="button"
+                  key={i}
+                  onClick={() => openShot(i)}
+                  aria-label={c.reelOpen}
+                >
                   <img
-                    src={shot.src}
-                    width={shot.w}
-                    height={shot.h}
+                    src={photo.src}
+                    width={photo.w}
+                    height={photo.h}
                     alt={i < REEL.length ? c.reelAlt : ""}
                     loading="lazy"
+                    decoding="async"
                   />
-                </figure>
+                </button>
               ))}
             </div>
           </div>
         </section>
       </main>
+
+      {shot !== null && (
+        <div
+          className="lb"
+          role="dialog"
+          aria-modal="true"
+          aria-label={c.reelOpen}
+          onClick={() => setShot(null)}
+        >
+          <button className="lb-btn lb-close" type="button" aria-label={c.close}>
+            <IconClose />
+          </button>
+          <button
+            className="lb-btn lb-prev"
+            type="button"
+            aria-label={c.prev}
+            onClick={(e) => {
+              e.stopPropagation();
+              stepShot(-1);
+            }}
+          >
+            <IconChevron back />
+          </button>
+          <figure className="lb-frame" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={REEL[shot].src}
+              width={REEL[shot].w}
+              height={REEL[shot].h}
+              alt={c.reelAlt}
+            />
+          </figure>
+          <button
+            className="lb-btn lb-next"
+            type="button"
+            aria-label={c.next}
+            onClick={(e) => {
+              e.stopPropagation();
+              stepShot(1);
+            }}
+          >
+            <IconChevron />
+          </button>
+          <p className="lb-count">
+            {shot + 1} / {REEL.length}
+          </p>
+        </div>
+      )}
 
       <footer className="footer">
         <img className="footer-logo" src={IMG.logoFull} width="800" height="800" alt="" />
