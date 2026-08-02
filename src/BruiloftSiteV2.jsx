@@ -15,7 +15,7 @@ const SPARKLES = [
 
 const IMG = {
   hemel: "images/hemel.webp",
-  zegelMonogram: "images/zegel-monogram.png",
+  zegelMonogram: "images/zegel-monogram-d341eb63.png",
   logoIcon: "images/logo-icoon.png",
   logoCompact: "images/logo-compact.png",
   logoFull: "images/logo-volledig.png",
@@ -462,8 +462,8 @@ const CSS = `
 
 /* the monogram struck into the wax */
 .seal-emblem{position:absolute;inset:13%;
-  -webkit-mask-image:url("images/zegel-monogram.png");
-  mask-image:url("images/zegel-monogram.png");
+  -webkit-mask-image:url("images/zegel-monogram-d341eb63.png");
+  mask-image:url("images/zegel-monogram-d341eb63.png");
   -webkit-mask-size:contain;mask-size:contain;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
