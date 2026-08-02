@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
 
+const DOVES = [
+  { cls: "dove-1", start: "48%", top: "52%", size: "clamp(3.2rem,11vw,5.5rem)", delay: "180ms" },
+  { cls: "dove-2", start: "34%", top: "60%", size: "clamp(2.4rem,8vw,4rem)", delay: "420ms" },
+  { cls: "dove-3", start: "62%", top: "44%", size: "clamp(2.8rem,9vw,4.6rem)", delay: "300ms" },
+  { cls: "dove-4", start: "52%", top: "68%", size: "clamp(2rem,6.5vw,3.2rem)", delay: "640ms" },
+];
+
+const CLOUDS = [1, 2, 3, 4, 5, 6, 7];
+
 const CANDLES = [1, 2, 3, 4, 5];
 
 const PETALS = [
@@ -512,24 +521,58 @@ const CSS = `
   50%{transform:scale(1.04);}
 }
 
-/* doves */
-.dove{position:absolute;z-index:5;width:clamp(2.4rem,7vw,3.6rem);color:#fffdf6;
-  filter:drop-shadow(0 6px 10px rgba(120,100,60,0.3));opacity:0;}
-.stage.arrived .dove{opacity:1;transition:opacity 900ms ease 200ms;}
-.dove-left{left:-8%;top:6%;animation:dove-float-l 7s ease-in-out infinite;}
-.dove-right{right:-8%;bottom:4%;animation:dove-float-r 8.5s ease-in-out infinite;}
-@keyframes dove-float-l{
-  0%,100%{transform:translate(0,0) rotate(-6deg);}
-  50%{transform:translate(-0.6rem,-1.1rem) rotate(2deg);}
+/* opening mist: a bank of cloud covering the screen, which parts sideways */
+.mist{position:absolute;inset:0;z-index:20;pointer-events:none;overflow:hidden;}
+.cloud{position:absolute;border-radius:50%;
+  background:radial-gradient(circle at 42% 38%,
+    rgba(255,255,255,0.98) 0%, rgba(253,251,246,0.92) 38%,
+    rgba(248,244,235,0.7) 62%, rgba(245,240,229,0) 78%);
+  filter:blur(6px);
+  transition:transform 2400ms cubic-bezier(.35,0,.2,1), opacity 2000ms ease;}
+.cloud-1{width:78vw;height:78vw;left:-24vw;top:-18vw;}
+.cloud-2{width:70vw;height:70vw;right:-22vw;top:-14vw;}
+.cloud-3{width:86vw;height:86vw;left:-18vw;bottom:-26vw;}
+.cloud-4{width:74vw;height:74vw;right:-20vw;bottom:-22vw;}
+.cloud-5{width:64vw;height:64vw;left:16vw;top:14vh;}
+.cloud-6{width:58vw;height:58vw;right:12vw;top:24vh;}
+.cloud-7{width:92vw;height:60vw;left:4vw;top:28vh;filter:blur(14px);}
+
+.mist.clearing .cloud{opacity:0;}
+.mist.clearing .cloud-1{transform:translate3d(-46vw,-10vh,0) scale(1.35);}
+.mist.clearing .cloud-2{transform:translate3d(46vw,-8vh,0) scale(1.3);}
+.mist.clearing .cloud-3{transform:translate3d(-52vw,12vh,0) scale(1.4);transition-delay:120ms;}
+.mist.clearing .cloud-4{transform:translate3d(50vw,10vh,0) scale(1.32);transition-delay:120ms;}
+.mist.clearing .cloud-5{transform:translate3d(-38vw,-6vh,0) scale(1.5);transition-delay:220ms;}
+.mist.clearing .cloud-6{transform:translate3d(40vw,-4vh,0) scale(1.45);transition-delay:220ms;}
+.mist.clearing .cloud-7{transform:translate3d(0,-14vh,0) scale(1.6);transition-delay:60ms;}
+
+/* doves breaking out of the cloud as it parts */
+.flight{position:absolute;inset:0;}
+.dove{position:absolute;color:#fff;opacity:0;
+  filter:drop-shadow(0 8px 14px rgba(120,100,60,0.28));
+  transition:transform 2600ms cubic-bezier(.22,.62,.28,1), opacity 700ms ease;}
+.dove svg{width:100%;height:auto;display:block;}
+.mist.clearing .dove{opacity:1;}
+.mist.clearing .dove-1{transform:translate3d(-58vw,-40vh,0) rotate(-16deg) scale(1.25);}
+.mist.clearing .dove-2{transform:translate3d(-42vw,-58vh,0) rotate(-24deg) scale(1.1);}
+.mist.clearing .dove-3{transform:translate3d(56vw,-46vh,0) rotate(14deg) scaleX(-1) scale(1.2);}
+.mist.clearing .dove-4{transform:translate3d(38vw,-62vh,0) rotate(20deg) scaleX(-1);}
+.mist.flown .dove{opacity:0;transition:opacity 900ms ease;}
+
+.wing{transform-origin:62% 60%;animation:wingbeat 420ms ease-in-out infinite alternate;}
+.wing-far{animation-duration:440ms;animation-delay:-140ms;}
+.dove-2 .wing{animation-duration:360ms;}
+.dove-3 .wing{animation-duration:470ms;}
+.dove-4 .wing{animation-duration:330ms;}
+@keyframes wingbeat{
+  0%{transform:rotate(-24deg) scaleY(0.86);}
+  100%{transform:rotate(16deg) scaleY(1.06);}
 }
-@keyframes dove-float-r{
-  0%,100%{transform:translate(0,0) rotate(8deg) scaleX(-1);}
-  50%{transform:translate(0.7rem,-0.9rem) rotate(-1deg) scaleX(-1);}
+
+@media (prefers-reduced-motion:reduce){
+  .cloud,.dove{transition:opacity 500ms ease;transform:none !important;}
+  .wing{animation:none;}
 }
-.opener.opening .dove-left{transform:translate(-9rem,-7rem) rotate(-18deg);opacity:0;
-  transition:transform 1400ms ease, opacity 900ms ease;animation:none;}
-.opener.opening .dove-right{transform:translate(9rem,-6rem) rotate(16deg) scaleX(-1);opacity:0;
-  transition:transform 1400ms ease, opacity 900ms ease;animation:none;}
 
 /* sparkles */
 .sparkles{position:absolute;inset:-12%;z-index:5;pointer-events:none;}
@@ -576,7 +619,7 @@ const CSS = `
 }
 
 @media (prefers-reduced-motion:reduce){
-  .opener-sky,.sparkle,.dove,.seal{animation:none;}
+  .opener-sky,.sparkle,.seal{animation:none;}
   .opener{transition:opacity 300ms ease 200ms, visibility 0ms linear 500ms;}
   .stage{transition:opacity 300ms ease;}
   .envelope,.flap{transition:opacity 300ms ease;}
@@ -656,10 +699,52 @@ const Petal = () => (
   </svg>
 );
 
-const Dove = ({ className }) => (
-  <svg className={className} viewBox="0 0 64 44" fill="currentColor" aria-hidden="true">
-    <path d="M4 26c6 1 11-1 15-5 2 5 6 8 12 8 8 0 14-5 17-12 2 3 5 5 9 5 3 0 5-1 7-3-4 0-6-2-7-5 3-1 5-3 6-6-3 1-6 1-8-1-3-3-7-5-11-5-7 0-13 4-16 10-3-5-8-8-14-8C10 4 4 9 2 16c3-1 6 0 8 2-3 2-5 4-6 8z" />
-    <path d="M28 21c5-3 11-3 16 0-5 6-11 8-16 0z" opacity="0.35" />
+const Dove = () => (
+  <svg viewBox="0 0 120 96" aria-hidden="true">
+    <defs>
+      <linearGradient id="doveBody" x1="20%" y1="6%" x2="76%" y2="94%">
+        <stop offset="0%" stopColor="#ffffff" />
+        <stop offset="52%" stopColor="#f7f4ec" />
+        <stop offset="100%" stopColor="#ded7c8" />
+      </linearGradient>
+      <linearGradient id="doveWing" x1="14%" y1="0%" x2="82%" y2="100%">
+        <stop offset="0%" stopColor="#ffffff" />
+        <stop offset="60%" stopColor="#f4f0e6" />
+        <stop offset="100%" stopColor="#cfc7b6" />
+      </linearGradient>
+    </defs>
+
+    {/* far wing, sweeping back */}
+    <g className="wing wing-far">
+      <path
+        d="M58 44C50 33 41 25 28 21c-8-2-15-1-21 3 6 1 10 4 13 8-6 0-11 2-15 6 6 0 11 2 15 6-5 1-9 4-12 8 12 3 24 1 34-4 7-3 12-7 16-4z"
+        fill="url(#doveWing)"
+        opacity="0.72"
+      />
+    </g>
+
+    {/* body, neck and head */}
+    <path
+      d="M56 46c7-6 12-13 21-16 5-2 10-2 14 1 3 2 4 5 3 8 3-1 6 0 8 2-3 1-5 3-6 6-1 5-5 8-10 9-6 1-11 0-16-2-6 6-14 10-23 12-9 2-18 1-26-3 9-1 16-5 22-11 5-4 9-8 13-6z"
+      fill="url(#doveBody)"
+    />
+    <circle cx="97" cy="35" r="1.7" fill="#5d5344" />
+    <path d="M103 37l7 2-7 3z" fill="#d8a74e" />
+
+    {/* tail */}
+    <path
+      d="M32 62c-8 3-16 8-22 15 9-1 17-3 24-7 4-2 7-5 8-8z"
+      fill="url(#doveWing)"
+      opacity="0.9"
+    />
+
+    {/* near wing, the one that beats */}
+    <g className="wing wing-near">
+      <path
+        d="M60 44c-4-13-11-24-22-32-7-5-15-8-24-8 5 5 8 11 10 18-6-3-12-4-18-2 6 3 10 8 13 14-5-1-10 0-14 3 7 2 12 6 16 11 7 8 17 12 28 11 6-1 11-6 11-15z"
+        fill="url(#doveWing)"
+      />
+    </g>
   </svg>
 );
 
@@ -695,6 +780,8 @@ export default function BruiloftSiteV2() {
   const [introDone, setIntroDone] = useState(false);
   const [introOpening, setIntroOpening] = useState(false);
   const [envelopeIn, setEnvelopeIn] = useState(false);
+  const [mistClearing, setMistClearing] = useState(false);
+  const [mistFlown, setMistFlown] = useState(false);
   const [open, setOpen] = useState(null);
 
   const closeMenu = () => setMenuOpen(false);
@@ -717,6 +804,17 @@ export default function BruiloftSiteV2() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  // The cloud bank parts almost immediately and the doves ride it out.
+  useEffect(() => {
+    if (introDone) return;
+    const a = window.setTimeout(() => setMistClearing(true), 140);
+    const b = window.setTimeout(() => setMistFlown(true), 2300);
+    return () => {
+      window.clearTimeout(a);
+      window.clearTimeout(b);
+    };
+  }, [introDone]);
 
   // The title lands first, the envelope arrives a beat later.
   useEffect(() => {
@@ -764,6 +862,28 @@ export default function BruiloftSiteV2() {
           aria-modal="true"
           aria-label="Uitnodiging"
         >
+          <div
+            className={
+              "mist" + (mistClearing ? " clearing" : "") + (mistFlown ? " flown" : "")
+            }
+            aria-hidden="true"
+          >
+            {CLOUDS.map((n) => (
+              <span key={n} className={"cloud cloud-" + n} />
+            ))}
+            <div className="flight">
+              {DOVES.map((d) => (
+                <span
+                  key={d.cls}
+                  className={"dove " + d.cls}
+                  style={{ left: d.start, top: d.top, width: d.size, transitionDelay: d.delay }}
+                >
+                  <Dove />
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div className="opener-sky" />
           <div className="opener-veil" />
           <div className="opener-frame" />
@@ -798,8 +918,6 @@ export default function BruiloftSiteV2() {
               ))}
             </div>
 
-            <Dove className="dove dove-left" />
-            <Dove className="dove dove-right" />
 
             <div className="envelope">
               <div className="env-pocket" />
