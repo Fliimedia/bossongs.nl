@@ -26,7 +26,7 @@ const html = `<!doctype html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bruiloft 19 september 2026</title>
-    <meta name="build" content="b14" />
+    <meta name="build" content="b15" />
     <meta
       name="description"
       content="Uitnodiging voor onze bruiloft op 19 september 2026 in Amstelveen en Ouderkerk aan de Amstel."
@@ -36,7 +36,7 @@ const html = `<!doctype html>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
     />
   </head>
   <body>
