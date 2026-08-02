@@ -358,7 +358,8 @@ const CSS = `
 .tl-marker i{width:0.3rem;height:0.3rem;transform:rotate(45deg);
   background:var(--gold);border-radius:1px;}
 
-.tl-body{display:flex;flex-direction:column;gap:0.35rem;}
+/* the location sits on the row's own left edge, under the marker as well */
+.tl-where{grid-column:1 / -1;margin-top:0.3rem;}
 
 /* time and title on one line, sitting on a shared baseline */
 .tl-head{display:flex;align-items:baseline;column-gap:0.85rem;
@@ -368,6 +369,8 @@ const CSS = `
   white-space:nowrap;}
 .tl-title{flex:1 1 auto;min-width:0;font-size:1em;font-weight:400;
   color:var(--shade-6);white-space:nowrap;}
+.tl-where .meta{font-size:calc(var(--tl-line) * 0.78);line-height:1.4;}
+.tl-where svg{width:calc(var(--tl-line) * 0.78);height:auto;}
 
 .card{position:relative;display:flex;align-items:center;gap:var(--space-4);
   padding:var(--space-4);background:var(--brand);border-radius:14px;
@@ -1319,16 +1322,14 @@ export default function BruiloftSiteV2() {
                   <span className="tl-marker" aria-hidden="true">
                     <i />
                   </span>
-                  <div className="tl-body">
-                    <p className="tl-head">
-                      <span className="tl-time">{item.time}</span>
-                      <span className="tl-title serif">{item[lang].title}</span>
-                    </p>
-                    <a className="fact tl-where" href={item.map} target="_blank" rel="noreferrer">
-                      <IconMap />
-                      <span className="meta">{item[lang].location}</span>
-                    </a>
-                  </div>
+                  <p className="tl-head">
+                    <span className="tl-time">{item.time}</span>
+                    <span className="tl-title serif">{item[lang].title}</span>
+                  </p>
+                  <a className="fact tl-where" href={item.map} target="_blank" rel="noreferrer">
+                    <IconMap />
+                    <span className="meta">{item[lang].location}</span>
+                  </a>
                 </div>
               ))}
             </div>
