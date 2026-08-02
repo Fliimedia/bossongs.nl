@@ -453,7 +453,7 @@ const CSS = `
 .opener{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:var(--space-3);
   padding:var(--space-4) var(--space-3);overflow:hidden;
-  transition:opacity 900ms ease 1500ms, visibility 0ms linear 2400ms;}
+  transition:opacity 800ms ease 1350ms, visibility 0ms linear 2150ms;}
 .opener.opening{opacity:0;visibility:hidden;pointer-events:none;}
 
 /* heavenly backdrop */
@@ -498,7 +498,7 @@ const CSS = `
 .stage.arrived{opacity:1;transform:translateY(0) scale(1);}
 
 .envelope{position:absolute;inset:0;transform-style:preserve-3d;
-  transition:transform 1000ms cubic-bezier(.5,0,.75,0) 1150ms, opacity 900ms ease 1250ms;
+  transition:transform 850ms cubic-bezier(.5,0,.75,0) 1250ms, opacity 700ms ease 1350ms;
   filter:drop-shadow(0 26px 44px rgba(120,95,50,0.3));}
 .opener.opening .envelope{transform:scale(2.6) translateY(6%);opacity:0;}
 
@@ -512,7 +512,7 @@ const CSS = `
     linear-gradient(var(--flap-sheen, 155deg), rgba(255,255,255,0.6), rgba(170,135,75,0.16)),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23p)' opacity='0.4'/%3E%3C/svg%3E");
   background-blend-mode:normal, multiply;
-  transition:transform 950ms cubic-bezier(.62,.02,.31,1), filter 950ms ease;}
+  transition:transform 700ms cubic-bezier(.62,.02,.31,1), filter 700ms ease;}
 
 .flap-top{top:0;left:0;width:100%;height:62%;z-index:4;
   clip-path:polygon(0 0, 100% 0, 50% 100%);
@@ -530,9 +530,9 @@ const CSS = `
 .opener.opening .flap-top,.opener.opening .flap-left,
 .opener.opening .flap-right,.opener.opening .flap-bottom{filter:brightness(0.93);}
 .opener.opening .flap-top{transform:rotateX(-172deg);transition-delay:0ms;}
-.opener.opening .flap-left{transform:rotateY(-168deg);transition-delay:380ms;}
-.opener.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
-.opener.opening .flap-bottom{transform:rotateX(170deg);transition-delay:720ms;}
+.opener.opening .flap-left{transform:rotateY(-168deg);transition-delay:260ms;}
+.opener.opening .flap-right{transform:rotateY(168deg);transition-delay:260ms;}
+.opener.opening .flap-bottom{transform:rotateX(170deg);transition-delay:500ms;}
 
 /* wax seal, drawn and lit in svg */
 .wax-defs{position:absolute;width:0;height:0;overflow:hidden;}
@@ -583,14 +583,14 @@ const CSS = `
 .flight{position:absolute;inset:0;}
 .dove{position:absolute;color:#fff;opacity:0;
   filter:drop-shadow(0 8px 14px rgba(120,100,60,0.28));
-  transition:transform 2600ms cubic-bezier(.22,.62,.28,1), opacity 700ms ease;}
+  transition:transform 2200ms cubic-bezier(.22,.62,.28,1), opacity 700ms ease;}
 .dove svg{width:100%;height:auto;display:block;}
 .mist.clearing .dove{opacity:1;}
 .mist.clearing .dove-1{transform:translate3d(-58vw,-40vh,0) rotate(-16deg) scale(1.25);}
 .mist.clearing .dove-2{transform:translate3d(-42vw,-58vh,0) rotate(-24deg) scale(1.1);}
 .mist.clearing .dove-3{transform:translate3d(56vw,-46vh,0) rotate(14deg) scaleX(-1) scale(1.2);}
 .mist.clearing .dove-4{transform:translate3d(38vw,-62vh,0) rotate(20deg) scaleX(-1);}
-.mist.flown .dove{opacity:0;transition:opacity 900ms ease;}
+.mist.flown .dove{opacity:0;transition:opacity 800ms ease;}
 
 .wing{transform-origin:62% 60%;animation:wingbeat 420ms ease-in-out infinite alternate;}
 .wing-far{animation-duration:440ms;animation-delay:-140ms;}
@@ -912,6 +912,7 @@ export default function BruiloftSiteV2() {
   const [envelopeIn, setEnvelopeIn] = useState(false);
   const [mistClearing, setMistClearing] = useState(false);
   const [mistFlown, setMistFlown] = useState(false);
+  const [fontsReady, setFontsReady] = useState(false);
   const [open, setOpen] = useState(null);
 
   const closeMenu = () => setMenuOpen(false);
@@ -924,7 +925,7 @@ export default function BruiloftSiteV2() {
       typeof window !== "undefined" &&
       window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.setTimeout(() => setIntroDone(true), reduced ? 600 : 2500);
+    window.setTimeout(() => setIntroDone(true), reduced ? 600 : 2150);
   };
 
   useEffect(() => {
@@ -960,36 +961,61 @@ export default function BruiloftSiteV2() {
     }
   }, [lang]);
 
-  // The cloud bank parts almost immediately and the doves ride it out.
+  // The one line set in Great Vibes holds back until the face is there.
   useEffect(() => {
-    if (introDone) return;
-    const a = window.setTimeout(() => setMistClearing(true), 140);
-    const b = window.setTimeout(() => setMistFlown(true), 2300);
-    return () => {
-      window.clearTimeout(a);
-      window.clearTimeout(b);
-    };
-  }, [introDone]);
-
-  // The title lands first, the envelope arrives a beat later.
-  useEffect(() => {
-    if (introDone) return;
     let cancelled = false;
-    let t = 0;
-    // The seal is set in real type, so it must not paint in a fallback serif.
     const fonts =
       typeof document !== "undefined" && document.fonts
         ? document.fonts.ready
         : Promise.resolve();
     const cap = new Promise((res) => window.setTimeout(res, 1500));
     Promise.race([fonts, cap]).then(() => {
-      if (cancelled) return;
-      t = window.setTimeout(() => setEnvelopeIn(true), 1000);
+      if (!cancelled) setFontsReady(true);
     });
     return () => {
       cancelled = true;
-      window.clearTimeout(t);
     };
+  }, []);
+
+  // The cloud bank parts almost immediately and the doves ride it out.
+  useEffect(() => {
+    if (introDone) return;
+    let cancelled = false;
+    let flown = 0;
+
+    // Part the cloud only once the sky behind it can actually be painted,
+    // otherwise the reveal lands on an empty gradient and pops in later.
+    const sky = new Image();
+    sky.src = IMG.hemel;
+    const decoded = sky.decode
+      ? sky.decode().catch(() => {})
+      : new Promise((res) => {
+          sky.onload = res;
+          sky.onerror = res;
+        });
+    const cap = new Promise((res) => window.setTimeout(res, 1200));
+
+    Promise.race([decoded, cap]).then(() => {
+      if (cancelled) return;
+      setMistClearing(true);
+      // The last dove leaves at 380ms delay plus a 2200ms flight, so it is
+      // clear of the frame before anything fades it out.
+      flown = window.setTimeout(() => setMistFlown(true), 2600);
+    });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(flown);
+    };
+  }, [introDone]);
+
+  // The title lands first, the envelope arrives a beat later.
+  useEffect(() => {
+    if (introDone) return;
+    // The seal is drawn from outlines, so it needs no font. Only the
+    // calligraphic line does, and that waits on its own below.
+    const t = window.setTimeout(() => setEnvelopeIn(true), 1000);
+    return () => window.clearTimeout(t);
   }, [introDone]);
 
   // Browsers restore the previous scroll position on reload, which lands you
@@ -1057,7 +1083,7 @@ export default function BruiloftSiteV2() {
           <div className="opener-veil" />
           <div className="opener-frame" />
 
-          <p className={"opener-invite" + (envelopeIn ? " arrived" : "")}>
+          <p className={"opener-invite" + (envelopeIn && fontsReady ? " arrived" : "")}>
             You&rsquo;re cordially invited
           </p>
 
