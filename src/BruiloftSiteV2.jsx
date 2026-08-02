@@ -141,7 +141,7 @@ const CSS = `
   background:var(--shade-1);
 }
 .bruiloft *{box-sizing:border-box;}
-.bruiloft img{display:block;width:100%;max-width:100%;}
+.bruiloft img{display:block;max-width:100%;height:auto;}
 .bruiloft a{color:inherit;text-decoration:none;}
 .bruiloft button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
 .bruiloft :focus-visible{outline:2px solid var(--shade-6);outline-offset:3px;border-radius:2px;}
@@ -193,7 +193,7 @@ const CSS = `
 .card:hover{transform:translateY(-2px);}
 .card-text{flex:1 1 0;}
 .card-img{flex:0 0 12rem;}
-.card-img img{border-radius:6px;}
+.card-img img{width:100%;border-radius:6px;}
 
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);align-items:center;}
 .tab-img{aspect-ratio:1/1;overflow:hidden;border-radius:10px;}
