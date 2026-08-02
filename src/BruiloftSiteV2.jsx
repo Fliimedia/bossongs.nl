@@ -237,6 +237,7 @@ const CSS = `
 .facts{display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4);}
 .fact{display:flex;align-items:center;gap:var(--space-2);}
 .fact svg{flex:0 0 auto;color:var(--shade-4);}
+.fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--shade-6);}
 .fact span{font-size:1rem;}
 
 .timeline{border-top:1px solid var(--shade-3);}
@@ -596,6 +597,23 @@ const IconDress = () => (
   </Icon>
 );
 
+const IconGift = () => (
+  <Icon size={16}>
+    <path d="M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" />
+    <path d="M3 7.5h18V11H3z" />
+    <path d="M12 7.5V21" />
+    <path d="M12 7.5S10.5 3 8 3a2.2 2.2 0 0 0 0 4.5z" />
+    <path d="M12 7.5S13.5 3 16 3a2.2 2.2 0 0 1 0 4.5z" />
+  </Icon>
+);
+
+const IconEnvelope = ({ size = 16 }) => (
+  <Icon size={size}>
+    <rect x="3" y="6" width="18" height="13" rx="1.5" />
+    <path d="M3.4 7.2 12 13.6l8.6-6.4" />
+  </Icon>
+);
+
 const IconPlus = ({ size = 20 }) => (
   <Icon size={size}>
     <path d="M12 5v14M5 12h14" />
@@ -952,6 +970,12 @@ export default function BruiloftSiteV2() {
                 St. Urbanuskerk, Noorddammerlaan 124-126, Amstelveen
               </Fact>
               <Fact icon={<IconDress />}>Dress code: Tenue de Ville</Fact>
+              <Fact icon={<IconGift />}>
+                Cadeautip:
+                <span className="fact-inline">
+                  <IconEnvelope size={18} />
+                </span>
+              </Fact>
             </div>
           </div>
         </section>
