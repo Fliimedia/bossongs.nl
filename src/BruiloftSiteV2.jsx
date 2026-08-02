@@ -20,7 +20,7 @@ const IMG = {
   logoCompact: "images/logo-compact.png",
   logoFull: "images/logo-volledig.png",
   couple: "images/bruidspaar.jpg",
-  amstelkerkTuin: "images/amstelkerk-tuin.webp",
+  verloving: "images/verloving.webp",
   amstelkerk: "images/amstelkerk-exterieur.webp",
   urbanusBuiten: "images/urbanuskerk-exterieur.jpg",
   urbanusBinnen: "images/urbanuskerk-interieur.jpg",
@@ -783,7 +783,7 @@ export default function BruiloftSiteV2() {
                 <img src={IMG.couple} alt="Nya en Sten" />
               </div>
               <div className="hero-img">
-                <img src={IMG.amstelkerkTuin} alt="Tuin bij de Amstelkerk" />
+                <img src={IMG.verloving} alt="De verlovingsring" />
               </div>
             </div>
           </div>
