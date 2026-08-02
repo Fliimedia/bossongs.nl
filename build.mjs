@@ -23,6 +23,7 @@ const html = `<!doctype html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bruiloft 19 september 2026</title>
+    <meta name="build" content="b7" />
     <meta
       name="description"
       content="Uitnodiging voor onze bruiloft op 19 september 2026 in Amstelveen en Ouderkerk aan de Amstel."
@@ -36,7 +37,7 @@ const html = `<!doctype html>
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><noscript>Zet JavaScript aan om de uitnodiging te bekijken.</noscript></div>
     <script>${script}</script>
   </body>
 </html>
