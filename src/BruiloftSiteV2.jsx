@@ -341,7 +341,9 @@ const CSS = `
 .h2{font-size:var(--type-2);line-height:1.15;margin:0;}
 .intro{font-size:1.5rem;line-height:1.5;max-width:60ch;white-space:pre-line;margin:0;}
 
-.facts{display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4);}
+.facts{display:flex;flex-direction:column;gap:var(--space-2);
+  margin-top:var(--space-4);}
+.facts .fact{padding-left:0.2rem;}
 .fact{display:flex;align-items:center;gap:var(--space-2);}
 .fact svg{flex:0 0 auto;color:var(--gold);}
 .fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--gold);}
@@ -376,11 +378,13 @@ const CSS = `
 .tl-pin svg{width:calc(var(--tl-line) * 0.8);height:auto;}
 .tl-where .meta{font-size:calc(var(--tl-line) * 0.78);line-height:1.4;}
 
-.card{position:relative;display:block;max-width:34rem;margin:0 auto;
-  padding:var(--space-4);background:var(--brand);border-radius:14px;
-  transition:transform 200ms ease, box-shadow 200ms ease;}
-.card::after{content:"";position:absolute;inset:0.6rem;border-radius:10px;
+/* one panel treatment: cream, soft corner, gold keyline set in from the edge */
+.panel{position:relative;display:block;max-width:34rem;margin:0 auto;
+  padding:var(--space-4);background:var(--brand);border-radius:14px;}
+.panel::after{content:"";position:absolute;inset:0.6rem;border-radius:10px;
   border:1px solid var(--gold-line-soft);pointer-events:none;}
+
+.card{transition:transform 200ms ease, box-shadow 200ms ease;}
 .card:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(96,74,40,0.14);}
 .card-text{display:flex;flex-direction:column;align-items:flex-start;
   gap:var(--space-1);}
@@ -473,7 +477,7 @@ const CSS = `
 
 .footer{margin-top:var(--space-6);background:var(--brand);border-radius:10px 10px 0 0;
   padding:var(--space-5) var(--space-3);text-align:center;}
-.footer-logo{width:3.5rem;height:auto;margin:0 auto var(--space-4);}
+.footer-logo{width:7rem;height:auto;margin:0 auto var(--space-4);}
 .footer-nav{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);
   margin-bottom:var(--space-4);}
 .footer-nav a{font-size:1rem;transition:opacity 200ms ease;}
@@ -1307,9 +1311,9 @@ export default function BruiloftSiteV2() {
             <p className="serif intro">
 {c.story}
             </p>
-            <div className="facts">
+            <div className="panel facts">
               <Fact icon={<IconTime />}>{c.date}</Fact>
-<Fact icon={<IconMap />}>{c.venue}</Fact>
+              <Fact icon={<IconMap />}>{c.venue}</Fact>
               <Fact icon={<IconDress />}>{c.dress}</Fact>
               <Fact icon={<IconGift />}>
                 {c.gift}
@@ -1347,7 +1351,7 @@ export default function BruiloftSiteV2() {
         <section className="sec-tight">
           <div className="wrap">
             <a
-              className="card"
+              className="panel card"
               href="https://www.koonings.com/inspiratie/dresscode-tenue-de-ville/"
               target="_blank"
               rel="noreferrer"
