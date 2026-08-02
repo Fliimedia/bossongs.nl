@@ -450,17 +450,14 @@ const CSS = `
 }
 
 /* calligraphic names, pressed into the parchment light */
-.opener-names{position:relative;z-index:2;margin:0;text-align:center;
+.opener-names{margin:0 0 -0.15em;text-align:center;
   font-family:"Great Vibes",cursive;font-weight:400;
-  font-size:clamp(1.7rem,6.5vw,3.1rem);line-height:1.25;letter-spacing:0.01em;
+  font-size:clamp(1.35rem,5.2vw,2.4rem);line-height:1.15;letter-spacing:0.01em;
   color:#d9c096;
   text-shadow:
     -1px -1px 0 rgba(255,252,242,0.9),
      1px  1px 1px rgba(112,80,32,0.55),
-     0 3px 6px rgba(112,80,32,0.22);
-  opacity:0;transform:translateY(0.8rem);
-  transition:opacity 1000ms ease 150ms, transform 1000ms cubic-bezier(.2,.75,.3,1) 150ms;}
-.opener-names.arrived{opacity:1;transform:translateY(0);}
+     0 3px 6px rgba(112,80,32,0.22);}
 .opener-names .amp{font-size:0.82em;padding:0 0.15em;}
 
 /* the monogram struck into the wax */
@@ -474,13 +471,6 @@ const CSS = `
   filter:drop-shadow(0 1px 0 rgba(255,244,214,0.6))
          drop-shadow(0 -1px 1px rgba(58,34,6,0.6))
          drop-shadow(0 2px 3px rgba(58,34,6,0.35));}
-
-.opener-hint{position:relative;z-index:2;margin:0;
-  font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;
-  font-size:1.05rem;letter-spacing:0.12em;color:#7a5c28;opacity:0;
-  transition:opacity 700ms ease;}
-.stage-ready .opener-hint{opacity:0.85;}
-.opener.opening .opener-hint{opacity:0;}
 
 @media (max-width:600px){
   .stage{width:88vw;}
@@ -665,6 +655,9 @@ export default function BruiloftSiteV2() {
           <div className="opener-frame" />
 
           <div className="opener-head">
+            <p className="opener-names">
+              Sten <span className="amp">&amp;</span> Nyarayek&rsquo;s
+            </p>
             <h1 className="opener-title">Wedding</h1>
             <div className="opener-rule" aria-hidden="true">
               <span />
@@ -673,10 +666,6 @@ export default function BruiloftSiteV2() {
             </div>
             <p className="opener-sub">You&rsquo;re cordially invited</p>
           </div>
-
-          <p className={"opener-names" + (envelopeIn ? " arrived" : "")}>
-            Sten <span className="amp">&amp;</span> Nyarayek
-          </p>
 
           <div className={"stage" + (envelopeIn ? " arrived" : "")}>
             <div className="sparkles" aria-hidden="true">
@@ -713,10 +702,6 @@ export default function BruiloftSiteV2() {
                 <span className="seal-emblem" aria-hidden="true" />
               </button>
             </div>
-          </div>
-
-          <div className={envelopeIn ? "stage-ready" : ""}>
-            <p className="opener-hint">Klik op het zegel</p>
           </div>
         </div>
       )}
