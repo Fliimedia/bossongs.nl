@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const BUILD = "b7";
+const BUILD = "b8";
 
 const IMG = {
   logoIcon: "images/logo-icoon.png",
@@ -290,19 +290,19 @@ const CSS = `
 }
 
 /* Intro: envelope that unfolds to reveal the page */
-.intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+.opener{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:var(--space-4);
   background:radial-gradient(circle at 50% 40%, hsl(48,38%,96%), hsl(44,26%,88%));
   perspective:1600px;perspective-origin:50% 45%;
   transition:opacity 900ms ease 1500ms, visibility 0ms linear 2400ms;}
-.intro.opening{opacity:0;visibility:hidden;pointer-events:none;}
+.opener.opening{opacity:0;visibility:hidden;pointer-events:none;}
 
 .envelope{position:relative;width:min(80vw,30rem);aspect-ratio:3/2;
   transform-style:preserve-3d;
   transition:transform 1000ms cubic-bezier(.5,0,.75,0) 1150ms,
              opacity 900ms ease 1250ms;
   filter:drop-shadow(0 24px 40px rgba(90,70,40,0.22));}
-.intro.opening .envelope{transform:scale(2.6) translateY(6%);opacity:0;}
+.opener.opening .envelope{transform:scale(2.6) translateY(6%);opacity:0;}
 
 /* the pocket behind the flaps */
 .env-pocket{position:absolute;inset:0;border-radius:3px;
@@ -331,12 +331,12 @@ const CSS = `
   transform-origin:bottom center;--flap-sheen:0deg;}
 
 .flap-top,.flap-left,.flap-right,.flap-bottom{transition-property:transform, filter;}
-.intro.opening .flap-top,.intro.opening .flap-left,
-.intro.opening .flap-right,.intro.opening .flap-bottom{filter:brightness(0.93);}
-.intro.opening .flap-top{transform:rotateX(-172deg);transition-delay:0ms;}
-.intro.opening .flap-left{transform:rotateY(-168deg);transition-delay:380ms;}
-.intro.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
-.intro.opening .flap-bottom{transform:rotateX(170deg);transition-delay:720ms;}
+.opener.opening .flap-top,.opener.opening .flap-left,
+.opener.opening .flap-right,.opener.opening .flap-bottom{filter:brightness(0.93);}
+.opener.opening .flap-top{transform:rotateX(-172deg);transition-delay:0ms;}
+.opener.opening .flap-left{transform:rotateY(-168deg);transition-delay:380ms;}
+.opener.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
+.opener.opening .flap-bottom{transform:rotateX(170deg);transition-delay:720ms;}
 
 .seal{position:absolute;top:50%;left:50%;z-index:6;
   width:5.5rem;height:5.5rem;margin:-2.75rem 0 0 -2.75rem;padding:0;
@@ -352,17 +352,17 @@ const CSS = `
              inset 0 -4px 10px rgba(60,35,10,0.5);}
 .seal-mark{font-family:"Instrument Serif",Georgia,serif;font-size:1.6rem;line-height:1;
   letter-spacing:0.02em;text-shadow:0 1px 1px rgba(60,35,10,0.55);}
-.intro.opening .seal{opacity:0;transform:scale(0.55) rotate(-14deg);animation:none;}
+.opener.opening .seal{opacity:0;transform:scale(0.55) rotate(-14deg);animation:none;}
 
 @keyframes seal-breathe{
   0%,100%{transform:scale(1);}
   50%{transform:scale(1.045);}
 }
 
-.intro-hint{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.1em;
+.opener-hint{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.1em;
   text-transform:uppercase;color:var(--shade-4);
   transition:opacity 400ms ease;}
-.intro.opening .intro-hint{opacity:0;}
+.opener.opening .opener-hint{opacity:0;}
 
 @media (max-width:600px){
   .envelope{width:86vw;}
@@ -371,11 +371,11 @@ const CSS = `
 }
 
 @media (prefers-reduced-motion:reduce){
-  .intro{transition:opacity 300ms ease 200ms, visibility 0ms linear 500ms;}
+  .opener{transition:opacity 300ms ease 200ms, visibility 0ms linear 500ms;}
   .envelope,.flap,.seal{transition:opacity 300ms ease;}
-  .intro.opening .flap-top,.intro.opening .flap-left,
-  .intro.opening .flap-right,.intro.opening .flap-bottom{transform:none;}
-  .intro.opening .envelope{transform:none;}
+  .opener.opening .flap-top,.opener.opening .flap-left,
+  .opener.opening .flap-right,.opener.opening .flap-bottom{transform:none;}
+  .opener.opening .envelope{transform:none;}
 }
 `;
 
@@ -519,7 +519,7 @@ export default function BruiloftSiteV2() {
 
       {!introDone && (
         <div
-          className={"intro" + (introOpening ? " opening" : "")}
+          className={"opener" + (introOpening ? " opening" : "")}
           role="dialog"
           aria-modal="true"
           aria-label="Uitnodiging"
@@ -541,7 +541,7 @@ export default function BruiloftSiteV2() {
               </span>
             </button>
           </div>
-          <p className="intro-hint">Klik op het zegel</p>
+          <p className="opener-hint">Klik op het zegel</p>
         </div>
       )}
 
