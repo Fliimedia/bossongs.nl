@@ -114,8 +114,8 @@ const FAQ = [
   {
     n: "02",
     q: "Zijn kinderen welkom?",
-    a: "Ja, kinderen zijn van harte welkom. Laat ons even weten met hoeveel kinderen je komt en hoe oud ze zijn, dan houden we daar bij het diner rekening mee.",
-    linkText: "Laat het ons weten",
+    a: "In overleg is dat waarschijnlijk mogelijk. Neem even contact met ons op via bruiloft@flii.nl, dan kijken we samen wat er kan.",
+    linkText: "bruiloft@flii.nl",
     link: "mailto:bruiloft@flii.nl",
   },
   {
@@ -129,13 +129,8 @@ const FAQ = [
     n: "04",
     q: "Ik heb een allergie of dieetwens, waar meld ik dat?",
     a: "Stuur ons een bericht met wat je niet kunt of wilt eten. Geef het uiterlijk twee weken voor de bruiloft door, dan kan de keuken er nog rekening mee houden.",
-    linkText: "Geef het door",
+    linkText: "bruiloft@flii.nl",
     link: "mailto:bruiloft@flii.nl",
-  },
-  {
-    n: "05",
-    q: "Wat bedoelen jullie met de cadeautip?",
-    a: "We hebben samen al een huis vol spullen. Een bijdrage in een envelop is daarom het fijnste cadeau, maar je aanwezigheid is wat echt telt.",
   },
 ];
 
