@@ -143,6 +143,7 @@ const CSS = `
 .bruiloft *{box-sizing:border-box;}
 .bruiloft img{display:block;max-width:100%;height:auto;}
 .bruiloft a{color:inherit;text-decoration:none;}
+.bruiloft .btn{color:var(--shade-1);}
 .bruiloft button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
 .bruiloft :focus-visible{outline:2px solid var(--shade-6);outline-offset:3px;border-radius:2px;}
 
@@ -159,7 +160,7 @@ const CSS = `
 .hero{position:relative;padding:var(--space-5) 0 var(--space-6);text-align:center;}
 .hero-bg{position:absolute;inset:0 var(--space-4) 40% var(--space-4);background:var(--brand);border-radius:10px;z-index:0;}
 .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);}
-.hero-monogram{width:1.75rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
+.hero-monogram{width:2.25rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
 .hero-eyebrow{color:var(--shade-4);}
 .hero-names{font-size:var(--type-hero);line-height:1.05;margin:var(--space-2) 0 var(--space-1);}
 .hero-date{font-size:var(--type-3);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;}
@@ -243,10 +244,12 @@ const CSS = `
 .footer{margin-top:var(--space-6);background:var(--brand);border-radius:10px 10px 0 0;
   padding:var(--space-5) var(--space-3);text-align:center;}
 .footer-logo{width:3.5rem;height:auto;margin:0 auto var(--space-4);}
-.footer-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-3);}
+.footer-nav{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);
+  margin-bottom:var(--space-4);}
 .footer-nav a{font-size:1rem;transition:opacity 200ms ease;}
 .footer-nav a:hover{opacity:0.6;}
 .footer-names{font-weight:600;margin-bottom:var(--space-2);}
+.footer-heart{margin:0 0.15rem;font-size:0.9em;}
 .socials{display:flex;justify-content:center;gap:var(--space-2);}
 .socials a{display:inline-flex;padding:var(--space-1);transition:opacity 200ms ease;}
 .socials a:hover{opacity:0.6;}
@@ -446,7 +449,7 @@ export default function BruiloftSiteV2() {
             <p className="label hero-eyebrow">Uitnodiging bruiloft</p>
             <h1 className="serif hero-names">Sten &amp; Nyarayek</h1>
             <p className="hero-date">Zaterdag 19 september 2026</p>
-            <a className="btn" href="#agenda">Bekijk de dag</a>
+            <a className="btn" href="#agenda">Bekijk agenda</a>
             <div className="hero-images">
               <div className="hero-img">
                 <img src={IMG.couple} alt="Nya en Sten" />
@@ -597,7 +600,9 @@ export default function BruiloftSiteV2() {
             </a>
           ))}
         </nav>
-        <p className="footer-names">Nya en Sten</p>
+        <p className="footer-names">
+          Nya <span className="footer-heart">❤️</span> Sten
+        </p>
         <div className="socials">
           <a href="https://www.instagram.com/nveronica1/" target="_blank" rel="noreferrer">
             <IconInstagram />
