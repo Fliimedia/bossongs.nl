@@ -352,7 +352,7 @@ const CSS = `
 .intro{font-size:1.5rem;line-height:1.5;max-width:60ch;white-space:pre-line;margin:0;}
 
 .facts{display:flex;flex-direction:column;align-items:flex-start;
-  gap:var(--space-1);margin-top:var(--space-5);padding:var(--space-4) var(--space-4) var(--space-3);}
+  gap:var(--space-1);margin-top:var(--space-6);padding:var(--space-4) var(--space-4) var(--space-3);}
 .facts .card-title{margin-bottom:var(--space-2);}
 .facts .fact{width:100%;padding:0.3rem 0.2rem;}
 .fact{display:flex;align-items:center;gap:0.7rem;}
