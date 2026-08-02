@@ -1,3 +1,6 @@
+// NOTE: .htaccess caches images for a year. When an image changes, give it a new
+// filename (a content hash suffix works well). Overwriting a name leaves visitors
+// stuck on the old file for up to a year.
 // Bundles the React component into one self-contained index.html.
 // No build step runs on the host, so everything ships pre-compiled.
 import * as esbuild from "esbuild";
