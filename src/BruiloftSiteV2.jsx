@@ -281,10 +281,6 @@ export default function BruiloftSiteV2() {
 
   return (
     <div className="bruiloft">
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
-      />
       <style>{CSS}</style>
 
       <header className="nav">
