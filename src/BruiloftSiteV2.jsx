@@ -6,7 +6,7 @@ const IMG = {
   logoFull: "/images/logo-volledig.png",
   couple: "/images/bruidspaar.jpg",
   amstelkerkTuin: "/images/amstelkerk-tuin.webp",
-  amstelkerk: "/images/amstelkerk-exterieur.jpg",
+  amstelkerk: "/images/amstelkerk-exterieur.webp",
   urbanusBuiten: "/images/urbanuskerk-exterieur.jpg",
   urbanusBinnen: "/images/urbanuskerk-interieur.jpg",
   dresscode: "/images/dresscode.jpg",
