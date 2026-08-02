@@ -39,7 +39,7 @@ const html = `<!doctype html>
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
     />
   </head>
-  <body>
+  <body style="margin:0;background:#faf3e6">
     <div id="root"><noscript>Zet JavaScript aan om de uitnodiging te bekijken.</noscript></div>
     <script>${script}</script>
   </body>
