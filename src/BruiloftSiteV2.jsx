@@ -197,6 +197,7 @@ const COPY = {
     dressAlt: "Voorbeeld Tenue de Ville",
     travelTitle: "Van ceremonie naar diner en feest",
     agendaEyebrow: "De dag",
+    weddingWord: "bruiloft",
     factsEyebrow: "Overzicht",
     factsTitle: "Wie, wat, waar",
     faqEyebrow: "Goed om te weten",
@@ -221,6 +222,7 @@ const COPY = {
     dressAlt: "Tenue de Ville example",
     travelTitle: "From ceremony to dinner and party",
     agendaEyebrow: "The day",
+    weddingWord: "wedding",
     factsEyebrow: "Overview",
     factsTitle: "Who, what, where",
     faqEyebrow: "Good to know",
@@ -301,8 +303,9 @@ const CSS = `
 .hero-title{display:flex;flex-direction:column;align-items:inherit;gap:0.3rem;}
 .hero-names{margin:0;font-size:clamp(2.6rem,6.4vw,4.6rem);line-height:0.98;
   letter-spacing:-0.012em;}
-.hero-sub{margin:0;font-size:clamp(1rem,2.4vw,1.5rem);line-height:1;
-  letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);}
+.hero-sub{margin:0;font-family:"Great Vibes",cursive;font-weight:400;
+  font-size:clamp(1.6rem,3.6vw,2.4rem);line-height:1.1;
+  letter-spacing:0.01em;color:var(--gold);}
 .hero-amp{font-style:italic;color:var(--gold);padding:0 0.06em;}
 .hero-date{display:flex;align-items:center;gap:0.75rem;margin:0;
   font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
@@ -1298,7 +1301,7 @@ export default function BruiloftSiteV2() {
                 <h1 className="serif hero-names">
                   Nyarayek <span className="hero-amp">&amp;</span> Sten&rsquo;s
                 </h1>
-                <p className="serif hero-sub">Wedding</p>
+                <p className="hero-sub">{c.weddingWord}</p>
               </div>
               <p className="hero-date">{c.date}</p>
               <a className="btn hero-btn" href="#agenda">
