@@ -600,59 +600,60 @@ const IconInstagram = () => (
   </Icon>
 );
 
-// A struck wax seal. The relief comes from feSpecularLighting rather than
-// stacked shadows, which is what gives the metal a real lit surface.
+// A struck wax seal, built to match a photographed reference: a thick rounded
+// rim, a recessed matte field, one engraved keyline, and a raised monogram.
+// The warp is applied to the wax only, so the engraving stays crisp.
 const WaxSeal = () => (
   <svg className="wax" viewBox="0 0 200 200" aria-hidden="true">
     <defs>
-      <radialGradient id="waxBody" cx="34%" cy="26%" r="82%">
-        <stop offset="0%" stopColor="#f2d089" />
-        <stop offset="34%" stopColor="#dcae55" />
-        <stop offset="68%" stopColor="#bd8c33" />
-        <stop offset="100%" stopColor="#8f6621" />
-      </radialGradient>
-      <radialGradient id="waxRim" cx="30%" cy="22%" r="86%">
-        <stop offset="0%" stopColor="#fbe7b0" />
-        <stop offset="30%" stopColor="#e6bd66" />
-        <stop offset="66%" stopColor="#c2913a" />
-        <stop offset="100%" stopColor="#8a621f" />
-      </radialGradient>
-      <radialGradient id="waxField" cx="40%" cy="32%" r="78%">
-        <stop offset="0%" stopColor="#e3b76a" />
-        <stop offset="55%" stopColor="#cc9c45" />
-        <stop offset="100%" stopColor="#a97a2a" />
+      <radialGradient id="waxBody" cx="32%" cy="24%" r="84%">
+        <stop offset="0%" stopColor="#e9c67c" />
+        <stop offset="45%" stopColor="#cfa246" />
+        <stop offset="100%" stopColor="#8e6620" />
       </radialGradient>
 
-      {/* the poured edge is never a perfect circle */}
-      <filter id="waxWarp" x="-14%" y="-14%" width="128%" height="128%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="11" result="w" />
-        <feDisplacementMap in="SourceGraphic" in2="w" scale="7"
+      {/* the rim is a torus: lit along the upper left, dark at the lower right */}
+      <linearGradient id="waxRim" x1="18%" y1="10%" x2="82%" y2="92%">
+        <stop offset="0%" stopColor="#fbeab8" />
+        <stop offset="22%" stopColor="#e9c979" />
+        <stop offset="50%" stopColor="#cfa348" />
+        <stop offset="78%" stopColor="#a87d2c" />
+        <stop offset="100%" stopColor="#7d5716" />
+      </linearGradient>
+
+      <radialGradient id="waxField" cx="38%" cy="30%" r="80%">
+        <stop offset="0%" stopColor="#dcb567" />
+        <stop offset="52%" stopColor="#c69a41" />
+        <stop offset="100%" stopColor="#a2762a" />
+      </radialGradient>
+
+      <filter id="waxWarp" x="-16%" y="-16%" width="132%" height="132%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.019" numOctaves="3" seed="19" result="w" />
+        <feDisplacementMap in="SourceGraphic" in2="w" scale="8"
           xChannelSelector="R" yChannelSelector="G" />
       </filter>
 
-      {/* raised metal: strong for the rim */}
-      <filter id="reliefStrong" x="-25%" y="-25%" width="150%" height="150%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="b" />
-        <feSpecularLighting in="b" surfaceScale="4.5" specularConstant="1.05"
-          specularExponent="22" lightingColor="#fff4d2" result="sp">
-          <feDistantLight azimuth="228" elevation="52" />
+      <filter id="reliefRim" x="-25%" y="-25%" width="150%" height="150%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3.4" result="b" />
+        <feSpecularLighting in="b" surfaceScale="6" specularConstant="1.15"
+          specularExponent="18" lightingColor="#fff2cc" result="sp">
+          <feDistantLight azimuth="225" elevation="48" />
         </feSpecularLighting>
         <feComposite in="sp" in2="SourceAlpha" operator="in" result="spc" />
         <feComposite in="SourceGraphic" in2="spc" operator="arithmetic"
           k1="0" k2="1" k3="1" k4="0" />
       </filter>
 
-      {/* and finer for engraving and letterforms */}
       <filter id="reliefFine" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="0.9" result="b" />
-        <feSpecularLighting in="b" surfaceScale="3.2" specularConstant="0.95"
-          specularExponent="26" lightingColor="#fff6dc" result="sp">
-          <feDistantLight azimuth="228" elevation="58" />
+        <feGaussianBlur in="SourceAlpha" stdDeviation="1.1" result="b" />
+        <feSpecularLighting in="b" surfaceScale="3.6" specularConstant="1"
+          specularExponent="24" lightingColor="#fff6db" result="sp">
+          <feDistantLight azimuth="225" elevation="55" />
         </feSpecularLighting>
         <feComposite in="sp" in2="SourceAlpha" operator="in" result="spc" />
-        <feOffset in="SourceAlpha" dx="0.7" dy="0.9" result="sh" />
-        <feGaussianBlur in="sh" stdDeviation="0.7" result="shb" />
-        <feFlood floodColor="#5c3d0d" floodOpacity="0.55" result="shc" />
+        <feOffset in="SourceAlpha" dx="0.9" dy="1.1" result="sh" />
+        <feGaussianBlur in="sh" stdDeviation="0.8" result="shb" />
+        <feFlood floodColor="#59390b" floodOpacity="0.6" result="shc" />
         <feComposite in="shc" in2="shb" operator="in" result="shadow" />
         <feMerge>
           <feMergeNode in="shadow" />
@@ -661,46 +662,54 @@ const WaxSeal = () => (
         </feMerge>
       </filter>
 
-      {/* fine metallic tooth across the whole seal */}
+      {/* the sandy tooth of matte metallic wax */}
       <filter id="waxGrain">
-        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="n" />
+        <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="4" result="n" />
         <feColorMatrix in="n" type="saturate" values="0" result="g" />
         <feComponentTransfer in="g" result="soft">
-          <feFuncA type="linear" slope="0.16" />
+          <feFuncA type="linear" slope="0.26" />
         </feComponentTransfer>
         <feBlend in="SourceGraphic" in2="soft" mode="multiply" />
       </filter>
     </defs>
 
+    {/* poured wax and rim, organically warped */}
     <g filter="url(#waxWarp)">
-      {/* body of the poured wax */}
-      <circle cx="100" cy="100" r="93" fill="url(#waxBody)" />
-      {/* the rim the press pushes up */}
-      <circle cx="100" cy="100" r="82" fill="none" stroke="url(#waxRim)"
-        strokeWidth="21" filter="url(#reliefStrong)" />
-      {/* recessed field inside the rim */}
-      <circle cx="100" cy="100" r="72" fill="url(#waxField)" filter="url(#waxGrain)" />
-      {/* engraved keyline */}
-      <circle cx="100" cy="100" r="63" fill="none" stroke="#c99a45"
-        strokeWidth="1.7" filter="url(#reliefFine)" />
+      <circle cx="100" cy="100" r="95" fill="url(#waxBody)" />
+      <circle cx="100" cy="100" r="85" fill="none" stroke="url(#waxRim)"
+        strokeWidth="21" filter="url(#reliefRim)" />
+      <path d="M31 68a76 76 0 0 1 52-38" fill="none" stroke="#fff3d0"
+        strokeOpacity="0.5" strokeWidth="7" strokeLinecap="round" />
+    </g>
 
-      <g filter="url(#reliefFine)" fill="#cfa14c">
-        {/* sprig */}
-        <g stroke="#cfa14c" strokeWidth="1.5" fill="none" strokeLinecap="round">
-          <path d="M62 146C56 132 54 118 58 104" />
-          <path d="M59 136c-5-1-9-4-11-9 6-1 10 1 12 5z" fill="#cfa14c" stroke="none" />
-          <path d="M61 126c-5-2-8-6-9-11 6 0 10 2 11 7z" fill="#cfa14c" stroke="none" />
-          <path d="M60 116c-4-3-6-7-6-12 5 1 9 4 9 9z" fill="#cfa14c" stroke="none" />
-          <path d="M64 140c5-2 8-6 9-11-6 0-10 3-11 7z" fill="#cfa14c" stroke="none" />
-          <path d="M63 129c5-2 8-6 8-11-5 1-9 3-10 8z" fill="#cfa14c" stroke="none" />
-        </g>
+    {/* recessed field */}
+    <circle cx="100" cy="100" r="74" fill="url(#waxField)" filter="url(#waxGrain)" />
+    <circle cx="100" cy="100" r="74" fill="none" stroke="#7f5a17"
+      strokeOpacity="0.35" strokeWidth="2.5" />
 
-        <text x="80" y="96" textAnchor="middle" fontFamily="Instrument Serif, Georgia, serif"
-          fontSize="62">N</text>
-        <text x="126" y="144" textAnchor="middle" fontFamily="Instrument Serif, Georgia, serif"
-          fontSize="62">S</text>
-        <text x="103" y="126" textAnchor="middle" fontFamily="Great Vibes, cursive"
-          fontSize="54">&amp;</text>
+    {/* engraving stays crisp, outside the warp */}
+    <g filter="url(#reliefFine)">
+      <circle cx="100" cy="100" r="66" fill="none" stroke="#c99a45" strokeWidth="2" />
+
+      <g fill="#cfa14c">
+        {/* laurel sprig, lower left */}
+        <path d="M63 156C56 140 52 126 55 110" fill="none" stroke="#cfa14c"
+          strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M58 145c-6-1-11-5-13-11 7-1 12 2 14 7z" />
+        <path d="M56 133c-6-2-10-7-11-13 7 0 12 3 13 9z" />
+        <path d="M55 121c-5-3-8-8-8-14 6 1 10 5 10 11z" />
+        <path d="M64 149c6-2 10-6 12-12-7-1-12 2-14 8z" />
+        <path d="M61 137c6-2 10-7 11-13-7 0-12 3-13 9z" />
+        <path d="M58 125c5-3 8-8 8-14-6 1-10 5-10 11z" />
+
+        <text x="78" y="102" textAnchor="middle"
+          fontFamily="Playfair Display, Instrument Serif, Georgia, serif"
+          fontWeight="500" fontSize="66">N</text>
+        <text x="130" y="152" textAnchor="middle"
+          fontFamily="Playfair Display, Instrument Serif, Georgia, serif"
+          fontWeight="500" fontSize="66">S</text>
+        <text x="104" y="134" textAnchor="middle"
+          fontFamily="Great Vibes, cursive" fontSize="72">&amp;</text>
       </g>
     </g>
   </svg>
