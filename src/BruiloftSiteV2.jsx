@@ -348,15 +348,24 @@ const CSS = `
 .fact span{font-size:1rem;}
 
 .timeline{border-top:1px solid var(--gold-line-soft);}
-.tl-item{position:relative;display:grid;grid-template-columns:7rem 1fr;
-  gap:var(--space-4);padding:var(--space-4) 0;
-  border-bottom:1px solid var(--gold-line-soft);}
-.tl-item::before{content:"";position:absolute;left:0;top:calc(var(--space-4) + 0.55rem);
-  width:0.3rem;height:0.3rem;transform:rotate(45deg);
+.tl-item{display:grid;grid-template-columns:0.85rem 1fr;column-gap:0.85rem;
+  padding:var(--space-3) 0;border-bottom:1px solid var(--gold-line-soft);}
+
+/* the marker centres on the first line rather than on the whole block */
+.tl-marker{display:flex;align-items:center;justify-content:center;
+  height:calc(var(--type-3) * 1.35);}
+.tl-marker i{width:0.3rem;height:0.3rem;transform:rotate(45deg);
   background:var(--gold);border-radius:1px;}
-.tl-time{padding-left:0.9rem;font-variant-numeric:tabular-nums;font-weight:600;
-  font-size:var(--type-3);color:var(--gold);}
-.tl-body{display:flex;flex-direction:column;gap:var(--space-2);}
+
+.tl-body{display:flex;flex-direction:column;gap:0.35rem;}
+
+/* time and title on one line, sitting on a shared baseline */
+.tl-head{display:flex;align-items:baseline;column-gap:0.85rem;row-gap:0.15rem;
+  flex-wrap:wrap;margin:0;line-height:1.35;}
+.tl-time{flex:0 0 3.6rem;font-variant-numeric:tabular-nums;font-weight:600;
+  font-size:var(--type-3);letter-spacing:0.01em;color:var(--gold);}
+.tl-title{font-size:var(--type-3);font-weight:400;color:var(--shade-6);}
+.tl-where{padding-left:calc(3.6rem + 0.85rem);}
 
 .card{position:relative;display:flex;align-items:center;gap:var(--space-4);
   padding:var(--space-4);background:var(--brand);border-radius:14px;
@@ -475,8 +484,8 @@ const CSS = `
 @media (max-width:600px){
   .bruiloft{--type-hero:2.75rem;--type-1:1.875rem;--type-2:1.5rem;--type-3:1.2rem;}
   .intro{font-size:1.25rem;}
-  .tl-item{grid-template-columns:1fr;gap:var(--space-2);}
-  .tl-item::before{top:calc(var(--space-4) + 0.5rem);}
+  .tl-time{flex:0 0 3.2rem;}
+  .tl-where{padding-left:calc(3.2rem + 0.85rem);}
   .faq-btn{grid-template-columns:2.5rem 1fr 1.5rem;}
   .faq-inner{padding-left:2.5rem;padding-right:0;}
 }
@@ -1294,11 +1303,15 @@ export default function BruiloftSiteV2() {
             <div className="timeline">
               {TIMELINE.map((item, i) => (
                 <div className="tl-item" key={i}>
-                  <div className="tl-time">{item.time}</div>
+                  <span className="tl-marker" aria-hidden="true">
+                    <i />
+                  </span>
                   <div className="tl-body">
-                    <div className="tl-title h2 serif">{item[lang].title}</div>
-                    {item.body && <p className="prose">{item[lang].body}</p>}
-                    <a className="fact" href={item.map} target="_blank" rel="noreferrer">
+                    <p className="tl-head">
+                      <span className="tl-time">{item.time}</span>
+                      <span className="tl-title serif">{item[lang].title}</span>
+                    </p>
+                    <a className="fact tl-where" href={item.map} target="_blank" rel="noreferrer">
                       <IconMap />
                       <span className="meta">{item[lang].location}</span>
                     </a>
