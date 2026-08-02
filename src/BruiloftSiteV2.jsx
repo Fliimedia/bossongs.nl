@@ -284,6 +284,92 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){
   .bruiloft *{transition:none !important;animation:none !important;}
 }
+
+/* Intro: envelope that unfolds to reveal the page */
+.intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:var(--space-4);
+  background:radial-gradient(circle at 50% 40%, hsl(48,38%,96%), hsl(44,26%,88%));
+  perspective:1600px;perspective-origin:50% 45%;
+  transition:opacity 900ms ease 1500ms, visibility 0ms linear 2400ms;}
+.intro.opening{opacity:0;visibility:hidden;pointer-events:none;}
+
+.envelope{position:relative;width:min(80vw,30rem);aspect-ratio:3/2;
+  transform-style:preserve-3d;
+  transition:transform 1000ms cubic-bezier(.5,0,.75,0) 1150ms,
+             opacity 900ms ease 1250ms;
+  filter:drop-shadow(0 24px 40px rgba(90,70,40,0.22));}
+.intro.opening .envelope{transform:scale(2.6) translateY(6%);opacity:0;}
+
+/* the pocket behind the flaps */
+.env-pocket{position:absolute;inset:0;border-radius:3px;
+  background:linear-gradient(160deg, hsl(42,32%,88%), hsl(40,26%,80%));
+  box-shadow:inset 0 0 40px rgba(120,95,55,0.18);}
+
+.flap{position:absolute;backface-visibility:hidden;
+  background-color:hsl(44,34%,91%);
+  background-image:
+    linear-gradient(var(--flap-sheen, 155deg), rgba(255,255,255,0.55), rgba(160,130,80,0.14)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23p)' opacity='0.42'/%3E%3C/svg%3E");
+  background-blend-mode:normal, multiply;
+  transition:transform 950ms cubic-bezier(.62,.02,.31,1);}
+
+.flap-top{top:0;left:0;width:100%;height:62%;z-index:4;
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  transform-origin:top center;--flap-sheen:180deg;}
+.flap-left{top:0;left:0;width:52%;height:100%;z-index:3;
+  clip-path:polygon(0 0, 100% 50%, 0 100%);
+  transform-origin:left center;--flap-sheen:100deg;}
+.flap-right{top:0;right:0;width:52%;height:100%;z-index:3;
+  clip-path:polygon(100% 0, 0 50%, 100% 100%);
+  transform-origin:right center;--flap-sheen:260deg;}
+.flap-bottom{bottom:0;left:0;width:100%;height:64%;z-index:2;
+  clip-path:polygon(0 100%, 100% 100%, 50% 0);
+  transform-origin:bottom center;--flap-sheen:0deg;}
+
+.intro.opening .flap-top{transform:rotateX(-172deg);transition-delay:0ms;}
+.intro.opening .flap-left{transform:rotateY(-168deg);transition-delay:380ms;}
+.intro.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
+.intro.opening .flap-bottom{transform:rotateX(170deg);transition-delay:720ms;}
+
+.seal{position:absolute;top:50%;left:50%;z-index:6;
+  width:5.5rem;height:5.5rem;margin:-2.75rem 0 0 -2.75rem;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:47% 53% 51% 49% / 49% 47% 53% 51%;
+  background:radial-gradient(circle at 34% 30%, hsl(38,52%,58%), hsl(30,46%,38%) 62%, hsl(26,44%,29%));
+  box-shadow:0 6px 14px rgba(70,45,15,0.4), inset 0 2px 5px rgba(255,225,175,0.5),
+             inset 0 -4px 10px rgba(60,35,10,0.5);
+  color:hsl(42,60%,92%);cursor:pointer;
+  animation:seal-breathe 3.2s ease-in-out infinite;
+  transition:transform 500ms ease, opacity 500ms ease, box-shadow 300ms ease;}
+.seal:hover{box-shadow:0 10px 20px rgba(70,45,15,0.46), inset 0 2px 5px rgba(255,225,175,0.6),
+             inset 0 -4px 10px rgba(60,35,10,0.5);}
+.seal-mark{font-family:"Instrument Serif",Georgia,serif;font-size:1.6rem;line-height:1;
+  letter-spacing:0.02em;text-shadow:0 1px 1px rgba(60,35,10,0.55);}
+.intro.opening .seal{opacity:0;transform:scale(0.55) rotate(-14deg);animation:none;}
+
+@keyframes seal-breathe{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.045);}
+}
+
+.intro-hint{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--shade-4);
+  transition:opacity 400ms ease;}
+.intro.opening .intro-hint{opacity:0;}
+
+@media (max-width:600px){
+  .envelope{width:86vw;}
+  .seal{width:4.5rem;height:4.5rem;margin:-2.25rem 0 0 -2.25rem;}
+  .seal-mark{font-size:1.3rem;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .intro{transition:opacity 300ms ease 200ms, visibility 0ms linear 500ms;}
+  .envelope,.flap,.seal{transition:opacity 300ms ease;}
+  .intro.opening .flap-top,.intro.opening .flap-left,
+  .intro.opening .flap-right,.intro.opening .flap-bottom{transform:none;}
+  .intro.opening .envelope{transform:none;}
+}
 `;
 
 const Icon = ({ children, size = 20 }) => (
@@ -367,9 +453,26 @@ function Fact({ icon, children }) {
 export default function BruiloftSiteV2() {
   const [tab, setTab] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
+  const [introOpening, setIntroOpening] = useState(false);
   const [open, setOpen] = useState(null);
 
   const closeMenu = () => setMenuOpen(false);
+
+  const openInvitation = () => {
+    if (introOpening) return;
+    setIntroOpening(true);
+    try {
+      sessionStorage.setItem("intro-gezien", "ja");
+    } catch (e) {
+      // storage unavailable, the intro simply plays again next time
+    }
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => setIntroDone(true), reduced ? 600 : 2500);
+  };
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -379,6 +482,27 @@ export default function BruiloftSiteV2() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  // The intro only plays once per browser session.
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("intro-gezien") === "ja";
+    } catch (e) {
+      seen = false;
+    }
+    if (seen) setIntroDone(true);
+  }, []);
+
+  // Hold the page still while the envelope is on screen.
+  useEffect(() => {
+    if (introDone) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [introDone]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -392,6 +516,34 @@ export default function BruiloftSiteV2() {
   return (
     <div className="bruiloft">
       <style>{CSS}</style>
+
+      {!introDone && (
+        <div
+          className={"intro" + (introOpening ? " opening" : "")}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Uitnodiging"
+        >
+          <div className="envelope">
+            <div className="env-pocket" />
+            <div className="flap flap-bottom" />
+            <div className="flap flap-left" />
+            <div className="flap flap-right" />
+            <div className="flap flap-top" />
+            <button
+              className="seal"
+              type="button"
+              onClick={openInvitation}
+              aria-label="Open de uitnodiging"
+            >
+              <span className="seal-mark" aria-hidden="true">
+                N&amp;S
+              </span>
+            </button>
+          </div>
+          <p className="intro-hint">Klik op het zegel</p>
+        </div>
+      )}
 
       <header className="nav">
         <div className="nav-in">
