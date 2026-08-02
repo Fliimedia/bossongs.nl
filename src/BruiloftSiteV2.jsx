@@ -389,15 +389,15 @@ const CSS = `
 .nav-links{display:flex;gap:var(--space-3);}
 .nav-links a{font-size:1rem;font-weight:500;transition:opacity 200ms ease;}
 .nav-links a:hover{opacity:0.6;}
-.lang{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.55rem;
-  border:1px solid rgba(177,135,63,0.35);border-radius:999px;
-  background:rgba(255,255,255,0.6);}
-.lang-btn{padding:0.1rem 0.25rem;border-radius:999px;
-  font-size:0.72rem;font-weight:600;letter-spacing:0.1em;
-  color:var(--shade-4);transition:color 200ms ease;}
-.lang-btn:hover{color:var(--gold);}
-.lang-btn.is-on{color:var(--gold);}
-.lang-sep{width:1px;height:0.75rem;background:rgba(177,135,63,0.4);}
+.lang{display:inline-flex;align-items:center;gap:0.1rem;}
+.lang-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:1.55rem;height:1.55rem;padding:0;border-radius:999px;
+  font-size:0.9rem;line-height:1;
+  filter:grayscale(1);opacity:0.42;
+  transition:opacity 200ms ease, filter 200ms ease, box-shadow 200ms ease;}
+.lang-btn:hover{opacity:0.8;filter:grayscale(0.3);}
+.lang-btn.is-on{opacity:1;filter:none;
+  box-shadow:0 0 0 1px rgba(177,135,63,0.55);}
 
 .nav-toggle{display:none;align-items:center;justify-content:center;color:var(--gold);
   width:2.75rem;height:2.75rem;margin-right:calc(var(--space-1) * -1);border-radius:6px;
@@ -1150,16 +1150,17 @@ export default function BruiloftSiteV2() {
               aria-pressed={lang === "nl"}
               onClick={() => setLang("nl")}
             >
-              NL
+              <span aria-hidden="true">🇳🇱</span>
+              <span className="sr-only">Nederlands</span>
             </button>
-            <span className="lang-sep" aria-hidden="true" />
             <button
               type="button"
               className={"lang-btn" + (lang === "en" ? " is-on" : "")}
               aria-pressed={lang === "en"}
               onClick={() => setLang("en")}
             >
-              EN
+              <span aria-hidden="true">🇬🇧</span>
+              <span className="sr-only">English</span>
             </button>
           </div>
 
