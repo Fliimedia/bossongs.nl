@@ -113,10 +113,10 @@ const FAQ = [
   },
   {
     n: "02",
-    q: "Wat is de dress code?",
-    a: "Dress code is Tenue de Ville. Mannen dragen een (zomers) pak met das of strik, vrouwen een nette jurk.",
-    linkText: "Lees meer over Tenue de Ville",
-    link: "https://www.koonings.com/inspiratie/dresscode-tenue-de-ville/",
+    q: "Zijn kinderen welkom?",
+    a: "Ja, kinderen zijn van harte welkom. Laat ons even weten met hoeveel kinderen je komt en hoe oud ze zijn, dan houden we daar bij het diner rekening mee.",
+    linkText: "Laat het ons weten",
+    link: "mailto:bruiloft@flii.nl",
   },
   {
     n: "03",
@@ -124,6 +124,18 @@ const FAQ = [
     a: "Je kunt met eigen vervoer, zoals de auto of fiets.\n\nOpenbaar vervoer: direct naast de kerk is er bushalte Zwarte Pad. Hier pak je lijn 171 tot Amstelveen busstation en stap je over op lijn 356 tot halte Ouderkerk West. Vanaf hier is het 8 minuten lopen naar de Amstelkerk.\n\nHeb je geen vervoer? Laat het ons dan weten, dan kijken we mee.\n\nNa afloop rijdt er geen bus meer. Regel je terugreis vooraf, met eigen vervoer of een taxi.",
     linkText: "Route van Bovenkerk naar Ouderkerk",
     link: "https://www.google.com/maps/dir/St.+Urbanuskerk,+Noorddammerlaan+126,+1187+AG+Amstelveen/Amstelkerk,+Kerkstraat+11,+1191+JB+Ouderkerk+aan+de+Amstel/",
+  },
+  {
+    n: "04",
+    q: "Ik heb een allergie of dieetwens, waar meld ik dat?",
+    a: "Stuur ons een bericht met wat je niet kunt of wilt eten. Geef het uiterlijk twee weken voor de bruiloft door, dan kan de keuken er nog rekening mee houden.",
+    linkText: "Geef het door",
+    link: "mailto:bruiloft@flii.nl",
+  },
+  {
+    n: "05",
+    q: "Wat bedoelen jullie met de cadeautip?",
+    a: "We hebben samen al een huis vol spullen. Een bijdrage in een envelop is daarom het fijnste cadeau, maar je aanwezigheid is wat echt telt.",
   },
 ];
 
