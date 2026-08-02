@@ -174,16 +174,55 @@ const CSS = `
 .sec-tight{padding:var(--space-5) 0;}
 
 /* Hero: names lead, date supports */
-.hero{position:relative;padding:var(--space-5) 0 var(--space-6);text-align:center;}
-.hero-bg{position:absolute;inset:0 var(--space-4) 40% var(--space-4);background:var(--brand);border-radius:10px;z-index:0;}
-.hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);}
-.hero-monogram{width:6.75rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
-.hero-eyebrow{color:var(--shade-4);}
-.hero-names{font-size:var(--type-hero);line-height:1.05;margin:var(--space-2) 0 var(--space-1);}
-.hero-date{font-size:var(--type-3);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;}
-.hero-images{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);width:100%;}
-.hero-img{aspect-ratio:1/1;overflow:hidden;border-radius:10px;background:var(--brand);}
-.hero-img img{width:100%;height:100%;object-fit:cover;}
+/* Hero: an editorial invitation panel, copy on the left, prints on the right */
+.hero{position:relative;padding:var(--space-6) 0 var(--space-6);}
+.hero-bg{position:absolute;inset:0 var(--space-3) 22% var(--space-3);
+  background:var(--brand);border-radius:14px;z-index:0;}
+.hero-bg::after{content:"";position:absolute;inset:0.75rem;border-radius:10px;
+  border:1px solid rgba(178,138,66,0.28);}
+
+.hero-grid{position:relative;z-index:1;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+  gap:clamp(2rem,6vw,5rem);align-items:center;}
+
+.hero-copy{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-3);}
+.hero-monogram{width:5.5rem;height:auto;margin:0;}
+.hero-names{margin:0;font-size:clamp(2.6rem,6.4vw,4.6rem);line-height:0.98;
+  letter-spacing:-0.012em;}
+.hero-amp{font-style:italic;color:#b1873f;padding:0 0.06em;}
+.hero-date{display:flex;align-items:center;gap:0.75rem;margin:0;
+  font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--shade-4);}
+.hero-date::before{content:"";width:2.5rem;height:1px;background:rgba(178,138,66,0.65);}
+.hero-btn{margin-top:var(--space-2);}
+
+/* two prints, laid down rather than pasted in */
+.hero-frames{position:relative;padding:var(--space-3) 0 var(--space-5);}
+.hero-frame{margin:0;overflow:hidden;background:var(--shade-1);
+  padding:0.55rem 0.55rem 2.4rem;border-radius:3px;
+  box-shadow:0 18px 34px rgba(96,74,40,0.2), 0 2px 6px rgba(96,74,40,0.14);}
+.hero-frame img{width:100%;height:100%;object-fit:cover;display:block;border-radius:1px;}
+.frame-a{width:72%;margin-left:auto;transform:rotate(2deg);}
+.frame-a img{aspect-ratio:4/5;}
+.frame-b{position:absolute;left:0;bottom:0;width:52%;transform:rotate(-4.5deg);
+  padding-bottom:1.9rem;}
+.frame-b img{aspect-ratio:1/1;}
+
+@media (max-width:900px){
+  .hero{padding-top:var(--space-5);}
+  .hero-grid{grid-template-columns:1fr;gap:var(--space-4);}
+  .hero-copy{align-items:center;text-align:center;}
+  .hero-date::before{display:none;}
+  .hero-frames{padding-bottom:var(--space-6);}
+  .frame-a{width:66%;}
+  .frame-b{width:46%;}
+}
+@media (max-width:600px){
+  .hero-bg{inset:0 var(--space-2) 26% var(--space-2);}
+  .hero-monogram{width:4.5rem;}
+  .hero-frame{padding:0.4rem 0.4rem 1.7rem;}
+  .frame-b{padding-bottom:1.35rem;}
+}
 
 .btn{display:inline-flex;min-height:3.5rem;align-items:center;justify-content:center;padding:0 var(--space-4);
   border-radius:6px;background:var(--shade-6);color:var(--shade-1);
@@ -291,8 +330,6 @@ const CSS = `
 }
 @media (max-width:600px){
   .bruiloft{--type-hero:2.75rem;--type-1:1.875rem;--type-2:1.5rem;--type-3:1.2rem;}
-  .hero-images{grid-template-columns:1fr;}
-  .hero-bg{inset:0 var(--space-2) 55% var(--space-2);}
   .intro{font-size:1.25rem;}
   .tl-item{grid-template-columns:1fr;gap:var(--space-2);}
   .faq-btn{grid-template-columns:2.5rem 1fr 1.5rem;}
@@ -387,20 +424,35 @@ const CSS = `
 .opener.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
 .opener.opening .flap-bottom{transform:rotateX(170deg);transition-delay:720ms;}
 
-/* wax seal with calligraphic monogram */
+/* wax seal, pressed rather than drawn */
+.wax-defs{position:absolute;width:0;height:0;overflow:hidden;}
+
 .seal{position:absolute;top:50%;left:50%;z-index:6;
   width:6.75rem;height:6.75rem;margin:-3.375rem 0 0 -3.375rem;padding:0;
   display:flex;align-items:center;justify-content:center;
-  border-radius:47% 53% 51% 49% / 49% 47% 53% 51%;
-  background:radial-gradient(circle at 34% 30%, #edcd8e 0%, #c9963f 26%, #9d6c26 66%, #7d5219 100%);
-  box-shadow:0 8px 16px rgba(80,52,14,0.42), inset 0 2px 6px rgba(255,232,183,0.55),
-             inset 0 -5px 12px rgba(70,42,10,0.5);
-  color:#fdf1d2;cursor:pointer;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255,236,196,0.55) 0%, rgba(255,236,196,0) 42%),
+    radial-gradient(circle at 68% 78%, rgba(60,32,4,0.42) 0%, rgba(60,32,4,0) 46%),
+    radial-gradient(circle at 50% 46%, #d9a844 0%, #c08c33 30%, #a06f24 62%, #7c5117 100%);
+  filter:url(#waxEdge) drop-shadow(0 10px 14px rgba(70,42,10,0.42));
+  transform:rotate(-6deg);
+  cursor:pointer;
   animation:seal-breathe 3.4s ease-in-out infinite;
-  transition:transform 500ms ease, opacity 500ms ease, box-shadow 300ms ease;}
-.seal:hover{box-shadow:0 12px 24px rgba(80,52,14,0.5), inset 0 2px 6px rgba(255,232,183,0.65),
-             inset 0 -5px 12px rgba(70,42,10,0.5);}
-.opener.opening .seal{opacity:0;transform:scale(0.55) rotate(-14deg);animation:none;}
+  transition:transform 500ms ease, opacity 500ms ease, filter 300ms ease;}
+
+/* the raised rim the die pushes up around the edge */
+.seal::before{content:"";position:absolute;inset:6%;border-radius:50%;
+  box-shadow:inset 0 2px 3px rgba(255,236,190,0.45),
+             inset 0 -3px 5px rgba(58,32,4,0.5),
+             inset 0 0 0 1px rgba(255,225,170,0.14);}
+/* pooled wax and surface mottle */
+.seal::after{content:"";position:absolute;inset:0;border-radius:50%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23w)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;opacity:0.28;}
+
+.seal:hover{filter:url(#waxEdge) drop-shadow(0 14px 20px rgba(70,42,10,0.5));}
+.opener.opening .seal{opacity:0;transform:scale(0.55) rotate(-20deg);animation:none;}
 
 @keyframes seal-breathe{
   0%,100%{transform:scale(1);}
@@ -477,16 +529,16 @@ const CSS = `
 
 /* calligraphic names, pressed into the parchment light */
 /* the monogram struck into the wax */
-.seal-emblem{position:absolute;inset:13%;
+.seal-emblem{position:absolute;inset:15%;z-index:2;
   -webkit-mask-image:url("images/zegel-monogram-d341eb63.png");
   mask-image:url("images/zegel-monogram-d341eb63.png");
   -webkit-mask-size:contain;mask-size:contain;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
-  background:linear-gradient(168deg, #f6e3b6 0%, #d8ae60 38%, #a87a30 68%, #855c1e 100%);
-  filter:drop-shadow(0 1px 0 rgba(255,244,214,0.6))
-         drop-shadow(0 -1px 1px rgba(58,34,6,0.6))
-         drop-shadow(0 2px 3px rgba(58,34,6,0.35));}
+  background:linear-gradient(168deg, #fbeecb 0%, #e0b96e 34%, #b98a3a 66%, #8f6522 100%);
+  filter:drop-shadow(0 1.5px 0 rgba(255,246,220,0.65))
+         drop-shadow(0 -1.5px 1px rgba(52,28,4,0.7))
+         drop-shadow(0 3px 4px rgba(52,28,4,0.4));}
 
 @media (max-width:600px){
   .stage{width:88vw;}
@@ -556,6 +608,31 @@ const IconInstagram = () => (
     <circle cx="12" cy="12" r="4" />
     <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
   </Icon>
+);
+
+// A real wax seal has an irregular edge and a slightly uneven surface.
+// This displacement filter breaks up the perfect ellipse.
+const WaxDefs = () => (
+  <svg className="wax-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="waxEdge" x="-18%" y="-18%" width="136%" height="136%">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.028"
+          numOctaves="3"
+          seed="7"
+          result="warp"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="warp"
+          scale="9"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </defs>
+  </svg>
 );
 
 const Dove = () => (
@@ -743,6 +820,7 @@ export default function BruiloftSiteV2() {
             </div>
           </div>
 
+          <WaxDefs />
           <div className="opener-sky" />
           <div className="opener-veil" />
           <div className="opener-frame" />
@@ -834,25 +912,31 @@ export default function BruiloftSiteV2() {
       <main id="top">
         <section className="hero">
           <div className="hero-bg" />
-          <div className="wrap hero-inner">
-            <p className="label hero-eyebrow">Uitnodiging bruiloft</p>
-            <img
-              className="hero-monogram"
-              src={IMG.logoCompact}
-              width="539"
-              height="701"
-              alt=""
-            />
-            <h1 className="serif hero-names">Nyarayek &amp; Sten</h1>
-            <p className="hero-date">Zaterdag 19 september 2026</p>
-            <a className="btn" href="#agenda">Bekijk agenda</a>
-            <div className="hero-images">
-              <div className="hero-img">
-                <img src={IMG.couple} alt="Nya en Sten" />
-              </div>
-              <div className="hero-img">
+          <div className="wrap hero-grid">
+            <div className="hero-copy">
+              <img
+                className="hero-monogram"
+                src={IMG.logoCompact}
+                width="539"
+                height="701"
+                alt=""
+              />
+              <h1 className="serif hero-names">
+                Nyarayek <span className="hero-amp">&amp;</span> Sten
+              </h1>
+              <p className="hero-date">Zaterdag 19 september 2026</p>
+              <a className="btn hero-btn" href="#agenda">
+                Bekijk agenda
+              </a>
+            </div>
+
+            <div className="hero-frames">
+              <figure className="hero-frame frame-a">
+                <img src={IMG.couple} alt="Nyarayek en Sten" />
+              </figure>
+              <figure className="hero-frame frame-b">
                 <img src={IMG.verloving} alt="De verlovingsring" />
-              </div>
+              </figure>
             </div>
           </div>
         </section>
