@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-const BUILD = "b9";
-
 const IMG = {
   logoIcon: "images/logo-icoon.png",
   logoCompact: "images/logo-compact.png",
@@ -162,7 +160,7 @@ const CSS = `
 .hero{position:relative;padding:var(--space-5) 0 var(--space-6);text-align:center;}
 .hero-bg{position:absolute;inset:0 var(--space-4) 40% var(--space-4);background:var(--brand);border-radius:10px;z-index:0;}
 .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);}
-.hero-monogram{width:2.25rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
+.hero-monogram{width:6.75rem;height:auto;margin-bottom:calc(var(--space-2) * -1);}
 .hero-eyebrow{color:var(--shade-4);}
 .hero-names{font-size:var(--type-hero);line-height:1.05;margin:var(--space-2) 0 var(--space-1);}
 .hero-date{font-size:var(--type-3);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;}
@@ -251,8 +249,6 @@ const CSS = `
 .footer-nav a{font-size:1rem;transition:opacity 200ms ease;}
 .footer-nav a:hover{opacity:0.6;}
 .footer-names{font-weight:600;margin-bottom:var(--space-2);}
-.build-stamp{margin:0 0 var(--space-2);font-size:0.7rem;letter-spacing:0.08em;
-  color:var(--shade-4);opacity:0.5;}
 .footer-heart{margin:0 0.15rem;font-size:0.9em;}
 .socials{display:flex;justify-content:center;gap:var(--space-2);}
 .socials a{display:inline-flex;padding:var(--space-1);transition:opacity 200ms ease;}
@@ -591,6 +587,7 @@ export default function BruiloftSiteV2() {
         <section className="hero">
           <div className="hero-bg" />
           <div className="wrap hero-inner">
+            <p className="label hero-eyebrow">Uitnodiging bruiloft</p>
             <img
               className="hero-monogram"
               src={IMG.logoCompact}
@@ -598,7 +595,6 @@ export default function BruiloftSiteV2() {
               height="701"
               alt=""
             />
-            <p className="label hero-eyebrow">Uitnodiging bruiloft</p>
             <h1 className="serif hero-names">Sten &amp; Nyarayek</h1>
             <p className="hero-date">Zaterdag 19 september 2026</p>
             <a className="btn" href="#agenda">Bekijk agenda</a>
@@ -752,7 +748,6 @@ export default function BruiloftSiteV2() {
             </a>
           ))}
         </nav>
-        <p className="build-stamp">{BUILD}</p>
         <p className="footer-names">
           Nya <span className="footer-heart">❤️</span> Sten
         </p>
