@@ -10,6 +10,7 @@ const result = await esbuild.build({
   jsx: "automatic",
   format: "iife",
   target: ["es2019"],
+  charset: "utf8",
   define: { "process.env.NODE_ENV": '"production"' },
   write: false,
 });
