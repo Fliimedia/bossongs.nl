@@ -85,9 +85,9 @@ const TIMELINE = [
     map: AMSTELKERK,
   },
   {
-    time: "00.00 tot 00.30",
-    nl: { title: "Uitloop", location: "Amstelkerk, Ouderkerk a/d Amstel" },
-    en: { title: "Last call", location: "Amstelkerk, Ouderkerk aan de Amstel" },
+    time: "00.00",
+    nl: { title: "Uitloop tot 00.30", location: "Amstelkerk, Ouderkerk a/d Amstel" },
+    en: { title: "Winding down until 00.30", location: "Amstelkerk, Ouderkerk aan de Amstel" },
     map: AMSTELKERK,
   },
 ];
@@ -349,7 +349,7 @@ const CSS = `
 
 .timeline{border-top:1px solid var(--gold-line-soft);}
 .tl-item{--tl-line:clamp(0.95rem,3.5vw,1.35rem);--tl-gut:3.4em;
-  display:grid;grid-template-columns:0.85rem var(--tl-gut) 1fr;
+  display:grid;grid-template-columns:0.85rem minmax(var(--tl-gut), max-content) 1fr;
   column-gap:0.85rem;align-items:baseline;
   padding:var(--space-3) 0;border-bottom:1px solid var(--gold-line-soft);
   font-size:var(--tl-line);}
