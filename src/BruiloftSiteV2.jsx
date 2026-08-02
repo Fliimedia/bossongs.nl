@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const BUILD = "b7";
+
 const IMG = {
   logoIcon: "images/logo-icoon.png",
   logoCompact: "images/logo-compact.png",
@@ -249,6 +251,8 @@ const CSS = `
 .footer-nav a{font-size:1rem;transition:opacity 200ms ease;}
 .footer-nav a:hover{opacity:0.6;}
 .footer-names{font-weight:600;margin-bottom:var(--space-2);}
+.build-stamp{margin:0 0 var(--space-2);font-size:0.7rem;letter-spacing:0.08em;
+  color:var(--shade-4);opacity:0.5;}
 .footer-heart{margin:0 0.15rem;font-size:0.9em;}
 .socials{display:flex;justify-content:center;gap:var(--space-2);}
 .socials a{display:inline-flex;padding:var(--space-1);transition:opacity 200ms ease;}
@@ -480,6 +484,15 @@ export default function BruiloftSiteV2() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  // Browsers restore the previous scroll position on reload, which lands you
+  // mid page behind the overlay. Always start at the top.
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
   // Hold the page still while the envelope is on screen.
   useEffect(() => {
@@ -739,6 +752,7 @@ export default function BruiloftSiteV2() {
             </a>
           ))}
         </nav>
+        <p className="build-stamp">{BUILD}</p>
         <p className="footer-names">
           Nya <span className="footer-heart">❤️</span> Sten
         </p>
