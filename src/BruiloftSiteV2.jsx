@@ -72,7 +72,7 @@ const TIMELINE = [
   },
   {
     time: "15.30",
-    title: "Aankomst Nyarayek en Sten",
+    title: "Inloop receptie",
     location: "Amstelkerk, Ouderkerk a/d Amstel",
     map: "https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7",
   },
@@ -1035,7 +1035,7 @@ export default function BruiloftSiteV2() {
               height="701"
               alt=""
             />
-            <h1 className="serif hero-names">Sten &amp; Nyarayek</h1>
+            <h1 className="serif hero-names">Nyarayek &amp; Sten</h1>
             <p className="hero-date">Zaterdag 19 september 2026</p>
             <a className="btn" href="#agenda">Bekijk agenda</a>
             <div className="hero-images">
