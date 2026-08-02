@@ -197,6 +197,8 @@ const COPY = {
     dressAlt: "Voorbeeld Tenue de Ville",
     travelTitle: "Van ceremonie naar diner en feest",
     agendaEyebrow: "De dag",
+    factsEyebrow: "Praktisch",
+    factsTitle: "In het kort",
     faqEyebrow: "Goed om te weten",
     contactLead: "Heb je een andere vraag?",
     coupleAlt: "Nyarayek en Sten",
@@ -219,6 +221,8 @@ const COPY = {
     dressAlt: "Tenue de Ville example",
     travelTitle: "From ceremony to dinner and party",
     agendaEyebrow: "The day",
+    factsEyebrow: "Practical",
+    factsTitle: "At a glance",
     faqEyebrow: "Good to know",
     contactLead: "Have another question?",
     coupleAlt: "Nyarayek and Sten",
@@ -341,13 +345,15 @@ const CSS = `
 .h2{font-size:var(--type-2);line-height:1.15;margin:0;}
 .intro{font-size:1.5rem;line-height:1.5;max-width:60ch;white-space:pre-line;margin:0;}
 
-.facts{display:flex;flex-direction:column;gap:var(--space-2);
-  margin-top:var(--space-4);}
-.facts .fact{padding-left:0.2rem;}
-.fact{display:flex;align-items:center;gap:var(--space-2);}
+.facts{display:flex;flex-direction:column;align-items:flex-start;
+  gap:var(--space-1);margin-top:var(--space-5);padding:var(--space-4) var(--space-4) var(--space-3);}
+.facts .card-title{margin-bottom:var(--space-2);}
+.facts .fact{width:100%;padding:0.55rem 0.2rem;}
+.facts .fact + .fact{border-top:1px solid var(--gold-line-soft);}
+.fact{display:flex;align-items:center;gap:0.7rem;}
 .fact svg{flex:0 0 auto;color:var(--gold);}
 .fact-inline{display:inline-flex;margin-left:0.4rem;vertical-align:-0.22em;color:var(--gold);}
-.fact span{font-size:1rem;}
+.fact span{font-size:0.92rem;line-height:1.45;}
 
 .timeline{border-top:1px solid var(--gold-line-soft);}
 .tl-item{--tl-line:clamp(0.95rem,3.5vw,1.35rem);--tl-gut:3.4em;
@@ -1312,6 +1318,14 @@ export default function BruiloftSiteV2() {
 {c.story}
             </p>
             <div className="panel facts">
+              <p className="sec-eyebrow">{c.factsEyebrow}</p>
+              <div className="sec-rule" aria-hidden="true">
+                <span />
+                <i />
+                <span />
+              </div>
+              <h3 className="serif card-title">{c.factsTitle}</h3>
+
               <Fact icon={<IconTime />}>{c.date}</Fact>
               <Fact icon={<IconMap />}>{c.venue}</Fact>
               <Fact icon={<IconDress />}>{c.dress}</Fact>
