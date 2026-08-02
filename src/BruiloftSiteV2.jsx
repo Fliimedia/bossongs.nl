@@ -24,7 +24,6 @@ const SPARKLES = [
 
 const IMG = {
   hemel: "images/hemel.webp",
-  zegelMonogram: "images/zegel-monogram-d341eb63.png",
   logoIcon: "images/logo-icoon.png",
   logoCompact: "images/logo-compact.png",
   logoFull: "images/logo-volledig.png",
@@ -425,39 +424,24 @@ const CSS = `
 .opener.opening .flap-right{transform:rotateY(168deg);transition-delay:380ms;}
 .opener.opening .flap-bottom{transform:rotateX(170deg);transition-delay:720ms;}
 
-/* wax seal, pressed rather than drawn */
+/* wax seal, drawn and lit in svg */
 .wax-defs{position:absolute;width:0;height:0;overflow:hidden;}
 
 .seal{position:absolute;top:50%;left:50%;z-index:6;
-  width:6.75rem;height:6.75rem;margin:-3.375rem 0 0 -3.375rem;padding:0;
+  width:7.4rem;height:7.4rem;margin:-3.7rem 0 0 -3.7rem;padding:0;
   display:flex;align-items:center;justify-content:center;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at 30% 24%, rgba(255,236,196,0.55) 0%, rgba(255,236,196,0) 42%),
-    radial-gradient(circle at 68% 78%, rgba(60,32,4,0.42) 0%, rgba(60,32,4,0) 46%),
-    radial-gradient(circle at 50% 46%, #d9a844 0%, #c08c33 30%, #a06f24 62%, #7c5117 100%);
-  filter:url(#waxEdge) drop-shadow(0 10px 14px rgba(70,42,10,0.42));
-  transform:rotate(-6deg);
-  cursor:pointer;
+  background:none;border:0;cursor:pointer;
+  transform:rotate(-5deg);
+  filter:drop-shadow(0 12px 16px rgba(70,42,10,0.45));
   animation:seal-breathe 3.4s ease-in-out infinite;
   transition:transform 500ms ease, opacity 500ms ease, filter 300ms ease;}
-
-/* the raised rim the die pushes up around the edge */
-.seal::before{content:"";position:absolute;inset:6%;border-radius:50%;
-  box-shadow:inset 0 2px 3px rgba(255,236,190,0.45),
-             inset 0 -3px 5px rgba(58,32,4,0.5),
-             inset 0 0 0 1px rgba(255,225,170,0.14);}
-/* pooled wax and surface mottle */
-.seal::after{content:"";position:absolute;inset:0;border-radius:50%;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23w)' opacity='0.5'/%3E%3C/svg%3E");
-  mix-blend-mode:overlay;opacity:0.28;}
-
-.seal:hover{filter:url(#waxEdge) drop-shadow(0 14px 20px rgba(70,42,10,0.5));}
+.wax{width:100%;height:100%;display:block;overflow:visible;}
+.seal:hover{filter:drop-shadow(0 18px 24px rgba(70,42,10,0.52));}
 .opener.opening .seal{opacity:0;transform:scale(0.55) rotate(-20deg);animation:none;}
 
 @keyframes seal-breathe{
-  0%,100%{transform:scale(1);}
-  50%{transform:scale(1.04);}
+  0%,100%{transform:rotate(-5deg) scale(1);}
+  50%{transform:rotate(-5deg) scale(1.035);}
 }
 
 /* opening mist: a bank of cloud covering the screen, which parts sideways */
@@ -529,18 +513,6 @@ const CSS = `
 }
 
 /* calligraphic names, pressed into the parchment light */
-/* the monogram struck into the wax */
-.seal-emblem{position:absolute;inset:15%;z-index:2;
-  -webkit-mask-image:url("images/zegel-monogram-d341eb63.png");
-  mask-image:url("images/zegel-monogram-d341eb63.png");
-  -webkit-mask-size:contain;mask-size:contain;
-  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
-  -webkit-mask-position:center;mask-position:center;
-  background:linear-gradient(168deg, #fbeecb 0%, #e0b96e 34%, #b98a3a 66%, #8f6522 100%);
-  filter:drop-shadow(0 1.5px 0 rgba(255,246,220,0.65))
-         drop-shadow(0 -1.5px 1px rgba(52,28,4,0.7))
-         drop-shadow(0 3px 4px rgba(52,28,4,0.4));}
-
 @media (max-width:600px){
   .stage{width:88vw;}
   .seal{width:5.75rem;height:5.75rem;margin:-2.875rem 0 0 -2.875rem;}
@@ -628,28 +600,109 @@ const IconInstagram = () => (
   </Icon>
 );
 
-// A real wax seal has an irregular edge and a slightly uneven surface.
-// This displacement filter breaks up the perfect ellipse.
-const WaxDefs = () => (
-  <svg className="wax-defs" aria-hidden="true" focusable="false">
+// A struck wax seal. The relief comes from feSpecularLighting rather than
+// stacked shadows, which is what gives the metal a real lit surface.
+const WaxSeal = () => (
+  <svg className="wax" viewBox="0 0 200 200" aria-hidden="true">
     <defs>
-      <filter id="waxEdge" x="-18%" y="-18%" width="136%" height="136%">
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.028"
-          numOctaves="3"
-          seed="7"
-          result="warp"
-        />
-        <feDisplacementMap
-          in="SourceGraphic"
-          in2="warp"
-          scale="9"
-          xChannelSelector="R"
-          yChannelSelector="G"
-        />
+      <radialGradient id="waxBody" cx="34%" cy="26%" r="82%">
+        <stop offset="0%" stopColor="#f2d089" />
+        <stop offset="34%" stopColor="#dcae55" />
+        <stop offset="68%" stopColor="#bd8c33" />
+        <stop offset="100%" stopColor="#8f6621" />
+      </radialGradient>
+      <radialGradient id="waxRim" cx="30%" cy="22%" r="86%">
+        <stop offset="0%" stopColor="#fbe7b0" />
+        <stop offset="30%" stopColor="#e6bd66" />
+        <stop offset="66%" stopColor="#c2913a" />
+        <stop offset="100%" stopColor="#8a621f" />
+      </radialGradient>
+      <radialGradient id="waxField" cx="40%" cy="32%" r="78%">
+        <stop offset="0%" stopColor="#e3b76a" />
+        <stop offset="55%" stopColor="#cc9c45" />
+        <stop offset="100%" stopColor="#a97a2a" />
+      </radialGradient>
+
+      {/* the poured edge is never a perfect circle */}
+      <filter id="waxWarp" x="-14%" y="-14%" width="128%" height="128%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="11" result="w" />
+        <feDisplacementMap in="SourceGraphic" in2="w" scale="7"
+          xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+
+      {/* raised metal: strong for the rim */}
+      <filter id="reliefStrong" x="-25%" y="-25%" width="150%" height="150%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="b" />
+        <feSpecularLighting in="b" surfaceScale="4.5" specularConstant="1.05"
+          specularExponent="22" lightingColor="#fff4d2" result="sp">
+          <feDistantLight azimuth="228" elevation="52" />
+        </feSpecularLighting>
+        <feComposite in="sp" in2="SourceAlpha" operator="in" result="spc" />
+        <feComposite in="SourceGraphic" in2="spc" operator="arithmetic"
+          k1="0" k2="1" k3="1" k4="0" />
+      </filter>
+
+      {/* and finer for engraving and letterforms */}
+      <filter id="reliefFine" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="0.9" result="b" />
+        <feSpecularLighting in="b" surfaceScale="3.2" specularConstant="0.95"
+          specularExponent="26" lightingColor="#fff6dc" result="sp">
+          <feDistantLight azimuth="228" elevation="58" />
+        </feSpecularLighting>
+        <feComposite in="sp" in2="SourceAlpha" operator="in" result="spc" />
+        <feOffset in="SourceAlpha" dx="0.7" dy="0.9" result="sh" />
+        <feGaussianBlur in="sh" stdDeviation="0.7" result="shb" />
+        <feFlood floodColor="#5c3d0d" floodOpacity="0.55" result="shc" />
+        <feComposite in="shc" in2="shb" operator="in" result="shadow" />
+        <feMerge>
+          <feMergeNode in="shadow" />
+          <feMergeNode in="SourceGraphic" />
+          <feMergeNode in="spc" />
+        </feMerge>
+      </filter>
+
+      {/* fine metallic tooth across the whole seal */}
+      <filter id="waxGrain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="n" />
+        <feColorMatrix in="n" type="saturate" values="0" result="g" />
+        <feComponentTransfer in="g" result="soft">
+          <feFuncA type="linear" slope="0.16" />
+        </feComponentTransfer>
+        <feBlend in="SourceGraphic" in2="soft" mode="multiply" />
       </filter>
     </defs>
+
+    <g filter="url(#waxWarp)">
+      {/* body of the poured wax */}
+      <circle cx="100" cy="100" r="93" fill="url(#waxBody)" />
+      {/* the rim the press pushes up */}
+      <circle cx="100" cy="100" r="82" fill="none" stroke="url(#waxRim)"
+        strokeWidth="21" filter="url(#reliefStrong)" />
+      {/* recessed field inside the rim */}
+      <circle cx="100" cy="100" r="72" fill="url(#waxField)" filter="url(#waxGrain)" />
+      {/* engraved keyline */}
+      <circle cx="100" cy="100" r="63" fill="none" stroke="#c99a45"
+        strokeWidth="1.7" filter="url(#reliefFine)" />
+
+      <g filter="url(#reliefFine)" fill="#cfa14c">
+        {/* sprig */}
+        <g stroke="#cfa14c" strokeWidth="1.5" fill="none" strokeLinecap="round">
+          <path d="M62 146C56 132 54 118 58 104" />
+          <path d="M59 136c-5-1-9-4-11-9 6-1 10 1 12 5z" fill="#cfa14c" stroke="none" />
+          <path d="M61 126c-5-2-8-6-9-11 6 0 10 2 11 7z" fill="#cfa14c" stroke="none" />
+          <path d="M60 116c-4-3-6-7-6-12 5 1 9 4 9 9z" fill="#cfa14c" stroke="none" />
+          <path d="M64 140c5-2 8-6 9-11-6 0-10 3-11 7z" fill="#cfa14c" stroke="none" />
+          <path d="M63 129c5-2 8-6 8-11-5 1-9 3-10 8z" fill="#cfa14c" stroke="none" />
+        </g>
+
+        <text x="80" y="96" textAnchor="middle" fontFamily="Instrument Serif, Georgia, serif"
+          fontSize="62">N</text>
+        <text x="126" y="144" textAnchor="middle" fontFamily="Instrument Serif, Georgia, serif"
+          fontSize="62">S</text>
+        <text x="103" y="126" textAnchor="middle" fontFamily="Great Vibes, cursive"
+          fontSize="54">&amp;</text>
+      </g>
+    </g>
   </svg>
 );
 
@@ -838,7 +891,6 @@ export default function BruiloftSiteV2() {
             </div>
           </div>
 
-          <WaxDefs />
           <div className="opener-sky" />
           <div className="opener-veil" />
           <div className="opener-frame" />
@@ -877,7 +929,7 @@ export default function BruiloftSiteV2() {
                 onClick={openInvitation}
                 aria-label="Open de uitnodiging"
               >
-                <span className="seal-emblem" aria-hidden="true" />
+                <WaxSeal />
               </button>
             </div>
           </div>
