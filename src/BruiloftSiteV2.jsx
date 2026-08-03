@@ -160,19 +160,6 @@ const FAQ = [
   {
     n: "02",
     nl: {
-      q: "Zijn kinderen welkom?",
-      a: "In overleg is dat waarschijnlijk mogelijk. Neem even contact met ons op via bruiloft@flii.nl, dan kijken we samen wat er kan.",
-    },
-    en: {
-      q: "Are children welcome?",
-      a: "Most likely yes, in consultation. Send us a note at bruiloft@flii.nl and we will work it out together.",
-    },
-    linkText: "bruiloft@flii.nl",
-    link: "mailto:bruiloft@flii.nl",
-  },
-  {
-    n: "03",
-    nl: {
       q: "Hoe kom ik van Bovenkerk naar Ouderkerk?",
       a: "Je kunt met eigen vervoer, zoals de auto of fiets.\n\nOpenbaar vervoer: direct naast de kerk is er bushalte Zwarte Pad. Hier pak je lijn 171 tot Amstelveen busstation en stap je over op lijn 356 tot halte Ouderkerk West. Vanaf hier is het 8 minuten lopen naar de Amstelkerk.\n\nHeb je geen vervoer? Laat het ons dan weten, dan kijken we mee.\n\nNa afloop rijdt er geen bus meer. Regel je terugreis vooraf, met eigen vervoer of een taxi.",
     },
@@ -185,7 +172,7 @@ const FAQ = [
     link: ROUTE,
   },
   {
-    n: "04",
+    n: "03",
     nl: {
       q: "Ik heb een allergie of dieetwens, waar meld ik dat?",
       a: "Stuur ons een bericht met wat je niet kunt of wilt eten. Geef het uiterlijk twee weken voor de bruiloft door, dan kan de keuken er nog rekening mee houden.",
