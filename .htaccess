@@ -25,3 +25,11 @@
 <IfModule LiteSpeed>
   CacheDisable public /index.html
 </IfModule>
+
+# /bruiloft points at the same invitation, so send it home.
+# A 302 rather than a 301: browsers cache permanent redirects for a long time,
+# and that is hard to undo if the path is ever needed for something else.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^bruiloft/?$ / [R=302,L,NC]
+</IfModule>
