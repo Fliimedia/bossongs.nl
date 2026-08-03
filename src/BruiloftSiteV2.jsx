@@ -14,7 +14,6 @@ const REEL = [
   { src: "images/reel/r02-b147a15f.webp", w: 933, h: 700 },
   { src: "images/reel/r03-ef79d884.webp", w: 525, h: 700 },
   { src: "images/reel/r04-c1699637.webp", w: 315, h: 700 },
-  { src: "images/reel/r05-cbbae328.webp", w: 932, h: 700 },
   { src: "images/reel/r06-0e44be35.webp", w: 315, h: 700 },
   { src: "images/reel/r07-af430f51.webp", w: 932, h: 700 },
   { src: "images/reel/r08-4383e71a.webp", w: 931, h: 700 },
@@ -23,6 +22,10 @@ const REEL = [
   { src: "images/reel/r11-951700ad.webp", w: 526, h: 700 },
   { src: "images/reel/r12-a8e7d8a6.webp", w: 525, h: 700 },
   { src: "images/reel/r13-01ac36b6.webp", w: 525, h: 700 },
+  { src: "images/reel/r14-bbec429d.webp", w: 1244, h: 700 },
+  { src: "images/reel/r15-464df2d5.webp", w: 932, h: 700 },
+  { src: "images/reel/r16-ec01fbf9.webp", w: 933, h: 700 },
+  { src: "images/reel/r17-35050f5b.webp", w: 1102, h: 700 },
 ];
 
 
@@ -472,7 +475,7 @@ const CSS = `
 .reel-sec{padding-bottom:var(--space-5);}
 .reel{--reel-h:clamp(11rem,26vw,17rem);position:relative;
   overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;
-  cursor:grab;touch-action:pan-y pinch-zoom;
+  cursor:grab;touch-action:auto;overscroll-behavior-x:contain;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
 .reel::-webkit-scrollbar{display:none;}
