@@ -40,6 +40,9 @@ const COPY = {
     removeAsk: "Deze foto uit het album halen?",
     home: "Naar de uitnodiging",
     photoAlt: "Foto uit het album",
+    today: "Vandaag",
+    yesterday: "Gisteren",
+    composeTitle: "Zet in het album",
   },
   en: {
     eyebrow: "Photo album",
@@ -74,6 +77,9 @@ const COPY = {
     removeAsk: "Remove this photo from the album?",
     home: "Back to the invitation",
     photoAlt: "Photo from the album",
+    today: "Today",
+    yesterday: "Yesterday",
+    composeTitle: "Add to the album",
   },
 };
 
@@ -133,8 +139,8 @@ const CSS = `
 
 /* hero */
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;
-  padding:var(--space-4) 0 var(--space-3);}
-.monogram{width:4rem;height:auto;margin-bottom:var(--space-2);}
+  padding:var(--space-3) 0 var(--space-4);}
+.monogram{width:2.75rem;height:auto;margin-bottom:0.75rem;}
 .eyebrow{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--gold);}
 .rule{display:flex;align-items:center;gap:0.5rem;width:7rem;margin:0.5rem auto 0.75rem;color:var(--gold);}
@@ -142,8 +148,8 @@ const CSS = `
 .rule span:first-child{background:linear-gradient(90deg,transparent,currentColor);}
 .rule span:last-child{background:linear-gradient(90deg,currentColor,transparent);}
 .rule i{width:0.32rem;height:0.32rem;transform:rotate(45deg);background:currentColor;border-radius:1px;}
-.title{margin:0;font-size:clamp(2rem,7vw,3.2rem);line-height:1.05;max-width:16ch;}
-.lead{margin:var(--space-2) 0 0;color:var(--shade-4);max-width:34ch;}
+.title{margin:0;font-size:clamp(1.75rem,5.5vw,2.6rem);line-height:1.08;max-width:16ch;}
+.lead{margin:0.6rem 0 0;color:var(--shade-4);max-width:32ch;font-size:0.95rem;}
 .actions{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-2);justify-content:center;
   margin-top:var(--space-3);}
 .hint{margin:0;font-size:0.85rem;color:var(--shade-4);text-align:center;}
@@ -161,9 +167,25 @@ const CSS = `
 .btn-ghost svg{color:var(--gold);}
 
 /* compose */
-.compose{display:flex;flex-direction:column;gap:var(--space-3);padding-top:var(--space-3);}
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(38,28,12,0.55);
+  backdrop-filter:blur(2px);animation:lb-in 200ms ease both;}
+.compose{position:fixed;left:0;right:0;bottom:0;z-index:41;
+  display:flex;flex-direction:column;gap:var(--space-2);
+  max-height:92vh;overflow-y:auto;
+  padding:0.75rem var(--space-3) calc(var(--space-3) + env(safe-area-inset-bottom));
+  background:var(--paper);border-radius:20px 20px 0 0;
+  box-shadow:0 -18px 40px rgba(20,12,2,0.28);
+  animation:sheet-up 320ms cubic-bezier(.2,.8,.3,1) both;}
+.grip{width:2.5rem;height:0.25rem;margin:0 auto 0.4rem;border-radius:999px;
+  background:var(--gold-line);}
+.compose-title{margin:0 0 0.25rem;font-size:1.35rem;line-height:1.2;text-align:center;}
+@keyframes sheet-up{from{transform:translateY(100%);}to{transform:none;}}
+@keyframes sheet-up-wide{
+  from{transform:translate(-50%,110%);}
+  to{transform:translate(-50%,0);}
+}
 .previews{display:flex;justify-content:center;}
-.previews img{display:block;max-width:100%;max-height:58vh;border-radius:12px;
+.previews img{display:block;max-width:100%;max-height:42vh;border-radius:12px;
   box-shadow:0 18px 34px rgba(96,74,40,0.2);}
 .previews.many{justify-content:flex-start;gap:0.5rem;overflow-x:auto;padding-bottom:0.35rem;
   scrollbar-width:thin;}
@@ -187,7 +209,12 @@ const CSS = `
 .compose .actions{margin-top:0;}
 
 /* gallery */
-.gallery{padding-top:var(--space-4);}
+.gallery{padding-top:var(--space-2);}
+.day{display:flex;align-items:center;gap:0.75rem;margin:var(--space-3) 0 var(--space-2);
+  font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--gold);}
+.day::after{content:"";flex:1 1 0;height:1px;background:var(--gold-line-soft);}
+.day:first-of-type{margin-top:var(--space-1);}
 .gallery-head{display:flex;align-items:baseline;gap:var(--space-2);margin-bottom:var(--space-2);}
 .gallery-head h2{margin:0;font-size:1.75rem;line-height:1.1;}
 .count-pill{font-size:var(--type-label);letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);}
@@ -195,21 +222,35 @@ const CSS = `
   border-radius:999px;color:var(--gold);border:1px solid var(--gold-line-soft);background:rgba(255,255,255,0.65);
   transition:transform 400ms ease;}
 .refresh:active{transform:rotate(180deg);}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;}
-.tile{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;border-radius:8px;
-  background:var(--brand);line-height:0;animation:tile-in 400ms ease both;}
-.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 300ms ease;}
-.tile:hover img{transform:scale(1.03);}
-.skeleton span{display:block;aspect-ratio:1/1;border-radius:8px;
+/* photographs keep their own shape; cropping every face into a square is
+   the fastest way to make a wedding album look like a spreadsheet */
+.grid{columns:2;column-gap:0.5rem;}
+.tile{position:relative;display:block;width:100%;margin:0 0 0.5rem;overflow:hidden;
+  border-radius:10px;background:var(--brand);line-height:0;
+  break-inside:avoid;-webkit-column-break-inside:avoid;
+  box-shadow:0 6px 16px rgba(96,74,40,0.14);
+  transition:transform 260ms cubic-bezier(.2,.7,.3,1),box-shadow 260ms ease;
+  animation:tile-in 400ms ease both;}
+.tile:hover{transform:translateY(-3px);box-shadow:0 14px 26px rgba(96,74,40,0.22);}
+.tile img{width:100%;height:auto;display:block;}
+.tile-cap{position:absolute;left:0;right:0;bottom:0;padding:1.6rem 0.7rem 0.6rem;
+  background:linear-gradient(180deg,rgba(20,12,2,0),rgba(20,12,2,0.72));
+  color:#fff;font-size:0.78rem;line-height:1.35;text-align:left;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.skeleton{columns:2;column-gap:0.5rem;}
+.skeleton span{display:block;margin:0 0 0.5rem;border-radius:10px;break-inside:avoid;
   background:linear-gradient(90deg,var(--brand),#fff,var(--brand));background-size:200% 100%;
   animation:shimmer 1.4s linear infinite;}
+.skeleton span:nth-child(3n){height:9rem;}
+.skeleton span:nth-child(3n+1){height:12rem;}
+.skeleton span:nth-child(3n+2){height:7rem;}
 .empty{margin:0;padding:var(--space-4) 0;text-align:center;color:var(--shade-4);}
 @keyframes tile-in{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:none;}}
 @keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
 
 /* the camera button follows you down the page */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;
-  padding:var(--space-3) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom));
+  padding:var(--space-4) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom));
   background:linear-gradient(180deg,rgba(250,243,230,0),var(--paper) 55%);pointer-events:none;
   animation:dock-in 300ms ease both;}
 .dock .btn{pointer-events:auto;min-width:min(100%,20rem);box-shadow:0 12px 28px rgba(96,74,40,0.28);}
@@ -254,12 +295,14 @@ const CSS = `
 @keyframes lb-rise{from{opacity:0;transform:translateY(1.2rem) scale(0.97);}to{opacity:1;transform:none;}}
 
 @media (min-width:600px){
-  .grid{grid-template-columns:repeat(4,1fr);gap:0.6rem;}
+  .grid,.skeleton{columns:3;column-gap:0.7rem;}
+  .tile,.skeleton span{margin-bottom:0.7rem;}
+  .compose{left:50%;right:auto;width:min(38rem,100%);
+    border-radius:20px;bottom:var(--space-3);animation-name:sheet-up-wide;}
 }
 @media (min-width:900px){
-  .grid{grid-template-columns:repeat(5,1fr);}
-  .album{padding-bottom:var(--space-5);}
-  .dock{display:none;}
+  .grid,.skeleton{columns:4;}
+  .hero{padding-top:var(--space-4);}
 }
 @media (prefers-reduced-motion:reduce){
   .album *{animation:none !important;transition:none !important;}
@@ -411,6 +454,37 @@ function upload(entry, caption, onProgress) {
 
 const thumbUrl = (id) => API + "?a=img&s=thumb&id=" + id;
 const fullUrl = (id) => API + "?a=img&s=full&id=" + id;
+
+function dayKey(ts) {
+  return new Date(ts * 1000).toDateString();
+}
+
+function dayLabel(ts, lang, c) {
+  const d = new Date(ts * 1000);
+  const today = new Date();
+  const yesterday = new Date(today.getTime() - 86400000);
+  if (d.toDateString() === today.toDateString()) return c.today;
+  if (d.toDateString() === yesterday.toDateString()) return c.yesterday;
+  return d.toLocaleDateString(lang === "nl" ? "nl-NL" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: d.getFullYear() === today.getFullYear() ? undefined : "numeric",
+  });
+}
+
+function groupByDay(items) {
+  const groups = [];
+  let current = null;
+  items.forEach((item, index) => {
+    const key = dayKey(item.ts);
+    if (!current || current.key !== key) {
+      current = { key, ts: item.ts, photos: [] };
+      groups.push(current);
+    }
+    current.photos.push({ item, index });
+  });
+  return groups;
+}
 
 function formatTime(ts, lang) {
   const d = new Date(ts * 1000);
@@ -676,8 +750,7 @@ export default function FotoApp() {
       </header>
 
       <main className="wrap">
-        {!composing && (
-          <section className="hero" ref={heroRef}>
+        <section className="hero" ref={heroRef}>
             <img
               className="monogram"
               src="../images/logo-compact.png"
@@ -713,12 +786,14 @@ export default function FotoApp() {
                 {c.pick}
               </button>
             </div>
-            {phase === "preparing" && <p className="hint" style={{ marginTop: "1rem" }}>{c.preparing}</p>}
-          </section>
-        )}
+          {phase === "preparing" && <p className="hint" style={{ marginTop: "1rem" }}>{c.preparing}</p>}
+        </section>
 
+        {composing && <div className="scrim" onClick={phase === "uploading" ? undefined : cancel} />}
         {composing && (
           <section className="compose" aria-live="polite">
+            <span className="grip" aria-hidden="true" />
+            <h2 className="serif compose-title">{c.composeTitle}</h2>
             <div className={"previews" + (queue.length > 1 ? " many" : "")}>
               {queue.map((q, i) => (
                 <img key={q.preview} src={q.preview} width={q.full.w} height={q.full.h} alt="" />
@@ -808,24 +883,34 @@ export default function FotoApp() {
           {loadError && items === null && <p className="error">{c.loadFailed}</p>}
           {items && items.length === 0 && <p className="empty">{c.empty}</p>}
           {items && items.length > 0 && (
-            <div className="grid">
-              {items.map((it, i) => (
-                <button
-                  key={it.id}
-                  className="tile"
-                  type="button"
-                  onClick={() => setOpen(i)}
-                  aria-label={it.caption || c.photoAlt}
-                >
-                  <img
-                    src={thumbUrl(it.id)}
-                    alt={it.caption || ""}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </button>
+            <>
+              {groupByDay(items).map((group) => (
+                <section key={group.key}>
+                  <h3 className="day">{dayLabel(group.ts, lang, c)}</h3>
+                  <div className="grid">
+                    {group.photos.map(({ item, index }) => (
+                      <button
+                        key={item.id}
+                        className="tile"
+                        type="button"
+                        onClick={() => setOpen(index)}
+                        aria-label={item.caption || c.photoAlt}
+                      >
+                        <img
+                          src={thumbUrl(item.id)}
+                          width={item.w || undefined}
+                          height={item.h || undefined}
+                          alt={item.caption || ""}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {item.caption && <span className="tile-cap">{item.caption}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </section>
               ))}
-            </div>
+            </>
           )}
         </section>
       </main>
