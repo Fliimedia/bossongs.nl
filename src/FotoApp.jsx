@@ -9,10 +9,11 @@ const MAX_CAPTION = 160;
 const COPY = {
   nl: {
     eyebrow: "Fotoalbum",
-    title: "Onze dag, door jouw ogen",
     lead: "Maak een foto en zet hem meteen in ons album.",
-    take: "Maak een foto",
-    pick: "Kies uit je galerij",
+    take: "Camera",
+    pick: "Galerij",
+    takeLong: "Maak een foto",
+    pickLong: "Kies uit je galerij",
     captionLabel: "Beschrijving",
     optional: "optioneel",
     placeholder: "Bijvoorbeeld: de eerste dans",
@@ -46,10 +47,11 @@ const COPY = {
   },
   en: {
     eyebrow: "Photo album",
-    title: "Our day, through your eyes",
     lead: "Take a photo and drop it straight into our album.",
-    take: "Take a photo",
-    pick: "Choose from your gallery",
+    take: "Camera",
+    pick: "Gallery",
+    takeLong: "Take a photo",
+    pickLong: "Choose from your gallery",
     captionLabel: "Caption",
     optional: "optional",
     placeholder: "For example: the first dance",
@@ -140,7 +142,8 @@ const CSS = `
 /* hero */
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;
   padding:var(--space-3) 0 var(--space-4);}
-.monogram{width:2.75rem;height:auto;margin-bottom:0.75rem;}
+.polaroids{width:min(100%,30rem);height:auto;margin:0 auto 0.5rem;display:block;
+  filter:drop-shadow(0 12px 22px rgba(96,74,40,0.18));}
 .eyebrow{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--gold);}
 .rule{display:flex;align-items:center;gap:0.5rem;width:7rem;margin:0.5rem auto 0.75rem;color:var(--gold);}
@@ -148,10 +151,28 @@ const CSS = `
 .rule span:first-child{background:linear-gradient(90deg,transparent,currentColor);}
 .rule span:last-child{background:linear-gradient(90deg,currentColor,transparent);}
 .rule i{width:0.32rem;height:0.32rem;transform:rotate(45deg);background:currentColor;border-radius:1px;}
-.title{margin:0;font-size:clamp(1.75rem,5.5vw,2.6rem);line-height:1.08;max-width:16ch;}
 .lead{margin:0.6rem 0 0;color:var(--shade-4);max-width:32ch;font-size:0.95rem;}
 .actions{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-2);justify-content:center;
   margin-top:var(--space-3);}
+
+/* two big targets: camera and gallery, nothing else competing */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);
+  width:min(100%,26rem);margin:var(--space-3) auto 0;}
+.choice{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0.6rem;min-height:8.5rem;padding:var(--space-2);
+  border:1px solid var(--gold-line);border-radius:16px;
+  background:rgba(255,255,255,0.7);color:var(--shade-6);
+  font-size:0.85rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+  transition:transform 200ms cubic-bezier(.2,.7,.3,1),box-shadow 200ms ease,
+    background-color 200ms ease;}
+.choice svg{color:var(--gold);}
+.choice:hover:not(:disabled){transform:translateY(-3px);
+  box-shadow:0 14px 26px rgba(96,74,40,0.18);}
+.choice:active:not(:disabled){transform:translateY(0);}
+.choice:disabled{opacity:0.55;cursor:default;}
+.choice-primary{background:var(--shade-6);border-color:var(--shade-6);color:var(--shade-1);}
+.choice-primary svg{color:var(--gold-light);}
+.choice-primary:hover:not(:disabled){background:#241d12;}
 .hint{margin:0;font-size:0.85rem;color:var(--shade-4);text-align:center;}
 
 /* buttons */
@@ -328,15 +349,15 @@ const Icon = ({ children, size = 20 }) => (
   </svg>
 );
 
-const IconCamera = () => (
-  <Icon>
+const IconCamera = ({ size }) => (
+  <Icon size={size}>
     <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.1-2h6.4l1.1 2h2.2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5z" />
     <circle cx="12" cy="13" r="3.4" />
   </Icon>
 );
 
-const IconImages = () => (
-  <Icon>
+const IconImages = ({ size }) => (
+  <Icon size={size}>
     <rect x="3.5" y="5.5" width="14" height="12" rx="1.5" />
     <path d="M20.5 8v9.5a2 2 0 0 1-2 2H7" />
     <path d="M3.5 15l4-4 3 3 2.5-2.5 4.5 4.5" />
@@ -752,10 +773,10 @@ export default function FotoApp() {
       <main className="wrap">
         <section className="hero" ref={heroRef}>
             <img
-              className="monogram"
-              src="../images/logo-compact.png"
-              width="539"
-              height="701"
+              className="polaroids"
+              src="../images/polaroids-042b22aa.webp"
+              width="1200"
+              height="666"
               alt=""
             />
             <p className="eyebrow">{c.eyebrow}</p>
@@ -764,26 +785,27 @@ export default function FotoApp() {
               <i />
               <span />
             </div>
-            <h1 className="serif title">{c.title}</h1>
             <p className="lead">{c.lead}</p>
-            <div className="actions">
+            <div className="choices">
               <button
-                className="btn btn-primary"
+                className="choice choice-primary"
                 type="button"
                 onClick={() => cameraRef.current && cameraRef.current.click()}
                 disabled={phase === "preparing"}
+                aria-label={c.takeLong}
               >
-                <IconCamera />
-                {c.take}
+                <IconCamera size={44} />
+                <span>{c.take}</span>
               </button>
               <button
-                className="btn btn-ghost"
+                className="choice"
                 type="button"
                 onClick={() => pickRef.current && pickRef.current.click()}
                 disabled={phase === "preparing"}
+                aria-label={c.pickLong}
               >
-                <IconImages />
-                {c.pick}
+                <IconImages size={44} />
+                <span>{c.pick}</span>
               </button>
             </div>
           {phase === "preparing" && <p className="hint" style={{ marginTop: "1rem" }}>{c.preparing}</p>}
