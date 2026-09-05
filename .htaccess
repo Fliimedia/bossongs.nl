@@ -1,3 +1,5 @@
+DirectoryIndex index.html index.php
+
 # index.html carries the whole app inline and never changes name, so it must
 # always be revalidated. Images are content addressed by hand and can be cached hard.
 
