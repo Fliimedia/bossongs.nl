@@ -3,3 +3,7 @@ dist
 .vercel
 .DS_Store
 *.local
+
+# Gastfoto's leven op de server, nooit in de repo
+foto/uploads/*
+!foto/uploads/.htaccess
