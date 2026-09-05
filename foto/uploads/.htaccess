@@ -1,0 +1,3 @@
+# Reservemap voor als de opslag buiten de webroot niet beschikbaar is.
+# Foto's worden altijd via api.php geserveerd, dus rechtstreekse toegang is dicht.
+Require all denied
