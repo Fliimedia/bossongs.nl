@@ -6,6 +6,25 @@ const MAX_FULL = 1600;
 const MAX_THUMB = 480;
 const MAX_CAPTION = 160;
 
+// A per device key, so a guest can manage the photos they added themselves.
+// It never leaves this browser except as a value the server only stores hashed.
+function myKey() {
+  try {
+    let key = localStorage.getItem("mijn-sleutel");
+    if (!key || !/^[a-f0-9]{32}$/.test(key)) {
+      const bytes = new Uint8Array(16);
+      (window.crypto || window.msCrypto).getRandomValues(bytes);
+      key = Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      localStorage.setItem("mijn-sleutel", key);
+    }
+    return key;
+  } catch (e) {
+    return "";
+  }
+}
+
 const COPY = {
   nl: {
     eyebrow: "Fotoalbum",
@@ -39,6 +58,11 @@ const COPY = {
     next: "Volgende",
     remove: "Verwijderen",
     removeAsk: "Deze foto uit het album halen?",
+    edit: "Beschrijving aanpassen",
+    save: "Opslaan",
+    saved: "Aangepast",
+    removed: "Foto verwijderd",
+    mine: "Jouw foto",
     home: "Naar de uitnodiging",
     photoAlt: "Foto uit het album",
     today: "Vandaag",
@@ -77,6 +101,11 @@ const COPY = {
     next: "Next",
     remove: "Remove",
     removeAsk: "Remove this photo from the album?",
+    edit: "Edit caption",
+    save: "Save",
+    saved: "Updated",
+    removed: "Photo removed",
+    mine: "Your photo",
     home: "Back to the invitation",
     photoAlt: "Photo from the album",
     today: "Today",
@@ -145,7 +174,7 @@ const CSS = `
 /* hero */
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;
   padding:var(--space-3) 0 var(--space-4);}
-.polaroids{width:min(100%,30rem);height:auto;margin:0 auto 0.5rem;display:block;
+.polaroids{width:min(100%,30rem);height:auto;margin:var(--space-2) auto 0;display:block;
   filter:drop-shadow(0 12px 22px rgba(96,74,40,0.18));}
 .eyebrow{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
   text-transform:uppercase;color:var(--gold);}
@@ -312,9 +341,22 @@ const CSS = `
 .lb-next{right:var(--space-2);top:50%;margin-top:-1.375rem;}
 .lb-count{position:absolute;bottom:var(--space-3);left:0;right:0;margin:0;text-align:center;
   font-size:var(--type-label);letter-spacing:0.14em;color:rgba(255,252,244,0.75);}
-.lb-remove{position:absolute;top:var(--space-3);left:var(--space-3);z-index:2;display:inline-flex;
-  align-items:center;gap:0.4rem;padding:0.55rem 0.9rem;border-radius:999px;
-  background:hsl(0,60%,38%);color:#fff;font-size:0.8rem;font-weight:600;}
+.lb-tools{position:absolute;top:var(--space-3);left:var(--space-3);z-index:2;
+  display:flex;flex-wrap:wrap;gap:0.4rem;}
+.lb-tool{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 0.9rem;
+  border-radius:999px;background:rgba(255,255,255,0.92);color:var(--shade-6);
+  font-size:0.8rem;font-weight:600;box-shadow:0 4px 12px rgba(20,12,2,0.3);
+  transition:background-color 200ms ease;}
+.lb-tool svg{color:var(--gold);}
+.lb-tool:hover{background:#fff;}
+.lb-tool-bad{background:hsl(0,60%,38%);color:#fff;}
+.lb-tool-bad svg{color:#fff;}
+.lb-tool-bad:hover{background:hsl(0,60%,32%);}
+.lb-edit{display:flex;flex-direction:column;gap:0.6rem;padding-top:0.2rem;}
+.lb-edit textarea{width:100%;resize:none;padding:0.7rem 0.85rem;border:1px solid var(--gold-line);
+  border-radius:10px;background:var(--shade-1);font:inherit;font-size:0.95rem;line-height:1.4;}
+.lb-edit-actions{display:flex;gap:0.5rem;justify-content:center;}
+.btn-small{min-height:2.5rem;padding:0 1.1rem;font-size:0.82rem;}
 @keyframes lb-in{from{opacity:0;}to{opacity:1;}}
 @keyframes lb-rise{from{opacity:0;transform:translateY(1.2rem) scale(0.97);}to{opacity:1;transform:none;}}
 
@@ -393,6 +435,13 @@ const IconChevron = ({ back }) => (
   </Icon>
 );
 
+const IconPencil = () => (
+  <Icon size={16}>
+    <path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z" />
+    <path d="M14.5 6.5l3 3" />
+  </Icon>
+);
+
 const IconTrash = () => (
   <Icon size={16}>
     <path d="M4 7h16M9 7V5h6v2M7 7l1 12h8l1-12" />
@@ -456,6 +505,7 @@ function upload(entry, caption, onProgress) {
     form.append("photo", entry.full.blob, "foto.jpg");
     form.append("thumb", entry.thumb.blob, "thumb.jpg");
     form.append("caption", caption);
+    form.append("owner", myKey());
     const xhr = new XMLHttpRequest();
     xhr.open("POST", API + "?a=upload");
     xhr.upload.onprogress = (e) => {
@@ -532,6 +582,9 @@ export default function FotoApp() {
   const [open, setOpen] = useState(null);
   const [heroVisible, setHeroVisible] = useState(true);
   const [beheer, setBeheer] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const cameraRef = useRef(null);
   const pickRef = useRef(null);
@@ -587,7 +640,9 @@ export default function FotoApp() {
   /* gallery */
   const load = useCallback(async () => {
     try {
-      const r = await fetch(API + "?a=list", { cache: "no-store" });
+      const body = new FormData();
+      body.append("owner", myKey());
+      const r = await fetch(API + "?a=list", { method: "POST", body, cache: "no-store" });
       const d = await r.json();
       if (d && d.ok && Array.isArray(d.items)) {
         setItems(d.items);
@@ -703,6 +758,10 @@ export default function FotoApp() {
   );
 
   useEffect(() => {
+    setEditing(false);
+  }, [open]);
+
+  useEffect(() => {
     if (open === null) return undefined;
     const onKey = (e) => {
       if (e.key === "Escape") setOpen(null);
@@ -718,17 +777,42 @@ export default function FotoApp() {
     };
   }, [open, step]);
 
+  const saveCaption = async (id) => {
+    setSaving(true);
+    try {
+      const form = new FormData();
+      form.append("id", id);
+      form.append("caption", draft.trim());
+      form.append("owner", myKey());
+      if (beheer) form.append("key", beheer);
+      const r = await fetch(API + "?a=update", { method: "POST", body: form });
+      const d = await r.json();
+      if (d && d.ok) {
+        setItems((cur) => (cur || []).map((x) => (x.id === id ? { ...x, ...d.item } : x)));
+        setEditing(false);
+        showToast(c.saved, false);
+      } else {
+        showToast((d && d.error) || c.failed, true);
+      }
+    } catch (e) {
+      showToast(c.failed, true);
+    }
+    setSaving(false);
+  };
+
   const remove = async (id) => {
     if (!window.confirm(c.removeAsk)) return;
     try {
       const form = new FormData();
       form.append("id", id);
-      form.append("key", beheer);
+      form.append("owner", myKey());
+      if (beheer) form.append("key", beheer);
       const r = await fetch(API + "?a=delete", { method: "POST", body: form });
       const d = await r.json();
       if (d && d.ok) {
         setItems((cur) => (cur || []).filter((x) => x.id !== id));
         setOpen(null);
+        showToast(c.removed, false);
       } else {
         showToast((d && d.error) || c.failed, true);
       }
@@ -775,13 +859,6 @@ export default function FotoApp() {
 
       <main className="wrap">
         <section className="hero" ref={heroRef}>
-            <img
-              className="polaroids"
-              src="../images/polaroids-042b22aa.webp"
-              width="1200"
-              height="666"
-              alt=""
-            />
             <p className="eyebrow">{c.eyebrow}</p>
             <div className="rule" aria-hidden="true">
               <span />
@@ -789,6 +866,13 @@ export default function FotoApp() {
               <span />
             </div>
             <p className="lead">{c.lead}</p>
+            <img
+              className="polaroids"
+              src="../images/polaroids-042b22aa.webp"
+              width="1200"
+              height="666"
+              alt=""
+            />
             <div className="choices">
               <button
                 className="choice choice-primary"
@@ -1003,18 +1087,28 @@ export default function FotoApp() {
           <button className="lb-btn lb-close" type="button" aria-label={c.close}>
             <IconClose />
           </button>
-          {beheer && (
-            <button
-              className="lb-remove"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                remove(current.id);
-              }}
-            >
-              <IconTrash />
-              {c.remove}
-            </button>
+          {(current.mine || beheer) && (
+            <div className="lb-tools" onClick={(e) => e.stopPropagation()}>
+              <button
+                className="lb-tool"
+                type="button"
+                onClick={() => {
+                  setDraft(current.caption || "");
+                  setEditing(true);
+                }}
+              >
+                <IconPencil />
+                {c.edit}
+              </button>
+              <button
+                className="lb-tool lb-tool-bad"
+                type="button"
+                onClick={() => remove(current.id)}
+              >
+                <IconTrash />
+                {c.remove}
+              </button>
+            </div>
           )}
           <button
             className="lb-btn lb-prev"
@@ -1036,8 +1130,44 @@ export default function FotoApp() {
               alt={current.caption || c.photoAlt}
             />
             <figcaption>
-              {current.caption && <p className="lb-caption">{current.caption}</p>}
-              <p className="lb-meta">{formatTime(current.ts, lang)}</p>
+              {editing ? (
+                <div className="lb-edit">
+                  <textarea
+                    value={draft}
+                    maxLength={MAX_CAPTION}
+                    rows={2}
+                    placeholder={c.placeholder}
+                    onChange={(e) => setDraft(e.target.value)}
+                    disabled={saving}
+                  />
+                  <div className="lb-edit-actions">
+                    <button
+                      className="btn btn-primary btn-small"
+                      type="button"
+                      onClick={() => saveCaption(current.id)}
+                      disabled={saving}
+                    >
+                      {c.save}
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-small"
+                      type="button"
+                      onClick={() => setEditing(false)}
+                      disabled={saving}
+                    >
+                      {c.cancel}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {current.caption && <p className="lb-caption">{current.caption}</p>}
+                  <p className="lb-meta">
+                    {formatTime(current.ts, lang)}
+                    {current.mine ? " \u00b7 " + c.mine : ""}
+                  </p>
+                </>
+              )}
             </figcaption>
           </figure>
           <button
