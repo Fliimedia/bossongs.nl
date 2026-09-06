@@ -84,15 +84,31 @@
       .sub strong { color: var(--shade-6); font-weight: 600; }
 
       /* jump links */
-      .jump {
-        display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
-        margin-top: var(--space-3);
+      /* one control for the three parts of the day */
+      .seg {
+        position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr);
+        margin-top: var(--space-3); padding: 0.25rem;
+        border: 1px solid var(--gold-line); border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
       }
-      .jump a {
-        padding: 0.45rem 0.9rem; border: 1px solid var(--gold-line); border-radius: 999px;
-        background: rgba(255, 255, 255, 0.65); text-decoration: none;
-        font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      .seg-thumb {
+        position: absolute; top: 0.25rem; bottom: 0.25rem; left: 0.25rem;
+        width: calc(33.333% - 0.1667rem); border-radius: 999px;
+        background: var(--shade-1); box-shadow: 0 1px 4px rgba(96, 74, 40, 0.2);
+        transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
       }
+      .seg-thumb[data-on="middag"] { transform: translateX(100%); }
+      .seg-thumb[data-on="avond"] { transform: translateX(200%); }
+      .seg-opt {
+        position: relative; z-index: 1;
+        padding: 0.5rem 1.05rem; border: 0; border-radius: 999px; background: none;
+        font: inherit; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+        text-transform: uppercase; color: var(--shade-4); cursor: pointer;
+        transition: color 200ms ease;
+      }
+      .seg-opt.is-on { color: var(--shade-6); }
+
+      .part[hidden] { display: none; }
 
       /* sections */
       section { padding-top: var(--space-4); }
@@ -168,13 +184,16 @@
 
       @media print {
         body { background: #fff; padding: 0; font-size: 11pt; }
-        .top, .jump, .print { display: none; }
+        .top, .seg, .print { display: none; }
+        .part[hidden] { display: block; }
         .hero { padding: 0 0 12pt; }
         section { padding-top: 16pt; page-break-inside: avoid; }
         .row { padding: 5pt 0; page-break-inside: avoid; }
         .venue { background: none; border: 1px solid #ccc; }
         .map { display: none; }
         a { text-decoration: none; }
+        .where a { border: 0; color: #555; }
+        .where svg { display: none; }
       }
     </style>
   </head>
@@ -203,34 +222,37 @@
           Zaterdag <strong>19 september 2026</strong><br />
           Nyarayek &amp; Sten &middot; dresscode Tenue de Ville
         </p>
-        <nav class="jump">
-          <a href="#ochtend">Ochtend</a>
-          <a href="#middag">Middag</a>
-          <a href="#avond">Avond</a>
-          <a href="#locaties">Locaties</a>
-        </nav>
+        <div class="seg" role="tablist" aria-label="Dagdeel">
+          <span class="seg-thumb" data-on="ochtend" aria-hidden="true"></span>
+          <button class="seg-opt is-on" type="button" role="tab" aria-selected="true"
+            aria-controls="ochtend" data-part="ochtend">Ochtend</button>
+          <button class="seg-opt" type="button" role="tab" aria-selected="false"
+            aria-controls="middag" data-part="middag">Middag</button>
+          <button class="seg-opt" type="button" role="tab" aria-selected="false"
+            aria-controls="avond" data-part="avond">Avond</button>
+        </div>
       </div>
 
-      <section id="ochtend">
+      <section class="part" id="ochtend">
         <div class="head"><h2 class="serif">Ochtend</h2></div>
 
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">09.00</span>
           <span class="what">Start bij Sten</span>
-          <p class="where">Startbaan 106, Amstelveen</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Startbaan+106,+Amstelveen" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Startbaan 106, Amstelveen</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">09.15</span>
           <span class="what">Aankomst Het Spoorhuis, make-up en hair</span>
-          <p class="where">Het Spoorhuis, Uithoorn</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Het+Spoorhuis,+Stationsstraat+41-45,+1421+AA+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Het Spoorhuis, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">10.00</span>
           <span class="what">Vertrek naar moeder Nyarayek</span>
-          <p class="where">Naar Plesmanlaan 65, Uithoorn</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Plesmanlaan+65,+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Plesmanlaan 65, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
@@ -239,129 +261,137 @@
             Sten arriveert in oldtimer en haalt Nyarayek op,
             <strong class="mark">first look</strong>
           </span>
-          <p class="where">Plesmanlaan 65, Uithoorn</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Plesmanlaan+65,+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Plesmanlaan 65, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">11.10</span>
           <span class="what">Vertrek naar Wester-Amstel</span>
-          <p class="where">Naar Amsteldijk Noord 55</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Wester-Amstel,+Amsteldijk+Noord+55,+1183+TE+Amstelveen" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Amsteldijk Noord 55</a></p>
         </div>
       </section>
 
-      <section id="middag">
+      <section class="part" id="middag" hidden>
         <div class="head"><h2 class="serif">Middag</h2></div>
 
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">11.30</span>
           <span class="what"><strong class="mark">Loveshoot</strong>, tot 13.10</span>
-          <p class="where">Buitenplaats Wester-Amstel</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Wester-Amstel,+Amsteldijk+Noord+55,+1183+TE+Amstelveen" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Buitenplaats Wester-Amstel</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">13.10</span>
           <span class="what">Vertrek naar de kerk</span>
-          <p class="where">Naar Noorddammerlaan 124-126</p>
+        <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Noorddammerlaan 124-126</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">13.30</span>
           <span class="what">Aankomst kerk, inloop gasten</span>
-          <p class="where">Sint Urbanuskerk</p>
+        <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">14.00</span>
           <span class="what"><strong>Ceremonie</strong></span>
-          <p class="where">Sint Urbanuskerk</p>
+        <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">14.45</span>
           <span class="what">Afloop ceremonie, felicitaties</span>
-          <p class="where">Sint Urbanuskerk</p>
+        <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">14.45</span>
           <span class="what"><strong class="mark">Familiefoto's</strong> in de kerk, tot 15.30</span>
-          <p class="where">Sint Urbanuskerk</p>
+        <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">15.30</span>
           <span class="what">Bruidspaar vertrekt naar de boot</span>
-          <p class="where">Naar Holendrechterweg 9</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Holendrechterweg+9,+1191+KT+Ouderkerk+aan+de+Amstel" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Holendrechterweg 9</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">16.00</span>
           <span class="what">Boottocht naar de Amstelkerk, ongeveer 5 minuten</span>
-          <p class="where">Amstel</p>
+        <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Holendrechterweg+9,+1191+KT+Ouderkerk+aan+de+Amstel" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstel</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">16.05</span>
           <span class="what">Aankomst bruidspaar, start receptie</span>
-          <p class="where">Amstelkerk, tuin</p>
+        <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk, tuin</a></p>
         </div>
       </section>
 
-      <section id="avond">
+      <section class="part" id="avond" hidden>
         <div class="head"><h2 class="serif">Avond</h2></div>
 
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">18.00</span>
           <span class="what">Iedereen aan tafel, start diner</span>
-          <p class="where">Amstelkerk</p>
+        <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">18.35</span>
           <span class="what"><strong class="mark">Speech 1</strong>, na het voorgerecht</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.15</span>
           <span class="what"><strong class="mark">Speech 2</strong>, na het hoofdgerecht</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.30</span>
           <span class="what"><strong class="mark">Speech 3</strong></span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.50</span>
           <span class="what"><strong class="mark">Speech 4</strong>, bruidspaar, afsluitend</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">20.00</span>
           <span class="what">Optreden Sudanese dansgroep</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">20.15</span>
           <span class="what">Feest geopend</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">20.30</span>
           <span class="what"><strong class="mark">First dance</strong> en first dance met de moeders</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">21.00</span>
           <span class="what">Boeket gooien</span>
+                <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">00.00</span>
           <span class="what">Einde feest</span>
-          <p class="where">Amstelkerk</p>
+        <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
       </section>
 
@@ -495,5 +525,56 @@
 
       <footer>Nyarayek &amp; Sten &middot; 19 september 2026</footer>
     </main>
+
+    <script>
+      (function () {
+        var seg = document.querySelector(".seg");
+        if (!seg) return;
+        var thumb = seg.querySelector(".seg-thumb");
+        var opts = Array.prototype.slice.call(seg.querySelectorAll(".seg-opt"));
+
+        function show(part) {
+          opts.forEach(function (b) {
+            var on = b.dataset.part === part;
+            b.classList.toggle("is-on", on);
+            b.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          ["ochtend", "middag", "avond"].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.hidden = id !== part;
+          });
+          thumb.dataset.on = part;
+          try {
+            history.replaceState(null, "", "#" + part);
+          } catch (e) {
+            // a stale hash is harmless
+          }
+        }
+
+        opts.forEach(function (b) {
+          b.addEventListener("click", function () {
+            show(b.dataset.part);
+          });
+        });
+
+        // Opening the page during the day should land on the right part.
+        var start = (location.hash || "").replace("#", "");
+        if (["ochtend", "middag", "avond"].indexOf(start) === -1) {
+          var h = new Date().getHours();
+          start = h >= 17 ? "avond" : h >= 11 ? "middag" : "ochtend";
+        }
+        show(start);
+
+        // Printing should show everything, not just the open part.
+        function all(on) {
+          ["ochtend", "middag", "avond"].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.hidden = on ? false : el.id !== thumb.dataset.on;
+          });
+        }
+        window.addEventListener("beforeprint", function () { all(true); });
+        window.addEventListener("afterprint", function () { all(false); });
+      })();
+    </script>
   </body>
 </html>
