@@ -85,12 +85,30 @@
 
       /* jump links */
       /* one control for the three parts of the day */
+      .switch {
+        display: inline-flex; flex-direction: column; align-items: stretch;
+        gap: 0.45rem; margin-top: var(--space-3);
+        width: min(100%, 24rem);
+      }
+      .seg-all {
+        padding: 0.5rem 1.1rem; border: 1px solid var(--gold-line); border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72); color: var(--shade-4);
+        font: inherit; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.12em;
+        text-transform: uppercase; cursor: pointer;
+        transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+      }
+      .seg-all.is-on {
+        background: var(--shade-6); border-color: var(--shade-6); color: var(--shade-1);
+        box-shadow: 0 4px 12px rgba(96, 74, 40, 0.24);
+      }
       .seg {
-        position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr);
-        margin-top: var(--space-3); padding: 0.25rem;
+        position: relative; display: grid; grid-template-columns: repeat(3, 1fr);
+        padding: 0.25rem;
         border: 1px solid var(--gold-line); border-radius: 999px;
         background: rgba(255, 255, 255, 0.72);
       }
+      .seg.is-off .seg-thumb { opacity: 0; }
+      .seg.is-off .seg-opt { color: var(--shade-4); }
       .seg-thumb {
         position: absolute; top: 0.25rem; bottom: 0.25rem; left: 0.25rem;
         width: calc(33.333% - 0.1667rem); border-radius: 999px;
@@ -99,12 +117,13 @@
       }
       .seg-thumb[data-on="middag"] { transform: translateX(100%); }
       .seg-thumb[data-on="avond"] { transform: translateX(200%); }
+      .seg-thumb { opacity: 1; transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease; }
       .seg-opt {
         position: relative; z-index: 1;
-        padding: 0.5rem 1.05rem; border: 0; border-radius: 999px; background: none;
-        font: inherit; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em;
+        padding: 0.5rem 0.4rem; border: 0; border-radius: 999px; background: none;
+        font: inherit; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;
         text-transform: uppercase; color: var(--shade-4); cursor: pointer;
-        transition: color 200ms ease;
+        white-space: nowrap; transition: color 200ms ease;
       }
       .seg-opt.is-on { color: var(--shade-6); }
 
@@ -178,13 +197,20 @@
         text-align: center; font-size: 0.82rem; color: var(--shade-4);
       }
 
+      /* "Voorbereiding" needs about 109px and a 360px phone gives 101px,
+         so the labels step down before they can overflow */
+      @media (max-width: 420px) {
+        .seg-opt { font-size: 0.6rem; letter-spacing: 0.02em; padding: 0.5rem 0.15rem; }
+        .seg-all { font-size: 0.68rem; }
+      }
+
       @media (min-width: 700px) {
         .row { grid-template-columns: 0.85rem 6rem 1fr; }
       }
 
       @media print {
         body { background: #fff; padding: 0; font-size: 11pt; }
-        .top, .seg, .print { display: none; }
+        .top, .switch, .print { display: none; }
         .part[hidden] { display: block; }
         .hero { padding: 0 0 12pt; }
         section { padding-top: 16pt; page-break-inside: avoid; }
@@ -222,19 +248,24 @@
           Zaterdag <strong>19 september 2026</strong><br />
           Nyarayek &amp; Sten &middot; dresscode Tenue de Ville
         </p>
-        <div class="seg" role="tablist" aria-label="Dagdeel">
-          <span class="seg-thumb" data-on="ochtend" aria-hidden="true"></span>
-          <button class="seg-opt is-on" type="button" role="tab" aria-selected="true"
-            aria-controls="ochtend" data-part="ochtend">Ochtend</button>
-          <button class="seg-opt" type="button" role="tab" aria-selected="false"
-            aria-controls="middag" data-part="middag">Middag</button>
-          <button class="seg-opt" type="button" role="tab" aria-selected="false"
-            aria-controls="avond" data-part="avond">Avond</button>
+        <div class="switch" role="tablist" aria-label="Dagdeel">
+          <button class="seg-all" type="button" role="tab" aria-selected="false" data-part="dag">
+            Hele dag
+          </button>
+          <div class="seg">
+            <span class="seg-thumb" data-on="ochtend" aria-hidden="true"></span>
+            <button class="seg-opt is-on" type="button" role="tab" aria-selected="true"
+              aria-controls="ochtend" data-part="ochtend">Voorbereiding</button>
+            <button class="seg-opt" type="button" role="tab" aria-selected="false"
+              aria-controls="middag" data-part="middag">Ceremonie</button>
+            <button class="seg-opt" type="button" role="tab" aria-selected="false"
+              aria-controls="avond" data-part="avond">Diner &amp; feest</button>
+          </div>
         </div>
       </div>
 
       <section class="part" id="ochtend">
-        <div class="head"><h2 class="serif">Ochtend</h2></div>
+        <div class="head"><h2 class="serif">Voorbereiding</h2></div>
 
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
@@ -272,7 +303,7 @@
       </section>
 
       <section class="part" id="middag" hidden>
-        <div class="head"><h2 class="serif">Middag</h2></div>
+        <div class="head"><h2 class="serif">Ceremonie</h2></div>
 
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
@@ -331,7 +362,7 @@
       </section>
 
       <section class="part" id="avond" hidden>
-        <div class="head"><h2 class="serif">Avond</h2></div>
+        <div class="head"><h2 class="serif">Diner en feest</h2></div>
 
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
@@ -528,22 +559,38 @@
 
     <script>
       (function () {
-        var seg = document.querySelector(".seg");
-        if (!seg) return;
-        var thumb = seg.querySelector(".seg-thumb");
-        var opts = Array.prototype.slice.call(seg.querySelectorAll(".seg-opt"));
+        var wrap = document.querySelector(".switch");
+        if (!wrap) return;
+        var seg = wrap.querySelector(".seg");
+        var thumb = wrap.querySelector(".seg-thumb");
+        var all = wrap.querySelector(".seg-all");
+        var opts = Array.prototype.slice.call(wrap.querySelectorAll(".seg-opt"));
+        var parts = ["ochtend", "middag", "avond"];
+        var valid = parts.concat(["dag"]);
+        var chosen = "dag";
 
         function show(part) {
+          chosen = part;
+          var whole = part === "dag";
+
+          all.classList.toggle("is-on", whole);
+          all.setAttribute("aria-selected", whole ? "true" : "false");
+          seg.classList.toggle("is-off", whole);
+
           opts.forEach(function (b) {
-            var on = b.dataset.part === part;
+            var on = !whole && b.dataset.part === part;
             b.classList.toggle("is-on", on);
             b.setAttribute("aria-selected", on ? "true" : "false");
           });
-          ["ochtend", "middag", "avond"].forEach(function (id) {
+
+          parts.forEach(function (id) {
             var el = document.getElementById(id);
-            if (el) el.hidden = id !== part;
+            if (el) el.hidden = !whole && id !== part;
           });
-          thumb.dataset.on = part;
+
+          // keep the marker under whichever part was last opened
+          if (!whole) thumb.dataset.on = part;
+
           try {
             history.replaceState(null, "", "#" + part);
           } catch (e) {
@@ -551,29 +598,29 @@
           }
         }
 
+        all.addEventListener("click", function () {
+          show("dag");
+        });
         opts.forEach(function (b) {
           b.addEventListener("click", function () {
             show(b.dataset.part);
           });
         });
 
-        // Opening the page during the day should land on the right part.
         var start = (location.hash || "").replace("#", "");
-        if (["ochtend", "middag", "avond"].indexOf(start) === -1) {
-          var h = new Date().getHours();
-          start = h >= 17 ? "avond" : h >= 11 ? "middag" : "ochtend";
-        }
+        if (valid.indexOf(start) === -1) start = "dag";
         show(start);
 
-        // Printing should show everything, not just the open part.
-        function all(on) {
-          ["ochtend", "middag", "avond"].forEach(function (id) {
+        // Paper always gets the whole day.
+        window.addEventListener("beforeprint", function () {
+          parts.forEach(function (id) {
             var el = document.getElementById(id);
-            if (el) el.hidden = on ? false : el.id !== thumb.dataset.on;
+            if (el) el.hidden = false;
           });
-        }
-        window.addEventListener("beforeprint", function () { all(true); });
-        window.addEventListener("afterprint", function () { all(false); });
+        });
+        window.addEventListener("afterprint", function () {
+          show(chosen);
+        });
       })();
     </script>
   </body>
