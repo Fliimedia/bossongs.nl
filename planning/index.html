@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Dagplanning foto en video, Nyarayek en Sten</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#faf3e6" />
+    <meta
+      name="description"
+      content="Dagplanning foto en video voor de bruiloft van Nyarayek en Sten op 19 september 2026."
+    />
+    <link rel="icon" href="../images/logo-icoon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+    <style>
+      :root {
+        --shade-1: #ffffff;
+        --shade-4: hsl(204, 2.2%, 45.3%);
+        --shade-6: #000000;
+        --brand: hsl(48, 35.7%, 94.5%);
+        --paper: #faf3e6;
+        --gold: #b1873f;
+        --gold-line: rgba(177, 135, 63, 0.42);
+        --gold-line-soft: rgba(177, 135, 63, 0.22);
+        --space-1: 0.5rem;
+        --space-2: 1rem;
+        --space-3: 1.5rem;
+        --space-4: 2.5rem;
+        --space-5: 4rem;
+        --label: 0.78rem;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 0 0 var(--space-5);
+        font-family: Inter, system-ui, sans-serif;
+        line-height: 1.5;
+        color: var(--shade-6);
+        background: var(--paper);
+      }
+      .serif { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+      .wrap { width: 100%; max-width: 46rem; margin: 0 auto; padding: 0 var(--space-3); }
+      a { color: inherit; }
+
+      /* header */
+      .top {
+        display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+        padding: 0.6rem var(--space-3);
+        background: rgba(250, 243, 230, 0.92);
+        border-bottom: 1px solid var(--gold-line-soft);
+      }
+      .top img { width: 1.75rem; height: auto; display: block; }
+      .top a { text-decoration: none; }
+      .print {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.4rem 0.8rem; border: 1px solid var(--gold-line); border-radius: 999px;
+        background: rgba(255, 255, 255, 0.7); color: var(--shade-6);
+        font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      }
+      .print svg { color: var(--gold); }
+
+      .hero { padding: var(--space-4) 0 var(--space-3); text-align: center; }
+      .eyebrow {
+        margin: 0; font-size: var(--label); font-weight: 600; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--gold);
+      }
+      .rule {
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        width: 7rem; margin: 0.6rem auto 0.8rem; color: var(--gold);
+      }
+      .rule span { flex: 1 1 0; height: 1px; background: currentColor; }
+      .rule span:first-child { background: linear-gradient(90deg, transparent, currentColor); }
+      .rule span:last-child { background: linear-gradient(90deg, currentColor, transparent); }
+      .rule i { width: 0.32rem; height: 0.32rem; transform: rotate(45deg); background: currentColor; border-radius: 1px; }
+      h1 { margin: 0; font-size: clamp(1.9rem, 6vw, 2.9rem); line-height: 1.08; }
+      .sub {
+        margin: var(--space-2) 0 0; color: var(--shade-4); font-size: 0.95rem;
+      }
+      .sub strong { color: var(--shade-6); font-weight: 600; }
+
+      /* jump links */
+      .jump {
+        display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
+        margin-top: var(--space-3);
+      }
+      .jump a {
+        padding: 0.45rem 0.9rem; border: 1px solid var(--gold-line); border-radius: 999px;
+        background: rgba(255, 255, 255, 0.65); text-decoration: none;
+        font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      }
+
+      /* sections */
+      section { padding-top: var(--space-4); }
+      h2 {
+        margin: 0 0 var(--space-2);
+        font-size: 1.6rem; line-height: 1.15;
+      }
+      .head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: var(--space-2); }
+      .head::after { content: ""; flex: 1 1 0; height: 1px; background: var(--gold-line-soft); }
+
+      /* schedule rows */
+      .row {
+        display: grid;
+        grid-template-columns: 0.85rem minmax(4.6rem, max-content) 1fr;
+        column-gap: 0.85rem;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--gold-line-soft);
+      }
+      .row:last-child { border-bottom: 0; }
+      .dot { display: flex; align-items: center; justify-content: center; height: 1.6rem; }
+      .dot i { width: 0.3rem; height: 0.3rem; transform: rotate(45deg); background: var(--gold); border-radius: 1px; }
+      .time {
+        font-variant-numeric: tabular-nums; font-weight: 600; color: var(--gold);
+        font-size: 1.05rem; line-height: 1.5;
+      }
+      .what { font-size: 1.05rem; line-height: 1.5; }
+      .what strong { font-weight: 600; }
+      .where {
+        grid-column: 3 / -1;
+        margin: 0.15rem 0 0; font-size: 0.85rem; color: var(--shade-4);
+      }
+      .where a { color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold-line); }
+      .mark { background: var(--brand); border-radius: 6px; padding: 0 0.3rem; }
+
+      /* venues */
+      .venues { display: grid; gap: 0.6rem; }
+      .venue {
+        position: relative; display: grid; grid-template-columns: 1.9rem 1fr auto;
+        align-items: center; gap: 0.75rem;
+        padding: 0.85rem var(--space-2);
+        background: var(--brand); border-radius: 12px;
+      }
+      .num {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 1.7rem; height: 1.7rem; border-radius: 999px;
+        border: 1px solid var(--gold-line); color: var(--gold);
+        font-size: 0.8rem; font-weight: 600;
+      }
+      .venue-name { font-weight: 600; font-size: 0.95rem; }
+      .venue-addr { margin: 0.1rem 0 0; font-size: 0.82rem; color: var(--shade-4); }
+      .map {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 2.25rem; height: 2.25rem; border-radius: 999px;
+        background: var(--shade-1); color: var(--gold); text-decoration: none;
+        box-shadow: 0 2px 6px rgba(96, 74, 40, 0.16);
+      }
+      .route {
+        display: inline-flex; align-items: center; gap: 0.45rem;
+        margin-top: var(--space-2); font-size: 0.85rem; text-decoration: none;
+      }
+      .route span { border-bottom: 1px solid var(--gold-line); }
+      .route svg { color: var(--gold); }
+
+      footer {
+        margin-top: var(--space-5); padding-top: var(--space-3);
+        border-top: 1px solid var(--gold-line-soft);
+        text-align: center; font-size: 0.82rem; color: var(--shade-4);
+      }
+
+      @media (min-width: 700px) {
+        .row { grid-template-columns: 0.85rem 6rem 1fr; }
+      }
+
+      @media print {
+        body { background: #fff; padding: 0; font-size: 11pt; }
+        .top, .jump, .print { display: none; }
+        .hero { padding: 0 0 12pt; }
+        section { padding-top: 16pt; page-break-inside: avoid; }
+        .row { padding: 5pt 0; page-break-inside: avoid; }
+        .venue { background: none; border: 1px solid #ccc; }
+        .map { display: none; }
+        a { text-decoration: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <a href="../" aria-label="Naar de uitnodiging">
+        <img src="../images/logo-icoon.png" width="192" height="192" alt="" />
+      </a>
+      <button class="print" type="button" onclick="window.print()">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 9V4h12v5" />
+          <path d="M6 18H4v-6h16v6h-2" />
+          <path d="M8 14h8v6H8z" />
+        </svg>
+        Printen
+      </button>
+    </header>
+
+    <main class="wrap">
+      <div class="hero">
+        <p class="eyebrow">Foto en video</p>
+        <div class="rule" aria-hidden="true"><span></span><i></i><span></span></div>
+        <h1 class="serif">Dagplanning</h1>
+        <p class="sub">
+          Zaterdag <strong>19 september 2026</strong><br />
+          Nyarayek &amp; Sten &middot; dresscode Tenue de Ville
+        </p>
+        <nav class="jump">
+          <a href="#ochtend">Ochtend</a>
+          <a href="#middag">Middag</a>
+          <a href="#avond">Avond</a>
+          <a href="#locaties">Locaties</a>
+        </nav>
+      </div>
+
+      <section id="ochtend">
+        <div class="head"><h2 class="serif">Ochtend</h2></div>
+
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">09.00</span>
+          <span class="what">Start bij Sten</span>
+          <p class="where">Startbaan 106, Amstelveen</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">09.15</span>
+          <span class="what">Aankomst Het Spoorhuis, make-up en hair</span>
+          <p class="where">Het Spoorhuis, Uithoorn</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">10.00</span>
+          <span class="what">Vertrek naar moeder Nyarayek</span>
+          <p class="where">Naar Plesmanlaan 65, Uithoorn</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">11.00</span>
+          <span class="what">
+            Sten arriveert in oldtimer en haalt Nyarayek op,
+            <strong class="mark">first look</strong>
+          </span>
+          <p class="where">Plesmanlaan 65, Uithoorn</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">11.10</span>
+          <span class="what">Vertrek naar Wester-Amstel</span>
+          <p class="where">Naar Amsteldijk Noord 55</p>
+        </div>
+      </section>
+
+      <section id="middag">
+        <div class="head"><h2 class="serif">Middag</h2></div>
+
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">11.30</span>
+          <span class="what"><strong class="mark">Loveshoot</strong>, tot 13.10</span>
+          <p class="where">Buitenplaats Wester-Amstel</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">13.10</span>
+          <span class="what">Vertrek naar de kerk</span>
+          <p class="where">Naar Noorddammerlaan 124-126</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">13.30</span>
+          <span class="what">Aankomst kerk, inloop gasten</span>
+          <p class="where">Sint Urbanuskerk</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">14.00</span>
+          <span class="what"><strong>Ceremonie</strong></span>
+          <p class="where">Sint Urbanuskerk</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">14.45</span>
+          <span class="what">Afloop ceremonie, felicitaties</span>
+          <p class="where">Sint Urbanuskerk</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">14.45</span>
+          <span class="what"><strong class="mark">Familiefoto's</strong> in de kerk, tot 15.30</span>
+          <p class="where">Sint Urbanuskerk</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">15.30</span>
+          <span class="what">Bruidspaar vertrekt naar de boot</span>
+          <p class="where">Naar Holendrechterweg 9</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">16.00</span>
+          <span class="what">Boottocht naar de Amstelkerk, ongeveer 5 minuten</span>
+          <p class="where">Amstel</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">16.05</span>
+          <span class="what">Aankomst bruidspaar, start receptie</span>
+          <p class="where">Amstelkerk, tuin</p>
+        </div>
+      </section>
+
+      <section id="avond">
+        <div class="head"><h2 class="serif">Avond</h2></div>
+
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">18.00</span>
+          <span class="what">Iedereen aan tafel, start diner</span>
+          <p class="where">Amstelkerk</p>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">18.35</span>
+          <span class="what"><strong class="mark">Speech 1</strong>, na het voorgerecht</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">19.15</span>
+          <span class="what"><strong class="mark">Speech 2</strong>, na het hoofdgerecht</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">19.30</span>
+          <span class="what"><strong class="mark">Speech 3</strong></span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">19.50</span>
+          <span class="what"><strong class="mark">Speech 4</strong>, bruidspaar, afsluitend</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">20.00</span>
+          <span class="what">Optreden Sudanese dansgroep</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">20.15</span>
+          <span class="what">Feest geopend</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">20.30</span>
+          <span class="what"><strong class="mark">First dance</strong> en first dance met de moeders</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">21.00</span>
+          <span class="what">Boeket gooien</span>
+        </div>
+        <div class="row">
+          <span class="dot" aria-hidden="true"><i></i></span>
+          <span class="time">00.00</span>
+          <span class="what">Einde feest</span>
+          <p class="where">Amstelkerk</p>
+        </div>
+      </section>
+
+      <section id="locaties">
+        <div class="head"><h2 class="serif">Locaties</h2></div>
+
+        <div class="venues">
+          <div class="venue">
+            <span class="num">1</span>
+            <div>
+              <div class="venue-name">Huis Sten</div>
+              <p class="venue-addr">Startbaan 106, Amstelveen</p>
+            </div>
+            <a class="map" href="https://www.google.com/maps/search/?api=1&amp;query=Startbaan+106,+Amstelveen"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="venue">
+            <span class="num">2</span>
+            <div>
+              <div class="venue-name">Het Spoorhuis Uithoorn</div>
+              <p class="venue-addr">Stationsstraat 41-45, 1421 AA Uithoorn</p>
+            </div>
+            <a class="map" href="https://www.google.com/maps/search/?api=1&amp;query=Het+Spoorhuis,+Stationsstraat+41-45,+1421+AA+Uithoorn"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="venue">
+            <span class="num">3</span>
+            <div>
+              <div class="venue-name">Huis moeder Nyarayek</div>
+              <p class="venue-addr">Plesmanlaan 65, Uithoorn</p>
+            </div>
+            <a class="map" href="https://www.google.com/maps/search/?api=1&amp;query=Plesmanlaan+65,+Uithoorn"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="venue">
+            <span class="num">4</span>
+            <div>
+              <div class="venue-name">Buitenplaats Wester-Amstel</div>
+              <p class="venue-addr">Amsteldijk Noord 55, 1183 TE Amstelveen</p>
+            </div>
+            <a class="map" href="https://www.google.com/maps/search/?api=1&amp;query=Wester-Amstel,+Amsteldijk+Noord+55,+1183+TE+Amstelveen"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="venue">
+            <span class="num">5</span>
+            <div>
+              <div class="venue-name">Sint Urbanuskerk, Bovenkerk</div>
+              <p class="venue-addr">Noorddammerlaan 124-126, 1187 AG Amstelveen</p>
+            </div>
+            <a class="map" href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="venue">
+            <span class="num">6</span>
+            <div>
+              <div class="venue-name">Opstapplaats boot</div>
+              <p class="venue-addr">Holendrechterweg 9, 1191 KT Ouderkerk aan de Amstel</p>
+            </div>
+            <a class="map" href="https://www.google.com/maps/search/?api=1&amp;query=Holendrechterweg+9,+1191+KT+Ouderkerk+aan+de+Amstel"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+
+          <div class="venue">
+            <span class="num">7</span>
+            <div>
+              <div class="venue-name">Amstelkerk</div>
+              <p class="venue-addr">Kerkstraat 11, 1191 JB Ouderkerk aan de Amstel</p>
+            </div>
+            <a class="map" href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7"
+              target="_blank" rel="noreferrer" aria-label="Open in Google Maps">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <a class="route"
+          href="https://www.google.com/maps/dir/St.+Urbanuskerk,+Noorddammerlaan+126,+1187+AG+Amstelveen/Amstelkerk,+Kerkstraat+11,+1191+JB+Ouderkerk+aan+de+Amstel/"
+          target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+            stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17L17 7" /><path d="M8 7h9v9" />
+          </svg>
+          <span>Route van de kerk naar de Amstelkerk</span>
+        </a>
+      </section>
+
+      <footer>Nyarayek &amp; Sten &middot; 19 september 2026</footer>
+    </main>
+  </body>
+</html>
