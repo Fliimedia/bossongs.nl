@@ -1,0 +1,16 @@
+# Deze map is een gewone pagina plus een PHP eindpunt. Expliciet, zodat een
+# ontbrekende serverstandaard geen 403 op de map oplevert.
+DirectoryIndex index.html index.php
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(html|php)$">
+    Require all granted
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+  </FilesMatch>
+</IfModule>
