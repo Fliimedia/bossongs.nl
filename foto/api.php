@@ -14,6 +14,7 @@ $action = (string) ($_GET['a'] ?? 'list');
 
 switch ($action) {
     case 'list':   action_list();   break;
+    case 'update': action_update(); break;
     case 'upload': action_upload(); break;
     case 'img':    action_img();    break;
     case 'delete': action_delete(); break;
@@ -55,6 +56,34 @@ function read_dirs(): array
         }
     }
     return $dirs;
+}
+
+/* ---------- eigenaarschap ----------
+   Elk toestel houdt een eigen sleutel in localStorage. De server bewaart daar
+   alleen een hash van, zodat een gestolen bestand niemand toegang geeft. Dit is
+   geen echte login: het is genoeg om te voorkomen dat gasten elkaars foto's
+   aanraken, en niet meer dan dat. */
+
+function owner_token(): string
+{
+    $raw = (string) ($_POST['owner'] ?? $_GET['owner'] ?? '');
+    return preg_match('/^[a-f0-9]{32}$/', $raw) === 1 ? $raw : '';
+}
+
+function owner_hash(string $token): string
+{
+    return $token === '' ? '' : hash('sha256', 'bruiloft:' . $token);
+}
+
+function viewer_hash(): string
+{
+    return owner_hash(owner_token());
+}
+
+function owns(array $meta): bool
+{
+    $viewer = viewer_hash();
+    return $viewer !== '' && hash_equals((string) ($meta['owner'] ?? ''), $viewer);
 }
 
 /* ---------- hulpfuncties ---------- */
@@ -117,7 +146,17 @@ function public_item(array $meta): array
         'ts'      => (int) ($meta['ts'] ?? 0),
         'w'       => (int) ($meta['w'] ?? 0),
         'h'       => (int) ($meta['h'] ?? 0),
+        'mine'    => owns($meta),
     ];
+}
+
+function write_meta(string $dir, array $meta): void
+{
+    file_put_contents(
+        $dir . '/' . $meta['id'] . '.json',
+        json_encode($meta, JSON_UNESCAPED_UNICODE),
+        LOCK_EX
+    );
 }
 
 /* ---------- acties ---------- */
@@ -198,10 +237,35 @@ function action_upload(): void
         'h'       => (int) $size[1],
         'mime'    => $mime,
         'tmime'   => $tmime,
+        'owner'   => owner_hash(owner_token()),
     ];
-    file_put_contents($base . '.json', json_encode($meta, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    write_meta($dir, $meta);
 
     json_out(['ok' => true, 'item' => public_item($meta)]);
+}
+
+function action_update(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
+    }
+    $id = (string) ($_POST['id'] ?? '');
+    if (!valid_id($id)) {
+        json_out(['ok' => false, 'error' => 'Ongeldig id'], 400);
+    }
+    foreach (read_dirs() as $dir) {
+        $meta = read_meta($dir, $id);
+        if ($meta === null) {
+            continue;
+        }
+        if (!owns($meta) && !admin_ok()) {
+            json_out(['ok' => false, 'error' => 'Dit is niet jouw foto'], 403);
+        }
+        $meta['caption'] = clean_caption((string) ($_POST['caption'] ?? ''));
+        write_meta($dir, $meta);
+        json_out(['ok' => true, 'item' => public_item($meta)]);
+    }
+    json_out(['ok' => false, 'error' => 'Foto niet gevonden'], 404);
 }
 
 function action_img(): void
@@ -239,22 +303,37 @@ function action_img(): void
 
 // Verwijderen kan alleen met de sleutel uit het bestand .beheer in de opslagmap.
 // Bestaat dat bestand niet, dan staat verwijderen volledig uit.
+function admin_ok(): bool
+{
+    $key = admin_key();
+    if ($key === null) {
+        return false;
+    }
+    $given = (string) ($_POST['key'] ?? '');
+    return $given !== '' && hash_equals($key, $given);
+}
+
 function action_delete(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
         json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
     }
-    $key = admin_key();
-    if ($key === null) {
-        json_out(['ok' => false, 'error' => 'Beheer is niet ingesteld'], 403);
-    }
-    $given = (string) ($_POST['key'] ?? '');
-    if (!hash_equals($key, $given)) {
-        json_out(['ok' => false, 'error' => 'De sleutel klopt niet'], 403);
-    }
     $id = (string) ($_POST['id'] ?? '');
     if (!valid_id($id)) {
         json_out(['ok' => false, 'error' => 'Ongeldig id'], 400);
+    }
+    $allowed = admin_ok();
+    if (!$allowed) {
+        foreach (read_dirs() as $dir) {
+            $meta = read_meta($dir, $id);
+            if ($meta !== null) {
+                $allowed = owns($meta);
+                break;
+            }
+        }
+    }
+    if (!$allowed) {
+        json_out(['ok' => false, 'error' => 'Dit is niet jouw foto'], 403);
     }
     $removed = false;
     foreach (read_dirs() as $dir) {
