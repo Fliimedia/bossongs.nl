@@ -173,6 +173,16 @@
         color: var(--shade-6); border-color: var(--gold-line);
         box-shadow: 0 3px 8px rgba(96, 74, 40, 0.16);
       }
+      .who {
+        grid-column: 3 / -1;
+        display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.4rem 0 0;
+      }
+      .chip {
+        display: inline-flex; align-items: center;
+        padding: 0.16rem 0.5rem; border-radius: 999px;
+        background: #2b2118; color: #f4e8d2;
+        font-size: 0.64rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      }
       .note {
         grid-column: 3 / -1;
         margin: 0.3rem 0 0; font-size: 0.8rem; line-height: 1.4; color: var(--shade-4);
@@ -240,6 +250,7 @@
           display: inline; padding: 0; border: 0; background: none;
           box-shadow: none; color: #555;
         }
+        .chip { background: none; color: #000; border: 1px solid #999; }
         .where svg { display: none; }
       }
     </style>
@@ -291,55 +302,64 @@
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">08.00</span>
-          <span class="what">Kapster en visagist arriveren bij Nyarayek</span>
+          <span class="what">Kapster en visagist arriveren</span>
+          <p class="who"><span class="chip">Nya</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Het+Spoorhuis,+Stationsstraat+41-45,+1421+AA+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Het Spoorhuis, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">09.00</span>
-          <span class="what">Fotograaf en videograaf starten bij Sten</span>
+          <span class="what">Start van de voorbereiding</span>
+          <p class="who"><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Startbaan+106,+Amstelveen" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Startbaan 106, Amstelveen</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">09.45</span>
-          <span class="what">Fotograaf en videograaf arriveren bij Nyarayek</span>
+          <span class="what">Aankomst voor de voorbereiding van de bruid</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Het+Spoorhuis,+Stationsstraat+41-45,+1421+AA+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Het Spoorhuis, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">10.30</span>
-          <span class="what">Nyarayek vertrekt van Het Spoorhuis</span>
+          <span class="what">Vertrek van Het Spoorhuis</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Plesmanlaan+65,+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Plesmanlaan 65, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">10.45</span>
-          <span class="what">Sten vertrekt van huis naar moeder Nyarayek</span>
+          <span class="what">Vertrek van huis naar het ouderlijk huis</span>
+          <p class="who"><span class="chip">Sten</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Plesmanlaan+65,+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Plesmanlaan 65, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">11.00</span>
-          <span class="what">Sten arriveert bij moeder Nyarayek, <strong class="mark">first look</strong></span>
+          <span class="what">Aankomst en <strong class="mark">first look</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Plesmanlaan+65,+Uithoorn" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Plesmanlaan 65, Uithoorn</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">11.15</span>
           <span class="what">Vertrek naar Wester-Amstel</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Wester-Amstel,+Amsteldijk+Noord+55,+1183+TE+Amstelveen" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Amsteldijk Noord 55</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">11.30</span>
-          <span class="what"><strong class="mark">Loveshoot bij Wester-Amstel, tot 13.10</strong></span>
+          <span class="what"><strong class="mark">Loveshoot, tot 13.10</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Wester-Amstel,+Amsteldijk+Noord+55,+1183+TE+Amstelveen" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Buitenplaats Wester-Amstel</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">13.10</span>
-          <span class="what">Vertrek naar St. Urbanuskerk</span>
+          <span class="what">Vertrek naar de kerk</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Noorddammerlaan 124-126</a></p>
         </div>
       </section>
@@ -351,30 +371,35 @@
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">13.30</span>
           <span class="what">Aankomst kerk, inloop gasten</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">14.00</span>
           <span class="what"><strong>Ceremonie</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">14.45</span>
           <span class="what">Afloop ceremonie, felicitaties</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">15.00</span>
           <span class="what"><strong class="mark">Familiefoto's in de kerk, tot 15.30</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/JkR9bFd5aLRVbyBHA" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Sint Urbanuskerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">15.30</span>
           <span class="what">Bruidspaar vertrekt naar de boot</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Holendrechterweg+9,+1191+KT+Ouderkerk+aan+de+Amstel" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Naar Holendrechterweg 9</a></p>
         </div>
         <div class="row">
@@ -387,18 +412,21 @@
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">16.00</span>
           <span class="what">Boottocht naar de Amstelkerk, ongeveer 5 minuten</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://www.google.com/maps/search/?api=1&amp;query=Holendrechterweg+9,+1191+KT+Ouderkerk+aan+de+Amstel" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstel</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">16.05</span>
           <span class="what"><strong class="mark">Aankomst bruidspaar per boot</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk, tuin</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">16.05</span>
           <span class="what">Receptie, felicitaties en borrel, tot 17.25</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk, tuin</a></p>
         </div>
       </section>
@@ -410,54 +438,63 @@
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">17.25</span>
           <span class="what">Gasten gaan richting tafel</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">17.35</span>
           <span class="what">Iedereen aan tafel, drank wordt ingeschonken</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">17.45</span>
           <span class="what"><strong class="mark">Speech Isabella, welkom heten</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">17.50</span>
           <span class="what">Voorgerecht, tot 18.20</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">18.20</span>
           <span class="what"><strong class="mark">Speech Daan</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">18.25</span>
           <span class="what">Hoofdgerecht, tot 19.05</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.05</span>
           <span class="what"><strong class="mark">Speech Mochir</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.10</span>
           <span class="what"><strong class="mark">Bruidspaar snijdt de taart aan</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.20</span>
           <span class="what"><strong class="mark">Speech Kasper</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
           <p class="note">Tijdens de speech snijdt het personeel de taart verder en zet het dessert klaar.</p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
@@ -465,30 +502,35 @@
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">19.25</span>
           <span class="what">Dessert, taart met ander zoets, tot 20.00</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">20.00</span>
           <span class="what"><strong class="mark">Optreden Zuid-Soedanese dansers</strong></span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">20.15</span>
           <span class="what">Feest geopend</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">20.30</span>
           <span class="what"><strong class="mark">First dance</strong> en first dance met de moeders</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
           <span class="dot" aria-hidden="true"><i></i></span>
           <span class="time">21.00</span>
           <span class="what">Boeket gooien</span>
+          <p class="who"><span class="chip">Nya</span><span class="chip">Sten</span><span class="chip">Jingwen</span><span class="chip">Viet</span></p>
         <p class="where"><a href="https://maps.app.goo.gl/bn9KLxoZZxZuxTQW7" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>Amstelkerk</a></p>
         </div>
         <div class="row">
