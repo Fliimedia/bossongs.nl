@@ -65,43 +65,49 @@
         z-index: 50;
         width: 44px; height: 44px; padding: 0;
         border: 0; background: none; color: var(--ink); cursor: pointer;
-        animation: rise 900ms ease 2.2s both;
+        opacity: 0;
+        animation: fadeIn 900ms ease 2.2s both;
         -webkit-tap-highlight-color: transparent;
       }
       .nav-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
       .bars, .cross, .bmark { position: absolute; inset: 0; }
       .bars i, .cross i {
-        position: absolute; right: 11px; height: 1.5px;
-        background: currentColor; border-radius: 1px;
+        position: absolute; right: 12px; height: 1px; width: 20px;
+        background: currentColor;
         transform-origin: center;
+        transition: transform 320ms cubic-bezier(0.2, 0.7, 0.3, 1);
       }
-      .bars i:nth-child(1) { top: 15.25px; width: 22px; }
-      .bars i:nth-child(2) { top: 21.25px; width: 14px; transition: width 300ms cubic-bezier(.2,.7,.3,1); }
-      .bars i:nth-child(3) { top: 27.25px; width: 22px; }
-      .nav-btn:hover .bars i:nth-child(2) { width: 22px; }
+      /* twee haarlijnen, verder niets; hun midden valt samen met dat van de B */
+      .bars i:nth-child(1) { top: 18.5px; }
+      .bars i:nth-child(2) { top: 24.5px; }
+      .nav-btn:hover .bars i:nth-child(1) { transform: translateY(-1.5px); }
+      .nav-btn:hover .bars i:nth-child(2) { transform: translateY(1.5px); }
 
       .cross { opacity: 0; visibility: hidden; }
-      .cross i { top: 21.25px; width: 21px; }
+      .cross i { top: 21.5px; }
       .cross i:nth-child(1) { transform: rotate(45deg); }
       .cross i:nth-child(2) { transform: rotate(-45deg); }
 
       .bmark { display: grid; place-items: center; opacity: 0; }
-      .bmark svg { width: 21px; height: auto; display: block; }
+      .bmark svg { height: 20px; width: auto; display: block; }
 
-      /* de omslag: streepjes weg, de B uit het logo komt op en vervaagt weer */
-      [data-nav="opening"] .bars { animation: barsGo 220ms cubic-bezier(0.4, 0, 1, 1) both; }
-      [data-nav="opening"] .bmark { animation: bGo 500ms cubic-bezier(0.2, 0.7, 0.3, 1) 140ms both; }
-      @keyframes barsGo { to { opacity: 0; transform: scale(0.55) rotate(-8deg); } }
+      /* De omslag loopt in één doorlopende beweging van 1,6s. Alles staat in de
+         fase "opening"; "open" is precies de stand waarin die animaties
+         eindigen, dus de overgang ertussen is onzichtbaar. Het menu begint al
+         op te komen terwijl de B nog wegvalt. */
+      [data-nav="opening"] .bars { animation: sink 320ms cubic-bezier(0.4, 0, 1, 1) both; }
+      [data-nav="opening"] .bmark { animation: bGo 1200ms cubic-bezier(0.33, 0, 0.2, 1) 200ms both; }
       @keyframes bGo {
-        0%   { opacity: 0; transform: scale(0.5); }
-        38%  { opacity: 1; transform: scale(1); }
-        62%  { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(1.4); }
+        0%   { opacity: 0; transform: scale(0.72); }
+        40%  { opacity: 1; transform: scale(1); }
+        55%  { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1.22); }
       }
-      [data-nav="open"] .bars, [data-nav="opening"] .cross { opacity: 0; visibility: hidden; }
-      [data-nav="open"] .cross { visibility: visible; animation: rise 300ms ease 80ms both; }
-      [data-nav="closing"] .cross { visibility: visible; animation: sink 200ms ease both; }
-      [data-nav="closing"] .bars { animation: rise 260ms ease 120ms both; }
+      [data-nav="opening"] .cross { visibility: visible; animation: fadeIn 400ms ease 1200ms both; }
+      [data-nav="open"] .bars { opacity: 0; visibility: hidden; }
+      [data-nav="open"] .cross { opacity: 1; visibility: visible; }
+      [data-nav="closing"] .cross { visibility: visible; animation: sink 260ms ease both; }
+      [data-nav="closing"] .bars { animation: fadeIn 360ms ease 200ms both; }
 
       .menu {
         position: fixed; inset: 0; z-index: 40;
@@ -109,8 +115,12 @@
         background: var(--paper);
         opacity: 0; visibility: hidden;
       }
-      [data-nav="open"] .menu { visibility: visible; animation: rise 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-      [data-nav="closing"] .menu { visibility: visible; animation: sink 260ms ease both; }
+      [data-nav="opening"] .menu {
+        visibility: visible; pointer-events: none;
+        animation: fadeIn 600ms cubic-bezier(0.33, 0, 0.2, 1) 950ms both;
+      }
+      [data-nav="open"] .menu { visibility: visible; opacity: 1; }
+      [data-nav="closing"] .menu { visibility: visible; animation: sink 400ms ease both; }
       .menu ul {
         list-style: none; margin: 0; padding: 0;
         display: grid; justify-items: center; text-align: center;
@@ -134,22 +144,24 @@
       }
       .menu a:hover::after, .menu a:focus-visible::after { transform: scaleX(1); }
       .menu a:focus-visible { outline: 0; }
-      [data-nav="open"] .menu a { animation: lift 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-      [data-nav="open"] .menu li:nth-child(1) a { animation-delay: 60ms; }
-      [data-nav="open"] .menu li:nth-child(2) a { animation-delay: 150ms; }
+      [data-nav="opening"] .menu a { animation: lift 480ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+      [data-nav="opening"] .menu li:nth-child(1) a { animation-delay: 1000ms; }
+      [data-nav="opening"] .menu li:nth-child(2) a { animation-delay: 1100ms; }
+      [data-nav="open"] .menu a, [data-nav="closing"] .menu a { opacity: 1; }
 
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
       @keyframes sink { from { opacity: 1; } to { opacity: 0; } }
       @keyframes lift { from { opacity: 0; transform: translateY(0.65rem); } to { opacity: 1; transform: none; } }
 
       @media (prefers-reduced-motion: reduce) {
         .mark { transform: none; }
         .mark, .mark-monogram, .mark-word, .mark-rule, .nav-btn { opacity: 1; animation: none; }
-        [data-nav="opening"] .bars, [data-nav="opening"] .bmark,
-        [data-nav="open"] .cross, [data-nav="open"] .menu,
-        [data-nav="open"] .menu a, [data-nav="closing"] .cross,
+        [data-nav="opening"] .cross, [data-nav="opening"] .menu,
+        [data-nav="opening"] .menu a, [data-nav="closing"] .cross,
         [data-nav="closing"] .bars, [data-nav="closing"] .menu { animation: none; opacity: 1; }
-        [data-nav="opening"] .bars, [data-nav="opening"] .bmark { opacity: 0; }
-        .menu a { transition: none; }
+        [data-nav="opening"] .bars, [data-nav="opening"] .bmark { animation: none; opacity: 0; }
+        [data-nav="opening"] .menu { pointer-events: auto; }
+        .menu a, .bars i, .cross i { transition: none; }
       }
     </style>
   </head>
@@ -164,9 +176,9 @@
 
     <button id="navbtn" class="nav-btn" type="button" aria-expanded="false" aria-controls="navmenu">
       <span class="sr-only">Menu</span>
-      <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="bars" aria-hidden="true"><i></i><i></i></span>
       <span class="bmark" aria-hidden="true">
-        <svg class="bmark" viewBox="0 0 884 959" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0.43 957.68C-0.66 954.84 0.46 945.73 2.0 944.94C2.83 944.52 8.0 943.62 13.5 942.95C35.32 940.27 63.16 931.7 82.0 921.85C118.1 902.97 135.44 879.8 142.65 840.82C144.21 832.39 144.41 819.51 144.73 705.29L145.09 579.08L152.3 572.47C159.94 565.47 180.1 551.44 193.64 543.72C198.12 541.16 208.92 535.63 217.64 531.42C240.33 520.48 303.2 492.0 304.67 492.0C305.65 492.0 305.99 529.65 306.3 671.75C306.58 802.29 307.01 854.03 307.87 860.74C309.31 871.96 312.99 884.99 317.22 893.89C320.92 901.66 331.49 912.66 340.23 917.83C355.19 926.68 376.77 933.18 402.5 936.58C421.52 939.1 469.66 939.09 487.5 936.57C534.8 929.88 572.04 915.0 603.39 890.25C613.19 882.51 632.36 863.06 639.2 853.91C666.66 817.18 685.28 772.17 691.51 727.5C696.69 690.39 695.05 656.11 686.43 621.5C672.91 567.18 642.84 522.07 593.5 482.04C560.78 455.5 507.75 426.93 468.29 414.58C450.08 408.89 441.07 407.6 419.0 407.56C384.58 407.49 374.42 410.65 293.0 446.8C179.21 497.32 157.56 508.94 133.67 532.33C117.03 548.61 108.16 563.84 102.33 586.13C99.93 595.29 99.61 598.37 99.59 612.5C99.57 621.91 100.12 631.38 100.91 635.5C103.07 646.74 107.7 664.9 110.46 672.93C111.86 677.01 113.0 680.53 113.0 680.76C113.0 682.62 109.02 678.0 96.28 661.36C90.66 654.02 80.0 637.63 80.0 636.33C80.0 636.04 79.16 634.61 78.13 633.15C74.89 628.55 67.25 612.89 63.19 602.5C58.18 589.69 54.49 577.41 51.46 563.5C45.39 535.58 47.61 506.04 57.37 484.7C66.6 464.52 86.12 444.75 112.31 429.07C149.44 406.84 235.8 373.27 278.19 364.58C302.79 359.54 339.55 357.93 363.0 360.87C403.22 365.9 451.28 376.87 526.5 398.18C636.3 429.3 716.17 461.46 767.89 495.37C801.87 517.65 833.15 548.71 850.92 577.82C853.71 582.4 856.0 586.32 856.0 586.53C856.0 586.74 857.25 589.07 858.79 591.71C865.0 602.39 871.58 619.58 876.12 637.0C889.48 688.27 884.99 738.29 863.03 782.82C829.84 850.09 759.92 902.76 664.5 932.36C621.73 945.62 589.76 951.66 535.5 956.71C510.9 959.0 1.29 959.93 0.43 957.68ZM607.5 401.57C597.6 398.2 583.88 393.69 577.0 391.54C570.12 389.4 562.5 386.8 560.07 385.78L555.63 383.91L561.07 379.29C592.06 352.89 618.0 308.96 626.87 267.82C630.62 250.41 632.29 235.06 632.33 217.5C632.41 182.68 626.44 155.23 612.52 126.47C600.97 102.59 588.65 86.49 569.09 69.7C556.38 58.79 548.53 53.63 531.53 45.03C506.55 32.39 476.44 24.82 440.0 22.01C426.32 20.95 314.34 20.84 309.5 21.88L306.5 22.52L306.0 170.51L305.5 318.5L298.5 319.27C258.67 323.67 223.16 334.11 169.5 357.21C161.8 360.52 153.83 364.08 151.79 365.12C149.75 366.15 147.41 367.0 146.59 367.0C145.28 367.0 145.05 350.83 144.7 232.75C144.35 115.55 144.1 97.48 142.72 90.5C140.54 79.46 138.34 72.62 134.5 65.0C126.47 49.05 116.8 40.03 97.5 30.46C79.22 21.41 65.8 17.71 34.2 13.04C34.04 13.02 34.04 10.19 34.2 6.75L34.5 0.5L283.0 0.19C541.17 -0.14 551.53 -0.01 583.5 4.04C641.57 11.39 693.82 31.53 734.18 62.11C745.9 70.99 764.0 88.88 771.99 99.51C791.76 125.76 802.44 150.55 808.6 184.5C810.58 195.46 810.91 227.34 809.13 237.0C804.93 259.87 798.55 279.11 790.81 292.29C789.27 294.93 788.0 297.31 788.0 297.59C788.0 297.86 785.68 301.56 782.84 305.8C764.48 333.21 738.69 356.59 706.53 374.98C692.53 382.99 681.83 388.09 664.51 394.99C653.5 399.39 627.06 408.2 625.97 407.85C625.71 407.77 617.4 404.94 607.5 401.57Z" fill="currentColor" fill-rule="evenodd"/></svg>
+        <svg class="bmark-svg" viewBox="0 0 111 123" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1.0 120.52C1.0 118.62 1.64 117.91 3.75 117.48C8.04 116.6 11.12 114.75 13.4 111.68C15.44 108.94 15.51 107.67 15.83 67.18C16.0 44.26 15.85 22.65 15.49 19.17C14.64 11.09 11.52 7.15 5.31 6.31C0.99 5.73 -0.43 4.31 1.01 1.98C2.2 0.06 66.04 0.03 74.0 1.96C90.27 5.89 99.17 14.21 100.67 26.89C101.96 37.72 96.53 47.79 86.57 53.07C81.68 55.67 80.8 57.0 83.97 57.0C87.75 57.0 96.98 61.9 101.94 66.54C108.79 72.95 111.35 79.76 110.78 90.03C110.07 102.75 103.48 112.14 91.39 117.68C81.61 122.16 73.49 122.93 35.75 122.97L1.0 123.0L1.0 120.52ZM71.08 113.26C80.9 108.86 86.46 100.04 86.42 88.91C86.38 80.0 83.94 74.0 78.37 69.09C72.26 63.72 66.52 61.88 53.91 61.27C37.84 60.49 39.0 58.57 39.0 85.98C39.0 108.34 39.05 108.95 41.27 111.52C42.51 112.97 45.1 114.55 47.02 115.04C52.71 116.48 66.1 115.49 71.08 113.26ZM67.81 50.36C72.93 47.37 75.57 43.39 77.01 36.47C79.29 25.47 74.14 14.79 64.42 10.34C57.16 7.01 45.19 5.99 41.54 8.38L39.0 10.05L39.0 31.46L39.0 52.88L42.75 53.33C44.81 53.58 50.33 53.58 55.0 53.33C61.73 52.97 64.4 52.35 67.81 50.36Z" fill="currentColor" fill-rule="evenodd"/></svg>
       </span>
       <span class="cross" aria-hidden="true"><i></i><i></i></span>
     </button>
@@ -196,7 +208,7 @@
           btn.setAttribute("aria-expanded", "true");
           // De streepjes worden eerst de B, die daarna vervaagt; pas daarna
           // komt het menu. Zonder animatievoorkeur slaan we de omslag over.
-          var ceremony = still.matches ? 0 : 640;
+          var ceremony = still.matches ? 0 : 1600;
           phase("opening");
           timer = window.setTimeout(function () {
             phase("open");
@@ -212,7 +224,7 @@
           btn.focus();
           timer = window.setTimeout(function () {
             phase("");
-          }, still.matches ? 0 : 300);
+          }, still.matches ? 0 : 560);
         }
 
         btn.addEventListener("click", function () {

@@ -65,43 +65,49 @@
         z-index: 50;
         width: 44px; height: 44px; padding: 0;
         border: 0; background: none; color: var(--ink); cursor: pointer;
-        animation: rise 900ms ease 2.2s both;
+        opacity: 0;
+        animation: fadeIn 900ms ease 2.2s both;
         -webkit-tap-highlight-color: transparent;
       }
       .nav-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
       .bars, .cross, .bmark { position: absolute; inset: 0; }
       .bars i, .cross i {
-        position: absolute; right: 11px; height: 1.5px;
-        background: currentColor; border-radius: 1px;
+        position: absolute; right: 12px; height: 1px; width: 20px;
+        background: currentColor;
         transform-origin: center;
+        transition: transform 320ms cubic-bezier(0.2, 0.7, 0.3, 1);
       }
-      .bars i:nth-child(1) { top: 15.25px; width: 22px; }
-      .bars i:nth-child(2) { top: 21.25px; width: 14px; transition: width 300ms cubic-bezier(.2,.7,.3,1); }
-      .bars i:nth-child(3) { top: 27.25px; width: 22px; }
-      .nav-btn:hover .bars i:nth-child(2) { width: 22px; }
+      /* twee haarlijnen, verder niets; hun midden valt samen met dat van de B */
+      .bars i:nth-child(1) { top: 18.5px; }
+      .bars i:nth-child(2) { top: 24.5px; }
+      .nav-btn:hover .bars i:nth-child(1) { transform: translateY(-1.5px); }
+      .nav-btn:hover .bars i:nth-child(2) { transform: translateY(1.5px); }
 
       .cross { opacity: 0; visibility: hidden; }
-      .cross i { top: 21.25px; width: 21px; }
+      .cross i { top: 21.5px; }
       .cross i:nth-child(1) { transform: rotate(45deg); }
       .cross i:nth-child(2) { transform: rotate(-45deg); }
 
       .bmark { display: grid; place-items: center; opacity: 0; }
-      .bmark svg { width: 21px; height: auto; display: block; }
+      .bmark svg { height: 20px; width: auto; display: block; }
 
-      /* de omslag: streepjes weg, de B uit het logo komt op en vervaagt weer */
-      [data-nav="opening"] .bars { animation: barsGo 220ms cubic-bezier(0.4, 0, 1, 1) both; }
-      [data-nav="opening"] .bmark { animation: bGo 500ms cubic-bezier(0.2, 0.7, 0.3, 1) 140ms both; }
-      @keyframes barsGo { to { opacity: 0; transform: scale(0.55) rotate(-8deg); } }
+      /* De omslag loopt in één doorlopende beweging van 1,6s. Alles staat in de
+         fase "opening"; "open" is precies de stand waarin die animaties
+         eindigen, dus de overgang ertussen is onzichtbaar. Het menu begint al
+         op te komen terwijl de B nog wegvalt. */
+      [data-nav="opening"] .bars { animation: sink 320ms cubic-bezier(0.4, 0, 1, 1) both; }
+      [data-nav="opening"] .bmark { animation: bGo 1200ms cubic-bezier(0.33, 0, 0.2, 1) 200ms both; }
       @keyframes bGo {
-        0%   { opacity: 0; transform: scale(0.5); }
-        38%  { opacity: 1; transform: scale(1); }
-        62%  { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(1.4); }
+        0%   { opacity: 0; transform: scale(0.72); }
+        40%  { opacity: 1; transform: scale(1); }
+        55%  { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1.22); }
       }
-      [data-nav="open"] .bars, [data-nav="opening"] .cross { opacity: 0; visibility: hidden; }
-      [data-nav="open"] .cross { visibility: visible; animation: rise 300ms ease 80ms both; }
-      [data-nav="closing"] .cross { visibility: visible; animation: sink 200ms ease both; }
-      [data-nav="closing"] .bars { animation: rise 260ms ease 120ms both; }
+      [data-nav="opening"] .cross { visibility: visible; animation: fadeIn 400ms ease 1200ms both; }
+      [data-nav="open"] .bars { opacity: 0; visibility: hidden; }
+      [data-nav="open"] .cross { opacity: 1; visibility: visible; }
+      [data-nav="closing"] .cross { visibility: visible; animation: sink 260ms ease both; }
+      [data-nav="closing"] .bars { animation: fadeIn 360ms ease 200ms both; }
 
       .menu {
         position: fixed; inset: 0; z-index: 40;
@@ -109,8 +115,12 @@
         background: var(--paper);
         opacity: 0; visibility: hidden;
       }
-      [data-nav="open"] .menu { visibility: visible; animation: rise 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-      [data-nav="closing"] .menu { visibility: visible; animation: sink 260ms ease both; }
+      [data-nav="opening"] .menu {
+        visibility: visible; pointer-events: none;
+        animation: fadeIn 600ms cubic-bezier(0.33, 0, 0.2, 1) 950ms both;
+      }
+      [data-nav="open"] .menu { visibility: visible; opacity: 1; }
+      [data-nav="closing"] .menu { visibility: visible; animation: sink 400ms ease both; }
       .menu ul {
         list-style: none; margin: 0; padding: 0;
         display: grid; justify-items: center; text-align: center;
@@ -134,22 +144,24 @@
       }
       .menu a:hover::after, .menu a:focus-visible::after { transform: scaleX(1); }
       .menu a:focus-visible { outline: 0; }
-      [data-nav="open"] .menu a { animation: lift 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-      [data-nav="open"] .menu li:nth-child(1) a { animation-delay: 60ms; }
-      [data-nav="open"] .menu li:nth-child(2) a { animation-delay: 150ms; }
+      [data-nav="opening"] .menu a { animation: lift 480ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+      [data-nav="opening"] .menu li:nth-child(1) a { animation-delay: 1000ms; }
+      [data-nav="opening"] .menu li:nth-child(2) a { animation-delay: 1100ms; }
+      [data-nav="open"] .menu a, [data-nav="closing"] .menu a { opacity: 1; }
 
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
       @keyframes sink { from { opacity: 1; } to { opacity: 0; } }
       @keyframes lift { from { opacity: 0; transform: translateY(0.65rem); } to { opacity: 1; transform: none; } }
 
       @media (prefers-reduced-motion: reduce) {
         .mark { transform: none; }
         .mark, .mark-monogram, .mark-word, .mark-rule, .nav-btn { opacity: 1; animation: none; }
-        [data-nav="opening"] .bars, [data-nav="opening"] .bmark,
-        [data-nav="open"] .cross, [data-nav="open"] .menu,
-        [data-nav="open"] .menu a, [data-nav="closing"] .cross,
+        [data-nav="opening"] .cross, [data-nav="opening"] .menu,
+        [data-nav="opening"] .menu a, [data-nav="closing"] .cross,
         [data-nav="closing"] .bars, [data-nav="closing"] .menu { animation: none; opacity: 1; }
-        [data-nav="opening"] .bars, [data-nav="opening"] .bmark { opacity: 0; }
-        .menu a { transition: none; }
+        [data-nav="opening"] .bars, [data-nav="opening"] .bmark { animation: none; opacity: 0; }
+        [data-nav="opening"] .menu { pointer-events: auto; }
+        .menu a, .bars i, .cross i { transition: none; }
       }
     </style>
   </head>
@@ -160,7 +172,7 @@
 
     <button id="navbtn" class="nav-btn" type="button" aria-expanded="false" aria-controls="navmenu">
       <span class="sr-only">Menu</span>
-      <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="bars" aria-hidden="true"><i></i><i></i></span>
       <span class="bmark" aria-hidden="true">
 <!--B-->
       </span>
@@ -192,7 +204,7 @@
           btn.setAttribute("aria-expanded", "true");
           // De streepjes worden eerst de B, die daarna vervaagt; pas daarna
           // komt het menu. Zonder animatievoorkeur slaan we de omslag over.
-          var ceremony = still.matches ? 0 : 640;
+          var ceremony = still.matches ? 0 : 1600;
           phase("opening");
           timer = window.setTimeout(function () {
             phase("open");
@@ -208,7 +220,7 @@
           btn.focus();
           timer = window.setTimeout(function () {
             phase("");
-          }, still.matches ? 0 : 300);
+          }, still.matches ? 0 : 560);
         }
 
         btn.addEventListener("click", function () {

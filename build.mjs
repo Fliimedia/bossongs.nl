@@ -46,8 +46,8 @@ ${extraHead}    <link rel="icon" href="${icon}" />
 // De homepagina staat als gewone HTML in src/home.html: geen framework, zodat
 // de eerste weergave meteen de afgewerkte pagina is en de fade niet hapert. De
 // twee vectoren worden ingevoegd, zodat de pagina er geen verzoek voor nodig
-// heeft. src/bossongs-logo.svg is het volledige merk, src/b-monogram.svg de
-// losse B die in de menuknop opkomt.
+// heeft. src/bossongs-logo.svg is het volledige merk, src/b-letter.svg de
+// losse letter B uit het woordmerk, die in de menuknop opkomt.
 const indent = (svg, pad) =>
   svg
     .trim()
@@ -57,7 +57,7 @@ const indent = (svg, pad) =>
 
 const home = readFileSync("src/home.html", "utf8")
   .replace("<!--MARK-->", indent(readFileSync("src/bossongs-logo.svg", "utf8"), "      "))
-  .replace("<!--B-->", indent(readFileSync("src/b-monogram.svg", "utf8"), "        "));
+  .replace("<!--B-->", indent(readFileSync("src/b-letter.svg", "utf8"), "        "));
 
 writeFileSync("index.html", home);
 console.log("index.html written, " + Math.round(home.length / 1024) + "K");
