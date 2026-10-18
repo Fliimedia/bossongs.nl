@@ -619,6 +619,8 @@ function order_cmp(array $a, array $b): int
 
 function action_move(): void
 {
+    // De volgorde ligt vast.
+    json_out(['ok' => false, 'error' => 'Volgorde aanpassen staat uit'], 403);
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
         json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
     }

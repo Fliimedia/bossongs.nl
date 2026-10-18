@@ -953,7 +953,7 @@ export default function FotoApp() {
             onUpload={null}
             uploading={busy}
             uploadLabel={"Foto\u2019s toevoegen aan " + label(cat)}
-            onMove={beheer && !onlyFav ? moveTo : null}
+            onMove={null}
             onRemove={null}
             onEdge={onEdge}
             below={chips("chips-below")}
