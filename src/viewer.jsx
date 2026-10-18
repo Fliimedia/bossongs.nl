@@ -847,7 +847,7 @@ export const VIEW_CSS = `
   overflow:hidden;background:rgba(21,21,15,0.05);}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-.slide .ph{filter:blur(16px);transform:scale(1.08);}
+.slide .ph{object-fit:contain;}
 .slide .main{object-fit:contain;opacity:0;transition:opacity 380ms ease;}
 .slide .main.in{opacity:1;}
 .slide .cap{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 0.9rem 0.8rem;
