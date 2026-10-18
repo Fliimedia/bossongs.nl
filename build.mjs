@@ -80,3 +80,9 @@ const album = page({
 });
 writeFileSync("foto/index.html", album);
 console.log("foto/index.html written, " + Math.round(album.length / 1024) + "K");
+
+// Linkpagina op /l, gewone HTML met het monogram erin.
+mkdirSync("l", { recursive: true });
+const links = readFileSync("src/links.html", "utf8").replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim());
+writeFileSync("l/index.html", links);
+console.log("l/index.html written, " + Math.round(links.length / 1024) + "K");
