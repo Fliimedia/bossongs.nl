@@ -15,19 +15,23 @@ const Q_THUMB = 0.8;
 
 const MAX_CAPTION = 160;
 
+// Uploaden en verwijderen staan uit in beeld; de code blijft staan voor later.
+const SHOW_UPLOAD = false;
+const SHOW_REMOVE = false;
+
 const CATS = [
-  { id: "ochtend", label: "Ochtend" },
-  { id: "firstlook", label: "First look" },
-  { id: "fotoshoot", label: "Fotoshoot" },
-  { id: "ceremonie", label: "Ceremonie" },
-  { id: "receptie", label: "Receptie" },
-  { id: "diner", label: "Diner" },
-  { id: "feest", label: "Feest" },
+  { id: "ochtend", label: "Ochtend", icon: "\u2600\uFE0F" },
+  { id: "firstlook", label: "First look", icon: "\uD83D\uDC40" },
+  { id: "fotoshoot", label: "Fotoshoot", icon: "\uD83D\uDCF8" },
+  { id: "ceremonie", label: "Ceremonie", icon: "\uD83D\uDC8D" },
+  { id: "receptie", label: "Receptie", icon: "\uD83E\uDD42" },
+  { id: "diner", label: "Diner", icon: "\uD83C\uDF7D\uFE0F" },
+  { id: "feest", label: "Feest", icon: "\uD83D\uDC83" },
 ];
 
 const label = (id) => {
   const found = CATS.filter((x) => x.id === id)[0];
-  return found ? found.label : "zelf genomen foto's";
+  return found ? found.label : "Foto's door gasten toegevoegd";
 };
 
 // Een sleutel per toestel, zodat een gast de foto's die hij zelf toevoegde kan
@@ -86,20 +90,20 @@ const CSS = `
 .add:disabled{opacity:0.5;cursor:default;}
 
 /* dagdeelfilters */
-.chips{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;padding:0.25rem 0 1.25rem;}
-.chip{flex:0 1 auto;padding:0.5rem 0.95rem;border-radius:10px;background:var(--chip);
-  font-size:0.82rem;font-weight:500;letter-spacing:0.01em;color:var(--muted);
-  transition:background-color 200ms ease,color 200ms ease;}
-.chip:hover{color:var(--ink);}
-.chip.on{background:var(--ink);color:var(--paper);}
+.chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 1.25rem;}
+.chip{flex:1 1 0;min-width:0;max-width:3.5rem;padding:0.5rem 0;font-size:1.3rem;line-height:1.3;text-align:center;border-radius:10px;background:var(--chip);
+  color:var(--muted);opacity:0.75;
+  transition:background-color 200ms ease,opacity 200ms ease;}
+.chip:hover{opacity:0.85;}
+.chip.on{background:rgba(21,21,15,0.12);opacity:1;}
 
 /* carrousel */
-.reel{display:flex;gap:0.5rem;overflow-x:auto;scroll-snap-type:x mandatory;
+.reel{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;
   scroll-behavior:smooth;overscroll-behavior-x:contain;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
 .slide{position:relative;flex:0 0 100%;scroll-snap-align:center;display:block;
-  width:100%;padding:0;aspect-ratio:4/5;overflow:hidden;border-radius:14px;
+  width:100%;padding:0;aspect-ratio:4/5;overflow:hidden;border-radius:0;
   background:rgba(21,21,15,0.05);line-height:0;}
 .slide img{width:100%;height:100%;object-fit:cover;display:block;
   animation:fade 420ms ease both;}
@@ -114,13 +118,14 @@ const CSS = `
   transition:background-color 200ms ease;}
 .reel-nav:hover{background:#fff;}
 .reel-nav[disabled]{opacity:0;pointer-events:none;}
-.reel-prev{left:-0.5rem;}
-.reel-next{right:-0.5rem;}
+.reel-prev{left:0.5rem;}
+.reel-next{right:0.5rem;}
 /* Een staande 4:5 foto is 1,25 keer zo hoog als breed, dus op een laag scherm
    bepaalt de hoogte de maat: breedte = beschikbare hoogte maal 0,8. Op een
    telefoon wint de 100% en verandert er niets. */
-.stage{position:relative;margin:0 auto;
-  width:min(100%,max(16rem,calc((100svh - 22rem) * 0.8)));}
+.stage{position:relative;left:50%;transform:translateX(-50%);
+  width:min(100vw,max(16rem,calc((100svh - 19rem) * 0.8)));}
+.album{overflow-x:clip;}
 .meter{display:flex;align-items:center;justify-content:center;gap:0.5rem;
   padding:0.85rem 0 0;font-size:0.75rem;letter-spacing:0.08em;color:var(--muted);
   font-variant-numeric:tabular-nums;}
@@ -842,6 +847,7 @@ export default function FotoApp() {
         <header className="head">
           <h1>Foto album bruiloft</h1>
           <p>Nya &#10084;&#65039; Sten</p>
+          {SHOW_UPLOAD && (
           <button
             className="add"
             type="button"
@@ -851,6 +857,7 @@ export default function FotoApp() {
             <IconPlus />
             {busy ? "Bezig" : beheer ? "Toevoegen aan " + label(cat) : "Foto toevoegen"}
           </button>
+          )}
 
           {adminError && <p className="note bad">{adminError}</p>}
 
@@ -875,9 +882,11 @@ export default function FotoApp() {
               type="button"
               role="tab"
               aria-selected={cat === x.id}
+              aria-label={x.label}
+              title={x.label}
               onClick={() => setCat(x.id)}
             >
-              {x.label}
+              <span aria-hidden="true">{x.icon}</span>
             </button>
           ))}
         </div>
@@ -893,7 +902,7 @@ export default function FotoApp() {
           <Reel shots={shots} onOpen={(i) => setView({ list: shots, i })} />
         )}
 
-        {beheer && shots.length > 0 && (
+        {SHOW_REMOVE && beheer && shots.length > 0 && (
           <div className="pick-to">
             <button className="pick-btn bad" type="button" onClick={emptyCat} disabled={busy}>
               {"Leeg " + label(cat)}
@@ -909,7 +918,7 @@ export default function FotoApp() {
             aria-expanded={ownOpen}
           >
             <IconPlus />
-            <b>zelf genomen foto&#8217;s</b>
+            <b>Foto&#8217;s door gasten toegevoegd</b>
             <span>{own.length}</span>
           </button>
           {ownOpen && own.length === 0 && (
@@ -963,9 +972,11 @@ export default function FotoApp() {
                   {x.label}
                 </button>
               ))}
-              <button className="pick-btn bad" type="button" onClick={wipe} disabled={busy}>
-                Verwijderen
-              </button>
+              {SHOW_REMOVE && (
+                <button className="pick-btn bad" type="button" onClick={wipe} disabled={busy}>
+                  Verwijderen
+                </button>
+              )}
             </div>
           )}
 
@@ -978,7 +989,7 @@ export default function FotoApp() {
                   type="button"
                   onClick={() => (picking ? toggle(item.id) : setView({ list: own, i }))}
                   aria-pressed={picking ? picked.indexOf(item.id) !== -1 : undefined}
-                  aria-label={item.caption || "Zelf genomen foto"}
+                  aria-label={item.caption || "Foto door gast"}
                 >
                   <img src={imgUrl(item.id, "thumb")} alt="" loading="lazy" decoding="async" />
                 </button>
@@ -988,6 +999,7 @@ export default function FotoApp() {
         </section>
       </main>
 
+      {SHOW_UPLOAD && (
       <input
         ref={pickRef}
         type="file"
@@ -999,6 +1011,7 @@ export default function FotoApp() {
           e.target.value = "";
         }}
       />
+      )}
 
       {current && (
         <div
@@ -1011,7 +1024,7 @@ export default function FotoApp() {
           <button className="lb-x" type="button" aria-label="Sluiten">
             <IconClose />
           </button>
-          {(current.mine || beheer) && (
+          {SHOW_REMOVE && (current.mine || beheer) && (
             <div className="lb-tools" onClick={(e) => e.stopPropagation()}>
               <button className="lb-tool bad" type="button" onClick={() => remove(current.id)}>
                 <IconTrash />
