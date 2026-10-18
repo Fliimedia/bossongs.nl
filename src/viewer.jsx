@@ -83,8 +83,12 @@ const Reel = forwardRef(function Reel(
     const fit = () => {
       if (window.innerWidth >= 900) return;
       if (Math.abs(window.scrollY - autoY) > 2) return;
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      const avail = Math.max(0, window.innerHeight - top);
+      const r = el.getBoundingClientRect();
+      const top = r.top + window.scrollY;
+      // De dagdeel-iconen onder de foto horen ook nog in beeld.
+      const nb = el.closest(".stage") && el.closest(".stage").querySelector(".chips-below");
+      const extra = nb ? Math.max(0, nb.getBoundingClientRect().bottom - r.bottom) : 0;
+      const avail = Math.max(0, window.innerHeight - top - extra);
       el.style.setProperty("--avail", avail + "px");
       const y = Math.max(0, Math.round(el.offsetHeight - avail));
       autoY = y;
@@ -346,7 +350,7 @@ function Grid({ shots, focusId, favs, onPick }) {
 /* ---------- carrousel met werkbalk ---------- */
 
 export function Viewer({
-  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel, onEdge,
+  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel, onEdge, below,
 }) {
   const [mode, setMode] = useState("reel");
   const [playing, setPlaying] = useState(false);
@@ -460,6 +464,7 @@ export function Viewer({
           }}
         />
       )}
+      {below}
 
       {!(empty && !onlyFav) && (
       <div className="tools">

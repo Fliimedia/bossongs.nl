@@ -114,6 +114,8 @@ html,body{overscroll-behavior-x:none;}
 
 /* dagdeelfilters */
 .chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 0.7rem;}
+.chips-rail{display:none;}
+.chips-below{padding:0.6rem 0 0.4rem;}
 .chip{flex:1 1 0;min-width:0;max-width:3.5rem;height:2.6rem;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;color:var(--muted);transition:background-color 200ms ease,color 200ms ease;}
 .album .chip{color:var(--muted);}
 .album .chip:hover{color:var(--gold);}
@@ -125,6 +127,8 @@ html,body{overscroll-behavior-x:none;}
   .head .logo{justify-content:flex-start;}
   .head h1{font-size:2.6rem;}
   .chips{flex-direction:column;align-items:stretch;gap:0.2rem;padding:0;}
+  .chips-rail{display:flex;}
+  .chips-below{display:none;}
   .chip{flex:none;max-width:none;height:2.9rem;justify-content:flex-start;gap:0.85rem;padding:0 0.9rem;
     font-size:0.9rem;font-weight:500;}
   .chip .lbl{display:inline;}
@@ -879,6 +883,26 @@ export default function FotoApp() {
     ? Math.round(((progress.done + progress.frac) / progress.total) * 100)
     : 0;
 
+  const chips = (where) => (
+    <div className={"chips " + where} role="tablist" aria-label="Dagdeel">
+      {CATS.map((x) => (
+        <button
+          key={x.id}
+          className={"chip" + (cat === x.id ? " on" : "")}
+          type="button"
+          role="tab"
+          aria-selected={cat === x.id}
+          aria-label={x.label}
+          title={x.label}
+          onClick={() => setCat(x.id)}
+        >
+          <CatIcon id={x.id} />
+          <span className="lbl">{x.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="album">
       <style>{CSS + VIEW_CSS}</style>
@@ -904,23 +928,7 @@ export default function FotoApp() {
           {note && <p className={"note" + (note.bad ? " bad" : "")}>{note.text}</p>}
         </header>
 
-        <div className="chips" role="tablist" aria-label="Dagdeel">
-          {CATS.map((x) => (
-            <button
-              key={x.id}
-              className={"chip" + (cat === x.id ? " on" : "")}
-              type="button"
-              role="tab"
-              aria-selected={cat === x.id}
-              aria-label={x.label}
-              title={x.label}
-              onClick={() => setCat(x.id)}
-            >
-              <CatIcon id={x.id} />
-              <span className="lbl">{x.label}</span>
-            </button>
-          ))}
-        </div>
+        {chips("chips-rail")}
         </aside>
 
         <div className="main">
@@ -947,11 +955,13 @@ export default function FotoApp() {
             onMove={beheer && !onlyFav ? moveTo : null}
             onRemove={canEdit ? remove : null}
             onEdge={onEdge}
+            below={chips("chips-below")}
           />
         )}
         {items !== null && !canEdit && all.length === 0 && !onlyFav && (
           <div className="blank">Nog geen foto&#8217;s in dit dagdeel.</div>
         )}
+        {(items === null || (!canEdit && all.length === 0 && !onlyFav)) && chips("chips-below")}
 
         {SHOW_REMOVE && beheer && shots.length > 0 && (
           <div className="pick-to">
