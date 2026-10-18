@@ -72,6 +72,7 @@ function myKey() {
 }
 
 const CSS = `
+html,body{overscroll-behavior-x:none;}
 .album{
   --paper:#f8f5ee;
   --ink:#15150f;
@@ -606,6 +607,23 @@ export default function FotoApp() {
   const focusId = at[cat];
   const onFocus = useCallback((id) => setAt((a) => (a[cat] === id ? a : { ...a, [cat]: id })), [cat]);
 
+  // Voorbij de eerste of laatste foto: naar het vorige of volgende dagdeel met foto's.
+  const onEdge = useCallback(
+    (dir) => {
+      const k = CATS.findIndex((x) => x.id === cat);
+      for (let j = k + dir; j >= 0 && j < CATS.length; j += dir) {
+        const id = CATS[j].id;
+        const list = onlyFav ? (byCat[id] || []).filter((x) => favs.has(x.id)) : byCat[id] || [];
+        if (!list.length) continue;
+        const it = dir > 0 ? list[0] : list[list.length - 1];
+        setAt((a) => ({ ...a, [id]: it.id }));
+        setCat(id);
+        return;
+      }
+    },
+    [cat, byCat, onlyFav, favs]
+  );
+
   // Met beheer: een foto een andere plek in het dagdeel geven.
   const moveTo = useCallback(
     async (id, n) => {
@@ -929,6 +947,7 @@ export default function FotoApp() {
             uploadLabel={"Foto\u2019s toevoegen aan " + label(cat)}
             onMove={beheer && !onlyFav ? moveTo : null}
             onRemove={canEdit ? remove : null}
+            onEdge={onEdge}
           />
         )}
         {items !== null && !canEdit && all.length === 0 && !onlyFav && (

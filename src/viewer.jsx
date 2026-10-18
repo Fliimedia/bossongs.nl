@@ -49,8 +49,10 @@ const Cross = () => (
 
 /* ---------- carrousel ---------- */
 
+let autoY = 0; // laatste automatische scrollpositie op mobiel
+
 const Reel = forwardRef(function Reel(
-  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel },
+  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge },
   ref
 ) {
   const box = useRef(null);
@@ -73,21 +75,34 @@ const Reel = forwardRef(function Reel(
     return k.length > 1 ? k[1].offsetLeft - k[0].offsetLeft : el.clientWidth;
   };
 
-  // Mobiel: na het openen staat de onderkant van de foto tegen de onderkant van het scherm.
+  // Mobiel: de onderkant van de foto staat tegen de onderkant van het scherm. Opnieuw uitlijnen
+  // zolang de bezoeker zelf niet heeft gescrold (lettertype geladen, ander dagdeel, gedraaid scherm).
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
     const fit = () => {
-      if (window.innerWidth >= 900 || window.scrollY > 4) return;
+      if (window.innerWidth >= 900) return;
+      if (Math.abs(window.scrollY - autoY) > 2) return;
       const top = el.getBoundingClientRect().top + window.scrollY;
-      el.style.setProperty("--avail", Math.max(0, window.innerHeight - top) + "px");
-      const over = el.getBoundingClientRect().bottom - window.innerHeight;
-      if (over > 1) window.scrollTo({ top: over, behavior: "instant" });
+      const avail = Math.max(0, window.innerHeight - top);
+      el.style.setProperty("--avail", avail + "px");
+      const y = Math.max(0, Math.round(el.offsetHeight - avail));
+      autoY = y;
+      if (Math.abs(window.scrollY - y) > 1) window.scrollTo({ top: y, behavior: "instant" });
     };
     fit();
-    const t = window.setTimeout(fit, 400);
-    return () => window.clearTimeout(t);
-  }, []);
+    const raf = window.requestAnimationFrame(fit);
+    const t = [150, 500, 1200].map((ms) => window.setTimeout(fit, ms));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    window.addEventListener("load", fit);
+    window.addEventListener("resize", fit);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      t.forEach((x) => window.clearTimeout(x));
+      window.removeEventListener("load", fit);
+      window.removeEventListener("resize", fit);
+    };
+  }, [shots.length]);
 
   useLayoutEffect(() => {
     const el = box.current;
@@ -140,8 +155,75 @@ const Reel = forwardRef(function Reel(
 
   const go = (d) => {
     const el = box.current;
-    if (el) el.scrollBy({ left: d * step(), behavior: "smooth" });
+    if (!el) return;
+    const k = here();
+    if (onEdge && ((d < 0 && k === 0) || (d > 0 && k === shots.length - 1))) {
+      onEdge(d);
+      return;
+    }
+    el.scrollBy({ left: d * step(), behavior: "smooth" });
   };
+
+  // Voorbij de eerste of laatste foto trekken: door naar het vorige of volgende dagdeel.
+  const pull = useRef(null);
+  const onTouchStart = (e) => {
+    const el = box.current;
+    if (!el || !onEdge || e.touches.length !== 1) return;
+    const k = here();
+    const first = k === 0;
+    const last = k === shots.length - 1;
+    if (!first && !last) return (pull.current = null);
+    const t = e.touches[0];
+    pull.current = { x: t.clientX, y: t.clientY, first, last, dx: 0, on: false };
+  };
+  const onTouchMove = (e) => {
+    const p = pull.current;
+    const el = box.current;
+    if (!p || !el) return;
+    const t = e.touches[0];
+    const dx = t.clientX - p.x;
+    const dy = t.clientY - p.y;
+    if (!p.on) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx) || !((dx > 0 && p.first) || (dx < 0 && p.last))) {
+        pull.current = null;
+        return;
+      }
+      p.on = true;
+    }
+    p.dx = (dx > 0 && p.first) || (dx < 0 && p.last) ? dx : 0;
+    if (e.cancelable) e.preventDefault(); // geen 'terug'-veeg van de browser
+    el.style.transition = "none";
+    el.style.transform = "translateX(" + p.dx * 0.35 + "px)";
+  };
+  const onTouchEnd = () => {
+    const p = pull.current;
+    const el = box.current;
+    pull.current = null;
+    if (!p || !p.on || !el) return;
+    el.style.transition = "transform 260ms cubic-bezier(.22,.8,.3,1)";
+    el.style.transform = "";
+    if (Math.abs(p.dx) > Math.min(90, el.clientWidth * 0.22)) onEdge(p.dx < 0 ? 1 : -1);
+  };
+  const touch = useRef({});
+  touch.current = { onTouchStart, onTouchMove, onTouchEnd };
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const st = (e) => touch.current.onTouchStart(e);
+    const mv = (e) => touch.current.onTouchMove(e);
+    const en = (e) => touch.current.onTouchEnd(e);
+    el.addEventListener("touchstart", st, { passive: true });
+    el.addEventListener("touchmove", mv, { passive: false });
+    el.addEventListener("touchend", en);
+    el.addEventListener("touchcancel", en);
+    return () => {
+      el.removeEventListener("touchstart", st);
+      el.removeEventListener("touchmove", mv);
+      el.removeEventListener("touchend", en);
+      el.removeEventListener("touchcancel", en);
+    };
+  }, []);
 
   const ratio = Math.min(
     2,
@@ -222,11 +304,11 @@ const Reel = forwardRef(function Reel(
         })}
       </div>
       <button className="reel-nav reel-prev" type="button" onClick={() => go(-1)}
-        disabled={index === 0} aria-label="Vorige foto">
+        disabled={index === 0 && !onEdge} aria-label="Vorige foto">
         <Chevron back />
       </button>
       <button className="reel-nav reel-next" type="button" onClick={() => go(1)}
-        disabled={index >= shots.length - 1} aria-label="Volgende foto">
+        disabled={index >= shots.length - 1 && !onEdge} aria-label="Volgende foto">
         <Chevron />
       </button>
     </div>
@@ -264,7 +346,7 @@ function Grid({ shots, focusId, favs, onPick }) {
 /* ---------- carrousel met werkbalk ---------- */
 
 export function Viewer({
-  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel,
+  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel, onEdge,
 }) {
   const [mode, setMode] = useState("reel");
   const [playing, setPlaying] = useState(false);
@@ -364,6 +446,7 @@ export function Viewer({
           onUpload={onUpload}
           uploading={uploading}
           uploadLabel={uploadLabel}
+          onEdge={onEdge}
         />
       )}
       {!empty && mode === "grid" && (
@@ -856,7 +939,7 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
 export const VIEW_CSS = `
 .reel-box{position:relative;}
 .reel{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;overscroll-behavior-x:contain;
+  scroll-behavior:smooth;overscroll-behavior-x:none;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
 .reel{height:max(var(--avail,0px),calc((100vw - 4px) * var(--r,1.25)));align-items:flex-end;}
