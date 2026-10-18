@@ -21,7 +21,7 @@ async function bundle(entry) {
   return result.outputFiles[0].text;
 }
 
-function page({ title, description, icon, fonts, extraHead, noscript, script }) {
+function page({ title, description, fonts, extraHead, noscript, script }) {
   return `<!doctype html>
 <html lang="nl">
   <head>
@@ -30,7 +30,10 @@ function page({ title, description, icon, fonts, extraHead, noscript, script }) 
     <title>${title}</title>
     <meta name="build" content="b17" />
     <meta name="description" content="${description}" />
-${extraHead}    <link rel="icon" href="${icon}" />
+${extraHead}    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/favicon-180.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="${fonts}" />
@@ -67,7 +70,6 @@ mkdirSync("foto", { recursive: true });
 const album = page({
   title: "Fotoalbum, Nyarayek en Sten",
   description: "Deel je foto's van de bruiloft van Nyarayek en Sten.",
-  icon: "../images/logo-icoon.png",
   fonts:
     "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap",
   extraHead:
