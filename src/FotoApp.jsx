@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CAT_ICONS } from "./catIcons.js";
+import { Viewer, Lightbox, VIEW_CSS, imgUrl } from "./viewer.jsx";
 
 const API = "api.php";
 const POLL_MS = 60000;
@@ -81,6 +82,7 @@ const CSS = `
   font-family:Inter,system-ui,sans-serif;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
+  overflow-x:clip;
 }
 .album *{box-sizing:border-box;}
 .album button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
@@ -108,44 +110,6 @@ const CSS = `
 .chip:hover{color:var(--ink);}
 .chip.on{background:var(--ink);color:var(--paper);}
 
-/* carrousel */
-.reel{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;overscroll-behavior-x:contain;
-  scrollbar-width:none;-ms-overflow-style:none;}
-.reel::-webkit-scrollbar{display:none;}
-.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;display:block;
-  width:100%;padding:0;aspect-ratio:4/5;overflow:hidden;border-radius:0;
-  background:rgba(21,21,15,0.05);line-height:0;}
-.slide img{width:100%;height:100%;object-fit:cover;display:block;
-  animation:fade 420ms ease both;}
-.slide figcaption{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 0.9rem 0.8rem;
-  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.55));
-  color:#fff;font-size:0.8rem;line-height:1.35;text-align:left;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.reel-nav{position:absolute;top:50%;z-index:2;display:none;
-  align-items:center;justify-content:center;width:2.25rem;height:2.25rem;padding:0;
-  margin-top:-1.125rem;border-radius:999px;background:rgba(255,255,255,0.9);
-  color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,0.18);
-  transition:background-color 200ms ease;}
-.reel-nav:hover{background:#fff;}
-.reel-nav[disabled]{opacity:0;pointer-events:none;}
-.reel-prev{left:0.5rem;}
-.reel-next{right:0.5rem;}
-/* Een staande 4:5 foto is 1,25 keer zo hoog als breed, dus op een laag scherm
-   bepaalt de hoogte de maat: breedte = beschikbare hoogte maal 0,8. Op een
-   telefoon wint de 100% en verandert er niets. */
-.stage{position:relative;left:50%;transform:translateX(-50%);width:calc(100vw - 4px);}
-@media (min-width:700px){
-  .stage{width:min(calc(100vw - 4px),max(16rem,calc((100svh - 19rem) * 0.8)));}
-}
-.album{overflow-x:clip;}
-.meter{display:flex;align-items:center;justify-content:center;gap:0.5rem;
-  padding:0.85rem 0 0;font-size:0.75rem;letter-spacing:0.08em;color:var(--muted);
-  font-variant-numeric:tabular-nums;}
-.meter em{font-style:normal;color:var(--ink);}
-.blank{display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;
-  border-radius:14px;background:rgba(21,21,15,0.04);color:var(--muted);
-  font-size:0.875rem;text-align:center;padding:2rem;}
 .shimmer{aspect-ratio:4/5;border-radius:14px;
   background:linear-gradient(90deg,rgba(21,21,15,0.04),rgba(21,21,15,0.09),rgba(21,21,15,0.04));
   background-size:200% 100%;animation:shimmer 1.4s linear infinite;}
@@ -189,32 +153,11 @@ const CSS = `
 .note{margin:0.5rem 0 0;font-size:0.78rem;color:var(--muted);text-align:center;}
 .note.bad{color:hsl(0,55%,42%);}
 
-/* volledige foto */
-.lb{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
-  padding:1rem;background:rgba(14,14,10,0.94);animation:fade 200ms ease both;}
-.lb img{max-width:100%;max-height:calc(100svh - 6rem);width:auto;height:auto;display:block;
-  animation:pop 260ms cubic-bezier(.2,.75,.3,1) both;}
-.lb-cap{position:absolute;left:1rem;right:1rem;bottom:1.1rem;margin:0;text-align:center;
-  font-size:0.82rem;color:rgba(255,255,255,0.8);}
-.lb-x{position:absolute;top:1rem;right:1rem;display:inline-flex;align-items:center;
-  justify-content:center;width:2.5rem;height:2.5rem;padding:0;border-radius:999px;
-  background:rgba(255,255,255,0.14);color:#fff;}
-.lb-arrow{position:absolute;top:50%;margin-top:-1.25rem;display:inline-flex;align-items:center;
-  justify-content:center;width:2.5rem;height:2.5rem;padding:0;border-radius:999px;
-  background:rgba(255,255,255,0.14);color:#fff;}
-.lb-arrow.l{left:1rem;}
-.lb-arrow.r{right:1rem;}
-.lb-tools{position:absolute;top:1rem;left:1rem;display:flex;gap:0.4rem;}
-.lb-tool{display:inline-flex;align-items:center;gap:0.35rem;padding:0.5rem 0.8rem;
-  border-radius:999px;background:rgba(255,255,255,0.14);color:#fff;font-size:0.78rem;}
-.lb-tool.bad{background:hsl(0,55%,42%);}
-
 @keyframes fade{from{opacity:0;}to{opacity:1;}}
 @keyframes pop{from{opacity:0;transform:scale(0.98);}to{opacity:1;transform:none;}}
 @keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
 
 @media (min-width:700px){
-  .reel-nav{display:inline-flex;}
   .own-grid{grid-template-columns:repeat(6,1fr);}
 }
 @media (prefers-reduced-motion:reduce){
@@ -441,82 +384,29 @@ function send(parts, caption, cat, beheer, onProgress) {
   });
 }
 
-const imgUrl = (id, size) => API + "?a=img&s=" + size + "&id=" + id;
 
-/* ---------- carrousel ---------- */
+/* ---------- onthouden ---------- */
 
-function Reel({ shots, onOpen }) {
-  const ref = useRef(null);
-  const [index, setIndex] = useState(0);
+const CAT_IDS = CATS.map((x) => x.id);
 
-  // Terug naar het begin zodra er een ander dagdeel onder zit.
-  useEffect(() => {
-    const el = ref.current;
-    if (el) el.scrollLeft = 0;
-    setIndex(0);
-  }, [shots]);
-
-  const onScroll = () => {
-    const el = ref.current;
-    if (!el || !el.clientWidth) return;
-    const step = el.clientWidth;
-    setIndex(Math.max(0, Math.min(shots.length - 1, Math.round(el.scrollLeft / step))));
-  };
-
-  const go = (d) => {
-    const el = ref.current;
-    if (!el) return;
-    el.scrollBy({ left: d * el.clientWidth, behavior: "smooth" });
-  };
-
-  return (
-    <div className="stage">
-      <div className="reel" ref={ref} onScroll={onScroll}>
-        {shots.map((item, i) => (
-          <button
-            key={item.id}
-            className="slide"
-            type="button"
-            onClick={() => onOpen(i)}
-            aria-label={item.caption || "Foto " + (i + 1) + " van " + shots.length}
-          >
-            {/* alleen wat in de buurt is krijgt een bron, anders trekt de
-                carrousel honderden foto's tegelijk */}
-            {Math.abs(i - index) <= 2 && (
-              <img
-                src={imgUrl(item.id, item.mid ? "mid" : "full")}
-                alt={item.caption || ""}
-                decoding="async"
-                loading={i === 0 ? "eager" : "lazy"}
-              />
-            )}
-            {item.caption && <figcaption>{item.caption}</figcaption>}
-          </button>
-        ))}
-      </div>
-      <button
-        className="reel-nav reel-prev"
-        type="button"
-        onClick={() => go(-1)}
-        disabled={index === 0}
-        aria-label="Vorige foto"
-      >
-        <IconChevron back />
-      </button>
-      <button
-        className="reel-nav reel-next"
-        type="button"
-        onClick={() => go(1)}
-        disabled={index >= shots.length - 1}
-        aria-label="Volgende foto"
-      >
-        <IconChevron />
-      </button>
-      <p className="meter">
-        <em>{index + 1}</em> / {shots.length}
-      </p>
-    </div>
-  );
+function readSaved() {
+  const out = { cat: "ochtend", at: {}, favs: new Set() };
+  try {
+    const raw = JSON.parse(localStorage.getItem("foto-pos") || "{}");
+    if (raw && CAT_IDS.indexOf(raw.cat) !== -1) out.cat = raw.cat;
+    if (raw && raw.at && typeof raw.at === "object") out.at = raw.at;
+    const f = JSON.parse(localStorage.getItem("foto-favs") || "[]");
+    if (Array.isArray(f)) out.favs = new Set(f.filter((x) => typeof x === "string"));
+  } catch (e) {
+    /* geen opslag beschikbaar: dan begint alles bij het begin */
+  }
+  // Een link als #diner-23 gaat voor wat er onthouden was.
+  const m = /^#([a-z]+)-(\d+)$/.exec(window.location.hash || "");
+  if (m && CAT_IDS.indexOf(m[1]) !== -1) {
+    out.cat = m[1];
+    out.link = { cat: m[1], n: parseInt(m[2], 10) };
+  }
+  return out;
 }
 
 /* ---------- app ---------- */
@@ -524,7 +414,11 @@ function Reel({ shots, onOpen }) {
 export default function FotoApp() {
   const [items, setItems] = useState(null);
   const [loadError, setLoadError] = useState(false);
-  const [cat, setCat] = useState("ochtend");
+  const [saved] = useState(readSaved);
+  const [cat, setCat] = useState(saved.cat);
+  const [at, setAt] = useState(saved.at); // laatst bekeken foto per dagdeel
+  const [favs, setFavs] = useState(saved.favs);
+  const [onlyFav, setOnlyFav] = useState(false);
   const [phase, setPhase] = useState("idle");
   const [progress, setProgress] = useState({ done: 0, total: 0, frac: 0 });
   const [note, setNote] = useState(null);
@@ -661,8 +555,76 @@ export default function FotoApp() {
     return map;
   }, [items]);
 
-  const shots = byCat[cat];
+  const all = byCat[cat] || [];
+  const shots = onlyFav ? all.filter((x) => favs.has(x.id)) : all;
+  const favCount = all.filter((x) => favs.has(x.id)).length;
   const own = byCat.gast;
+  const focusId = at[cat];
+  const onFocus = useCallback((id) => setAt((a) => (a[cat] === id ? a : { ...a, [cat]: id })), [cat]);
+
+  const toggleFav = useCallback((id) => {
+    setFavs((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  // Wat er onthouden moet worden, blijft op dit toestel staan.
+  useEffect(() => {
+    try {
+      localStorage.setItem("foto-pos", JSON.stringify({ cat, at }));
+    } catch (e) {
+      /* niet erg */
+    }
+  }, [cat, at]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("foto-favs", JSON.stringify([...favs]));
+    } catch (e) {
+      /* niet erg */
+    }
+  }, [favs]);
+
+  // Een deellink zoals #diner-23 opent het dagdeel op die foto, zodra de lijst er is.
+  const linked = useRef(saved.link || null);
+  useEffect(() => {
+    if (!items || !linked.current) return;
+    const { cat: c, n } = linked.current;
+    linked.current = null;
+    const list = byCat[c] || [];
+    const it = list[Math.max(0, Math.min(list.length - 1, n - 1))];
+    if (it) setAt((a) => ({ ...a, [c]: it.id }));
+  }, [items, byCat]);
+
+  // Plakt iemand een andere deellink in dezelfde pagina, dan volgt die.
+  useEffect(() => {
+    const onHash = () => {
+      const m = /^#([a-z]+)-(\d+)$/.exec(window.location.hash || "");
+      if (!m || CAT_IDS.indexOf(m[1]) === -1) return;
+      linked.current = { cat: m[1], n: parseInt(m[2], 10) };
+      setCat(m[1]);
+      setOnlyFav(false);
+      setItems((cur) => (cur ? cur.slice() : cur));
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  // De adresbalk volgt de foto, zodat de link zelf al een deellink is.
+  const syncHash = useCallback(() => {
+    const k = Math.max(0, all.findIndex((x) => x.id === focusId));
+    if (all.length) {
+      const h = "#" + cat + "-" + (k + 1);
+      if (window.location.hash !== h) {
+        window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search + h);
+      }
+    }
+  }, [all, cat, focusId]);
+  useEffect(() => {
+    if (view === null) syncHash();
+  });
 
   /* uploaden */
   const onFiles = async (fileList) => {
@@ -804,26 +766,20 @@ export default function FotoApp() {
     if (last >= 0) setPicked(own.slice(0, last + 1).map((x) => x.id));
   };
 
-  /* volledige foto */
-  const step = useCallback((d) => {
-    setView((v) => (v === null ? v : { ...v, i: (v.i + d + v.list.length) % v.list.length }));
-  }, []);
-
+  /* volledige foto: de carrousel blijft op de laatst bekeken foto staan */
   useEffect(() => {
-    if (view === null) return undefined;
-    const onKey = (e) => {
-      if (e.key === "Escape") setView(null);
-      if (e.key === "ArrowRight") step(1);
-      if (e.key === "ArrowLeft") step(-1);
-    };
-    window.addEventListener("keydown", onKey);
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-    };
-  }, [view, step]);
+    if (view && view.cat !== "gast") {
+      const it = view.list[view.i];
+      if (it) setAt((a) => (a[view.cat] === it.id ? a : { ...a, [view.cat]: it.id }));
+    }
+  }, [view]);
+
+  // Na het sluiten corrigeert de terugknop de adresbalk soms net te laat.
+  useEffect(() => {
+    if (view !== null) return undefined;
+    const t = window.setTimeout(syncHash, 80);
+    return () => window.clearTimeout(t);
+  }, [view]);
 
   const remove = async (id) => {
     if (!window.confirm("Deze foto verwijderen?")) return;
@@ -854,7 +810,7 @@ export default function FotoApp() {
 
   return (
     <div className="album">
-      <style>{CSS}</style>
+      <style>{CSS + VIEW_CSS}</style>
 
       <main className="wrap">
         <header className="head">
@@ -908,11 +864,23 @@ export default function FotoApp() {
         {loadError && items === null && (
           <div className="blank">Het album kon niet worden geladen.</div>
         )}
-        {items !== null && shots.length === 0 && (
-          <div className="blank">Nog geen foto&#8217;s in dit dagdeel.</div>
+        {items !== null && (shots.length > 0 || onlyFav || all.length > 0) && (
+          <Viewer
+            key={cat}
+            shots={shots}
+            focusId={focusId}
+            onFocus={onFocus}
+            onOpen={(i) => setView({ list: shots, i, cat })}
+            favs={favs}
+            onFav={toggleFav}
+            onlyFav={onlyFav}
+            onOnlyFav={setOnlyFav}
+            favCount={favCount}
+            blank="Nog geen favorieten in dit dagdeel."
+          />
         )}
-        {items !== null && shots.length > 0 && (
-          <Reel shots={shots} onOpen={(i) => setView({ list: shots, i })} />
+        {items !== null && all.length === 0 && !onlyFav && (
+          <div className="blank">Nog geen foto&#8217;s in dit dagdeel.</div>
         )}
 
         {SHOW_REMOVE && beheer && shots.length > 0 && (
@@ -1000,7 +968,7 @@ export default function FotoApp() {
                   key={item.id}
                   className={"own-tile" + (picked.indexOf(item.id) !== -1 ? " on" : "")}
                   type="button"
-                  onClick={() => (picking ? toggle(item.id) : setView({ list: own, i }))}
+                  onClick={() => (picking ? toggle(item.id) : setView({ list: own, i, cat: "gast" }))}
                   aria-pressed={picking ? picked.indexOf(item.id) !== -1 : undefined}
                   aria-label={item.caption || "Foto door gast"}
                 >
@@ -1027,63 +995,15 @@ export default function FotoApp() {
       )}
 
       {current && (
-        <div
-          className="lb"
-          role="dialog"
-          aria-modal="true"
-          aria-label={current.caption || "Volledige foto"}
-          onClick={() => setView(null)}
-        >
-          <button className="lb-x" type="button" aria-label="Sluiten">
-            <IconClose />
-          </button>
-          {SHOW_REMOVE && (current.mine || beheer) && (
-            <div className="lb-tools" onClick={(e) => e.stopPropagation()}>
-              <button className="lb-tool bad" type="button" onClick={() => remove(current.id)}>
-                <IconTrash />
-                Verwijderen
-              </button>
-            </div>
-          )}
-          {view.list.length > 1 && (
-            <button
-              className="lb-arrow l"
-              type="button"
-              aria-label="Vorige"
-              onClick={(e) => {
-                e.stopPropagation();
-                step(-1);
-              }}
-            >
-              <IconChevron back />
-            </button>
-          )}
-          <img
-            key={current.id}
-            src={imgUrl(current.id, "full")}
-            width={current.w || undefined}
-            height={current.h || undefined}
-            alt={current.caption || "Volledige foto"}
-            onClick={(e) => e.stopPropagation()}
-          />
-          {view.list.length > 1 && (
-            <button
-              className="lb-arrow r"
-              type="button"
-              aria-label="Volgende"
-              onClick={(e) => {
-                e.stopPropagation();
-                step(1);
-              }}
-            >
-              <IconChevron />
-            </button>
-          )}
-          <p className="lb-cap">
-            {current.caption ? current.caption + " · " : ""}
-            {view.i + 1} / {view.list.length}
-          </p>
-        </div>
+        <Lightbox
+          list={view.list}
+          index={view.i}
+          onIndex={(k) => setView((v) => (v ? { ...v, i: k } : v))}
+          onClose={() => setView(null)}
+          favs={favs}
+          onFav={toggleFav}
+          onRemove={SHOW_REMOVE && (current.mine || beheer) ? remove : null}
+        />
       )}
     </div>
   );

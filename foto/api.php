@@ -18,7 +18,7 @@ const OLD_CATS = ['middag', 'avond'];
 
 // Deze versie staat in a=status, zodat van buitenaf te zien is welke code er
 // draait zonder dat je het aan de uitkomst hoeft af te leiden.
-const API_VERSION = 'a6';
+const API_VERSION = 'a7';
 
 // De beheersleutel staat hier als SHA-256, niet als sleutel. Daarmee werkt
 // beheer zodra deze code er staat: geen bestand dat eerst geschreven en daarna
@@ -383,7 +383,8 @@ function action_img(): void
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . (string) filesize($file));
         header('Cache-Control: public, max-age=31536000, immutable');
-        header('Content-Disposition: inline; filename="' . $id . '.' . (TYPES[$mime] ?? 'jpg') . '"');
+        $how = (($_GET['dl'] ?? '') === '1') ? 'attachment' : 'inline';
+        header('Content-Disposition: ' . $how . '; filename="bossongs-' . $id . '.' . (TYPES[$mime] ?? 'jpg') . '"');
         readfile($file);
         exit;
     }
