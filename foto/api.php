@@ -14,6 +14,16 @@ const TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'web
 const CATS = ['ochtend', 'middag', 'avond', 'gast'];
 const ADMIN_CATS = ['ochtend', 'middag', 'avond'];
 
+// Deze versie staat in a=status, zodat van buitenaf te zien is welke code er
+// draait zonder dat je het aan de uitkomst hoeft af te leiden.
+const API_VERSION = 'a4';
+
+// De beheersleutel staat hier als SHA-256, niet als sleutel. Daarmee werkt
+// beheer zodra deze code er staat: geen bestand dat eerst geschreven en daarna
+// teruggelezen moet worden, en dus ook geen stille mislukking als dat niet lukt.
+// Uit de hash is de sleutel niet terug te rekenen.
+const ADMIN_HASH = '659be1a8b5cc92eb1cefce2d4807fb48e001da3ae6fddaad3e85286e932ec929';
+
 header('X-Content-Type-Options: nosniff');
 
 $action = (string) ($_GET['a'] ?? 'list');
@@ -136,6 +146,19 @@ function sniff(string $path): string
     return ($size && !empty($size['mime'])) ? (string) $size['mime'] : 'application/octet-stream';
 }
 
+// Het opnametijdstip komt als seconden sinds 1970 van de browser mee, die de
+// EXIF leest voordat het herschalen de metadata wegpoetst. Alles buiten een
+// redelijk venster wordt genegeerd, zodat een kapotte klok de volgorde niet
+// overhoop gooit.
+function taken_at(): int
+{
+    $raw = (int) ($_POST['taken'] ?? 0);
+    if ($raw < 946684800 || $raw > time() + 86400) {   // voor 2000, of in de toekomst
+        return 0;
+    }
+    return $raw;
+}
+
 function clean_caption(string $raw): string
 {
     $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $raw) ?? '';
@@ -155,6 +178,7 @@ function public_item(array $meta): array
         'w'       => (int) ($meta['w'] ?? 0),
         'h'       => (int) ($meta['h'] ?? 0),
         'cat'     => clean_cat((string) ($meta['cat'] ?? ''), true),
+        'taken'   => (int) ($meta['taken'] ?? 0),
         'mid'     => !empty($meta['mmime']),
         'mine'    => owns($meta),
     ];
@@ -285,6 +309,9 @@ function action_upload(): void
         'w'       => (int) $size[0],
         'h'       => (int) $size[1],
         'cat'     => $cat,
+        // Het opnametijdstip uit de EXIF, bepaald voor het herschalen: daarna
+        // is de metadata weg. Nul betekent onbekend.
+        'taken'   => taken_at(),
         'mime'    => $mime,
         'tmime'   => $tmime,
         'mmime'   => $mmime,
@@ -365,12 +392,18 @@ function action_img(): void
 // Bestaat dat bestand niet, dan staat verwijderen volledig uit.
 function admin_ok(): bool
 {
-    $key = admin_key();
-    if ($key === null) {
+    $given = (string) ($_POST['key'] ?? '');
+    if ($given === '') {
         return false;
     }
-    $given = (string) ($_POST['key'] ?? '');
-    return $given !== '' && hash_equals($key, $given);
+    // Eerst de sleutel die in de code staat; die werkt altijd zodra deze
+    // versie er staat. Daarnaast nog het bestand, zodat een sleutel later
+    // gewisseld kan worden zonder de code aan te raken.
+    if (hash_equals(ADMIN_HASH, hash('sha256', 'bossongs-beheer:' . $given))) {
+        return true;
+    }
+    $key = admin_key();
+    return $key !== null && hash_equals($key, $given);
 }
 
 function action_delete(): void
@@ -378,32 +411,56 @@ function action_delete(): void
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
         json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
     }
-    $id = (string) ($_POST['id'] ?? '');
-    if (!valid_id($id)) {
-        json_out(['ok' => false, 'error' => 'Ongeldig id'], 400);
+    // Een gast verwijdert een eigen foto met 'id'. Met de beheersleutel mag
+    // ook 'ids': een reeks in een keer, begrensd zodat een halve mislukking
+    // overzichtelijk blijft.
+    $admin = admin_ok();
+    $list  = [];
+    if ($admin && isset($_POST['ids'])) {
+        $list = array_filter(array_map('trim', explode(',', (string) $_POST['ids'])));
+        if (count($list) > 200) {
+            json_out(['ok' => false, 'error' => 'Te veel foto\'s in een keer'], 400);
+        }
+    } else {
+        $list = [(string) ($_POST['id'] ?? '')];
     }
-    $allowed = admin_ok();
-    if (!$allowed) {
+    if (!$list) {
+        json_out(['ok' => false, 'error' => 'Geen foto opgegeven'], 400);
+    }
+
+    $removed = 0;
+    foreach ($list as $id) {
+        if (!valid_id($id)) {
+            continue;
+        }
+        if (!$admin) {
+            $mine = false;
+            foreach (read_dirs() as $dir) {
+                $meta = read_meta($dir, $id);
+                if ($meta !== null) {
+                    $mine = owns($meta);
+                    break;
+                }
+            }
+            if (!$mine) {
+                json_out(['ok' => false, 'error' => 'Dit is niet jouw foto'], 403);
+            }
+        }
+        // Het JSON bestand als eerste weg: dan staat de foto meteen niet meer
+        // in de lijst, ook als het opruimen daarna halverwege blijft steken.
         foreach (read_dirs() as $dir) {
-            $meta = read_meta($dir, $id);
-            if ($meta !== null) {
-                $allowed = owns($meta);
-                break;
+            if (is_file($dir . '/' . $id . '.json') && @unlink($dir . '/' . $id . '.json')) {
+                $removed++;
+            }
+            foreach (glob($dir . '/' . $id . '.*') ?: [] as $file) {
+                @unlink($file);
             }
         }
     }
-    if (!$allowed) {
-        json_out(['ok' => false, 'error' => 'Dit is niet jouw foto'], 403);
-    }
-    $removed = false;
-    foreach (read_dirs() as $dir) {
-        foreach (glob($dir . '/' . $id . '.*') ?: [] as $file) {
-            if (@unlink($file)) {
-                $removed = true;
-            }
-        }
-    }
-    json_out(['ok' => $removed, 'error' => $removed ? null : 'Foto niet gevonden'], $removed ? 200 : 404);
+    json_out(
+        ['ok' => $removed > 0, 'removed' => $removed, 'error' => $removed ? null : 'Foto niet gevonden'],
+        $removed ? 200 : 404
+    );
 }
 
 // De beheersleutel wordt eenmalig gezet, vanaf de telefoon, door /foto/ te
@@ -500,10 +557,12 @@ function action_status(): void
     }
     json_out([
         'ok'             => $dir !== null,
+        'api'            => API_VERSION,
         'opslag'         => $label,
         'beschrijfbaar'  => $dir !== null,
         'fotos'          => $count,
-        'beheer'         => admin_key() !== null,
+        'beheer'         => ADMIN_HASH !== '' || admin_key() !== null,
+        'sleutelbestand' => admin_key() !== null,
         'php'            => PHP_VERSION,
         'fileinfo'       => function_exists('finfo_open'),
         'upload_max'     => ini_get('upload_max_filesize'),

@@ -153,6 +153,8 @@ const CSS = `
 .pick-btn:disabled{opacity:0.5;cursor:default;}
 .pick-btn.solid{background:var(--ink);color:var(--paper);}
 .pick-btn.solid:hover:not(:disabled){opacity:0.85;background:var(--ink);}
+.pick-btn.bad{margin-left:auto;background:hsl(0,55%,42%);color:#fff;}
+.pick-btn.bad:hover:not(:disabled){opacity:0.85;background:hsl(0,55%,42%);}
 .pick-count{font-size:0.76rem;color:var(--muted);font-variant-numeric:tabular-nums;}
 .own-tile.on{outline:2px solid var(--ink);outline-offset:-2px;}
 .own-tile.on img{opacity:0.55;}
@@ -285,12 +287,104 @@ function scaled(img, max, quality) {
   });
 }
 
+/* ---------- opnametijdstip ----------
+   Het herschalen gaat via een canvas en dat laat alle metadata achter, dus het
+   tijdstip moet er eerst uit. Alleen JPEG heeft EXIF; voor de rest komt er nul
+   uit en valt de volgorde terug op de volgorde van toevoegen. */
+
+function readAscii(v, base, entry, le) {
+  const count = v.getUint32(entry + 4, le);
+  const off = count > 4 ? base + v.getUint32(entry + 8, le) : entry + 8;
+  let out = "";
+  for (let i = 0; i < count && off + i < v.byteLength; i++) {
+    const c = v.getUint8(off + i);
+    if (!c) break;
+    out += String.fromCharCode(c);
+  }
+  return out;
+}
+
+// "2026:09:19 14:03:07" -> seconden sinds 1970. Als UTC gelezen: voor het
+// sorteren telt alleen dat alle foto's op dezelfde manier worden uitgelegd.
+function stamp(text) {
+  const m = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(text || "");
+  if (!m) return 0;
+  const t = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+  return isNaN(t) ? 0 : Math.floor(t / 1000);
+}
+
+function tiffDate(v, base) {
+  const le = v.getUint16(base) === 0x4949;
+  if (!le && v.getUint16(base) !== 0x4d4d) return 0;
+  if (v.getUint16(base + 2, le) !== 0x2a) return 0;
+
+  const found = {};
+  const walk = (dir, wanted) => {
+    if (dir <= 0 || base + dir + 2 > v.byteLength) return;
+    const n = v.getUint16(base + dir, le);
+    for (let i = 0; i < n; i++) {
+      const entry = base + dir + 2 + i * 12;
+      if (entry + 12 > v.byteLength) return;
+      const tag = v.getUint16(entry, le);
+      if (wanted.indexOf(tag) === -1) continue;
+      found[tag] = tag === 0x8769 ? v.getUint32(entry + 8, le) : readAscii(v, base, entry, le);
+    }
+  };
+
+  walk(v.getUint32(base + 4, le), [0x8769, 0x0132]); // ExifIFD-verwijzing, DateTime
+  if (found[0x8769]) walk(found[0x8769], [0x9003, 0x9004]); // Original, Digitized
+  return stamp(found[0x9003]) || stamp(found[0x9004]) || stamp(found[0x0132]);
+}
+
+function parseJpeg(v) {
+  if (v.byteLength < 4 || v.getUint16(0) !== 0xffd8) return 0;
+  let p = 2;
+  while (p + 4 <= v.byteLength) {
+    if (v.getUint8(p) !== 0xff) return 0;
+    const marker = v.getUint8(p + 1);
+    if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+      p += 2;
+      continue;
+    }
+    if (marker === 0xda) return 0; // vanaf hier begint de beelddata
+    const len = v.getUint16(p + 2);
+    if (
+      marker === 0xe1 &&
+      p + 10 < v.byteLength &&
+      v.getUint32(p + 4) === 0x45786966 &&
+      v.getUint16(p + 8) === 0
+    ) {
+      return tiffDate(v, p + 10);
+    }
+    if (len < 2) return 0;
+    p += 2 + len;
+  }
+  return 0;
+}
+
+function takenAt(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onerror = () => resolve(0);
+    reader.onload = () => {
+      try {
+        resolve(parseJpeg(new DataView(reader.result)));
+      } catch (e) {
+        resolve(0);
+      }
+    };
+    // De EXIF zit vooraan; een kwart megabyte is ruim genoeg.
+    reader.readAsArrayBuffer(file.slice(0, 256 * 1024));
+  });
+}
+
 async function prepare(file) {
+  const taken = await takenAt(file);
   const img = await decode(file);
   const full = await scaled(img, MAX_FULL, Q_FULL);
   const mid = await scaled(img, MAX_MID, Q_MID);
   const thumb = await scaled(img, MAX_THUMB, Q_THUMB);
-  return { full, mid, thumb };
+  return { full, mid, thumb, taken };
 }
 
 // XMLHttpRequest, omdat fetch geen voortgang van een upload geeft.
@@ -302,6 +396,7 @@ function send(parts, caption, cat, beheer, onProgress) {
     form.append("thumb", parts.thumb.blob, "thumb.jpg");
     form.append("caption", caption);
     form.append("cat", cat);
+    form.append("taken", String(parts.taken || 0));
     form.append("owner", myKey());
     if (beheer) form.append("key", beheer);
     const xhr = new XMLHttpRequest();
@@ -499,14 +594,24 @@ export default function FotoApp() {
     noteTimer.current = window.setTimeout(() => setNote(null), 4000);
   }, []);
 
-  // Het id begint met de tijd in milliseconden, dus oplopend sorteren op id
-  // geeft precies de volgorde waarin de foto's zijn toegevoegd.
+  // Binnen een dagdeel telt het opnametijdstip uit de EXIF. Heeft een foto dat
+  // niet, dan gaat hij achteraan, op de volgorde waarin hij is toegevoegd: het
+  // id begint met de tijd in milliseconden, dus oplopend sorteren op id geeft
+  // precies die volgorde terug. De gastfoto's staan juist nieuwste eerst.
   const byCat = useMemo(() => {
     const map = { ochtend: [], middag: [], avond: [], gast: [] };
     (items || []).forEach((it) => {
       (map[it.cat] || map.gast).push(it);
     });
-    CATS.forEach(({ id }) => map[id].sort((a, b) => (a.id < b.id ? -1 : 1)));
+    const inOrder = (a, b) => {
+      const ta = a.taken || 0;
+      const tb = b.taken || 0;
+      if (ta && tb && ta !== tb) return ta - tb;
+      if (ta && !tb) return -1;
+      if (!ta && tb) return 1;
+      return a.id < b.id ? -1 : 1;
+    };
+    CATS.forEach(({ id }) => map[id].sort(inOrder));
     map.gast.sort((a, b) => (a.id > b.id ? -1 : 1));
     return map;
   }, [items]);
@@ -589,6 +694,37 @@ export default function FotoApp() {
     setPhase("idle");
     setCat(to);
     say(done + " foto's verplaatst naar " + label(to) + ".", false);
+  };
+
+  /* geselecteerde foto's definitief weghalen, ook in blokken van tweehonderd */
+  const wipe = async () => {
+    const ids = picked.slice();
+    if (!ids.length) return;
+    if (!window.confirm(ids.length + " foto's definitief verwijderen?")) return;
+    setPhase("busy");
+    let done = 0;
+    try {
+      for (let i = 0; i < ids.length; i += 200) {
+        const form = new FormData();
+        form.append("ids", ids.slice(i, i + 200).join(","));
+        form.append("key", beheer);
+        form.append("owner", myKey());
+        const r = await fetch(API + "?a=delete", { method: "POST", body: form });
+        const d = await r.json();
+        if (!d || !d.ok) throw new Error((d && d.error) || "verwijderen mislukt");
+        done += d.removed;
+      }
+    } catch (e) {
+      setPhase("idle");
+      say("Verwijderen is gestopt na " + done + " foto's: " + e.message + ".", true);
+      await load();
+      return;
+    }
+    setItems((cur) => (cur || []).filter((x) => ids.indexOf(x.id) === -1));
+    setPicked([]);
+    setPicking(false);
+    setPhase("idle");
+    say(done + " foto's verwijderd.", false);
   };
 
   const toggle = (id) =>
@@ -770,6 +906,9 @@ export default function FotoApp() {
                   {x.label}
                 </button>
               ))}
+              <button className="pick-btn bad" type="button" onClick={wipe} disabled={busy}>
+                Verwijderen
+              </button>
             </div>
           )}
 
