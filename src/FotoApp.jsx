@@ -991,7 +991,7 @@ export default function FotoApp() {
       <input
         ref={pickRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
         multiple
         hidden
         onChange={(e) => {
