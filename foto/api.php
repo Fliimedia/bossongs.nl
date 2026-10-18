@@ -18,7 +18,7 @@ const OLD_CATS = ['middag', 'avond'];
 
 // Deze versie staat in a=status, zodat van buitenaf te zien is welke code er
 // draait zonder dat je het aan de uitkomst hoeft af te leiden.
-const API_VERSION = 'a7';
+const API_VERSION = 'a8';
 
 // De beheersleutel staat hier als SHA-256, niet als sleutel. Daarmee werkt
 // beheer zodra deze code er staat: geen bestand dat eerst geschreven en daarna
@@ -39,6 +39,7 @@ switch ($action) {
     case 'claim':  action_claim();  break;
     case 'recat':  action_recat();  break;
     case 'empty':  action_empty();  break;
+    case 'move':   action_move();   break;
     case 'status': action_status(); break;
     default:       json_out(['ok' => false, 'error' => 'Onbekende actie'], 400);
 }
@@ -182,6 +183,7 @@ function public_item(array $meta): array
         'h'       => (int) ($meta['h'] ?? 0),
         'cat'     => clean_cat((string) ($meta['cat'] ?? ''), true),
         'taken'   => (int) ($meta['taken'] ?? 0),
+        'sort'    => (int) ($meta['sort'] ?? 0),
         'mid'     => !empty($meta['mmime']),
         'mine'    => owns($meta),
     ];
@@ -578,6 +580,97 @@ function action_empty(): void
         }
     }
     json_out(['ok' => true, 'removed' => $removed]);
+}
+
+// Volgorde binnen een dagdeel: eerst wat een vaste plek heeft gekregen ('sort'),
+// daarna op opnametijd, daarna op het moment van toevoegen. Dit is dezelfde
+// volgorde als die de pagina zelf gebruikt.
+function order_cmp(array $a, array $b): int
+{
+    $sa = (int) ($a['sort'] ?? 0);
+    $sb = (int) ($b['sort'] ?? 0);
+    if ($sa > 0 && $sb > 0 && $sa !== $sb) {
+        return $sa <=> $sb;
+    }
+    if ($sa > 0 && $sb <= 0) {
+        return -1;
+    }
+    if ($sa <= 0 && $sb > 0) {
+        return 1;
+    }
+    $ta = (int) ($a['taken'] ?? 0);
+    $tb = (int) ($b['taken'] ?? 0);
+    if ($ta > 0 && $tb > 0 && $ta !== $tb) {
+        return $ta <=> $tb;
+    }
+    if ($ta > 0 && $tb <= 0) {
+        return -1;
+    }
+    if ($ta <= 0 && $tb > 0) {
+        return 1;
+    }
+    return strcmp((string) $a['id'], (string) $b['id']);
+}
+
+function action_move(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
+    }
+    if (!admin_ok()) {
+        json_out(['ok' => false, 'error' => 'Beheer is niet actief'], 403);
+    }
+    $id = (string) ($_POST['id'] ?? '');
+    $to = (int) ($_POST['to'] ?? 0);
+    if (!valid_id($id) || $to < 1) {
+        json_out(['ok' => false, 'error' => 'Foto of plek ontbreekt'], 400);
+    }
+    $rows = [];
+    $cat  = '';
+    foreach (read_dirs() as $dir) {
+        foreach (glob($dir . '/*.json') ?: [] as $file) {
+            $meta = json_decode((string) file_get_contents($file), true);
+            if (!is_array($meta) || empty($meta['id'])) {
+                continue;
+            }
+            $rows[] = ['dir' => $dir, 'meta' => $meta];
+            if ((string) $meta['id'] === $id) {
+                $cat = clean_cat((string) ($meta['cat'] ?? ''), true);
+            }
+        }
+    }
+    if ($cat === '') {
+        json_out(['ok' => false, 'error' => 'Foto niet gevonden'], 404);
+    }
+    if (!in_array($cat, ADMIN_CATS, true)) {
+        json_out(['ok' => false, 'error' => 'Alleen foto\'s in een dagdeel hebben een volgorde'], 400);
+    }
+    $same = array_values(array_filter($rows, function (array $r) use ($cat): bool {
+        return clean_cat((string) ($r['meta']['cat'] ?? ''), true) === $cat;
+    }));
+    usort($same, function (array $a, array $b): int {
+        return order_cmp($a['meta'], $b['meta']);
+    });
+    $mine = null;
+    $rest = [];
+    foreach ($same as $r) {
+        if ((string) $r['meta']['id'] === $id) {
+            $mine = $r;
+        } else {
+            $rest[] = $r;
+        }
+    }
+    $at = max(0, min(count($rest), $to - 1));
+    array_splice($rest, $at, 0, [$mine]);
+    $order = [];
+    foreach ($rest as $i => $r) {
+        $order[] = (string) $r['meta']['id'];
+        if ((int) ($r['meta']['sort'] ?? 0) !== $i + 1) {
+            $r['meta']['sort'] = $i + 1;
+            write_meta($r['dir'], $r['meta']);
+        }
+    }
+    json_out(['ok' => true, 'cat' => $cat, 'pos' => $at + 1, 'order' => $order]);
 }
 
 function admin_key(): ?string

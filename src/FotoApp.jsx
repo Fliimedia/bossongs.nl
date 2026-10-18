@@ -430,6 +430,7 @@ export default function FotoApp() {
   const [view, setView] = useState(null); // { list, i }
 
   const pickRef = useRef(null);
+  const lastSig = useRef("");
   const noteTimer = useRef(0);
 
   /* De beheersleutel komt eenmalig binnen via ?beheer= en blijft daarna staan.
@@ -500,7 +501,13 @@ export default function FotoApp() {
       const r = await fetch(API + "?a=list", { method: "POST", body, cache: "no-store" });
       const d = await r.json();
       if (d && d.ok && Array.isArray(d.items)) {
-        setItems(d.items);
+        // Een ongewijzigde lijst laat de pagina met rust; dat scheelt
+        // schuifelen tijdens het bladeren.
+        const sig = JSON.stringify(d.items.map((x) => [x.id, x.cat, x.sort, x.taken, x.caption]));
+        if (sig !== lastSig.current) {
+          lastSig.current = sig;
+          setItems(d.items);
+        }
         setLoadError(false);
       } else {
         setLoadError(true);
@@ -543,6 +550,11 @@ export default function FotoApp() {
       (map[it.cat] || map.gast).push(it);
     });
     const inOrder = (a, b) => {
+      const sa = a.sort || 0;
+      const sb = b.sort || 0;
+      if (sa && sb && sa !== sb) return sa - sb;
+      if (sa && !sb) return -1;
+      if (!sa && sb) return 1;
       const ta = a.taken || 0;
       const tb = b.taken || 0;
       if (ta && tb && ta !== tb) return ta - tb;
@@ -561,6 +573,30 @@ export default function FotoApp() {
   const own = byCat.gast;
   const focusId = at[cat];
   const onFocus = useCallback((id) => setAt((a) => (a[cat] === id ? a : { ...a, [cat]: id })), [cat]);
+
+  // Met beheer: een foto een andere plek in het dagdeel geven.
+  const moveTo = useCallback(
+    async (id, n) => {
+      try {
+        const form = new FormData();
+        form.append("key", beheer);
+        form.append("id", id);
+        form.append("to", String(n));
+        const r = await fetch(API + "?a=move", { method: "POST", body: form });
+        const d = await r.json();
+        if (!d || !d.ok) throw new Error((d && d.error) || "verplaatsen mislukt");
+        const rank = {};
+        d.order.forEach((x, i) => (rank[x] = i + 1));
+        lastSig.current = "";
+        setItems((cur) => (cur || []).map((x) => (rank[x.id] ? { ...x, sort: rank[x.id] } : x)));
+        setAt((a) => ({ ...a, [d.cat]: id }));
+        say("Foto staat nu op plek " + d.pos + ".", false);
+      } catch (e) {
+        say("Verplaatsen is mislukt: " + e.message + ".", true);
+      }
+    },
+    [beheer, say]
+  );
 
   const toggleFav = useCallback((id) => {
     setFavs((cur) => {
@@ -877,6 +913,7 @@ export default function FotoApp() {
             onOnlyFav={setOnlyFav}
             favCount={favCount}
             blank="Nog geen favorieten in dit dagdeel."
+            onMove={beheer && !onlyFav ? moveTo : null}
           />
         )}
         {items !== null && all.length === 0 && !onlyFav && (

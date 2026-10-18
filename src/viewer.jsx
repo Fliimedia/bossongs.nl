@@ -55,16 +55,24 @@ const Reel = forwardRef(function Reel(
   const box = useRef(null);
   const found = shots.findIndex((s) => s.id === focusId);
   const index = found < 0 ? 0 : found;
+  const own = useRef(undefined); // de foto die de carrousel zelf als laatste meldde
+  const lastScroll = useRef(0);
 
-  // De positie volgt de gekozen foto: ook als het lijstje verandert, of als
-  // de lichtbak een andere foto heeft laten zien, blijft de carrousel daar.
+  // De positie volgt de gekozen foto als die van buiten komt (raster, lichtbak,
+  // deellink) of als de lijst verschuift. Tijdens het vegen zelf blijft de
+  // carrousel met rust: de React-staat loopt dan een paar beeldjes achter, en
+  // terugzetten naar die oude stand voelde als terugspringen.
   useLayoutEffect(() => {
     const el = box.current;
-    if (!el || !el.clientWidth) return;
-    if (Math.round(el.scrollLeft / el.clientWidth) !== index) {
-      el.scrollTo({ left: index * el.clientWidth, behavior: "instant" });
+    if (!el || !el.clientWidth || found < 0) return;
+    const external = focusId !== own.current;
+    const idle = Date.now() - lastScroll.current > 300;
+    if (!external && !idle) return;
+    own.current = focusId;
+    if (Math.round(el.scrollLeft / el.clientWidth) !== found) {
+      el.scrollTo({ left: found * el.clientWidth, behavior: "instant" });
     }
-  }, [focusId, shots, index]);
+  }, [focusId, shots, found]);
 
   const here = () => {
     const el = box.current;
@@ -73,9 +81,13 @@ const Reel = forwardRef(function Reel(
   };
 
   const onScroll = () => {
+    lastScroll.current = Date.now();
     const k = here();
     const it = shots[k];
-    if (it && it.id !== focusId) onFocus(it.id);
+    if (it && it.id !== own.current) {
+      own.current = it.id;
+      onFocus(it.id);
+    }
   };
 
   useImperativeHandle(ref, () => ({
@@ -182,7 +194,7 @@ function Grid({ shots, focusId, favs, onPick }) {
 /* ---------- carrousel met werkbalk ---------- */
 
 export function Viewer({
-  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank,
+  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove,
 }) {
   const [mode, setMode] = useState("reel");
   const [playing, setPlaying] = useState(false);
@@ -214,6 +226,16 @@ export function Viewer({
   }, [playing, shots.length]);
 
   const stop = () => setPlaying(false);
+
+  // Alleen met beheer: de positie in het dagdeel is in te vullen.
+  const [draft, setDraft] = useState("");
+  useEffect(() => setDraft(String(index + 1)), [index, shots.length]);
+  const target = parseInt(draft, 10);
+  const valid = Number.isFinite(target) && target >= 1 && target <= shots.length;
+  const submit = (e) => {
+    e.preventDefault();
+    if (onMove && cur && valid && target !== index + 1) onMove(cur.id, target);
+  };
 
   return (
     <div className="stage">
@@ -269,9 +291,27 @@ export function Viewer({
             </button>
           )}
         </div>
-        <p className="meter">
-          {empty ? "0" : asGrid ? shots.length : <><em>{index + 1}</em> / {shots.length}</>}
-        </p>
+        {onMove && !asGrid && shots.length > 1 ? (
+          <form className="meter jump" onSubmit={submit}>
+            <input
+              type="number"
+              inputMode="numeric"
+              min="1"
+              max={shots.length}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              aria-label="Positie"
+            />
+            <span>/ {shots.length}</span>
+            {valid && target !== index + 1 && (
+              <button type="submit" className="go">Verplaats</button>
+            )}
+          </form>
+        ) : (
+          <p className="meter">
+            {empty ? "0" : asGrid ? shots.length : <><em>{index + 1}</em> / {shots.length}</>}
+          </p>
+        )}
         <div className="tr">
           {!asGrid && shots.length > 1 && (
             <button
@@ -671,6 +711,13 @@ export const VIEW_CSS = `
   font-variant-numeric:tabular-nums;text-align:center;}
 .meter em{font-style:normal;color:var(--ink);}
 
+.meter.jump{display:flex;align-items:center;gap:0.4rem;}
+.meter.jump input{width:3.4rem;height:2rem;padding:0;border:0;border-radius:8px;text-align:center;
+  background:rgba(21,21,15,0.07);color:var(--ink);font:inherit;font-size:0.8rem;
+  letter-spacing:0;-moz-appearance:textfield;appearance:textfield;}
+.meter.jump input::-webkit-outer-spin-button,.meter.jump input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.album .meter.jump .go{height:2rem;padding:0 0.7rem;border-radius:8px;background:var(--ink);
+  color:var(--paper);font-size:0.72rem;font-weight:500;letter-spacing:0.02em;}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
 @media (min-width:1100px){.grid{grid-template-columns:repeat(4,1fr);}}
 .cell{position:relative;display:block;width:100%;padding:0;aspect-ratio:4/5;overflow:hidden;
