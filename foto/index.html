@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Fotoalbum, Nyarayek en Sten</title>
-    <meta name="build" content="b38" />
+    <meta name="build" content="b39" />
     <meta name="description" content="Deel je foto's van de bruiloft van Nyarayek en Sten." />
     <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#f8f5ee" />
@@ -33,6 +33,7 @@ Error generating stack: `+o.message+`
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
 .slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
+  max-height:max(18rem,calc(100dvh - 13.5rem));
   overflow:hidden;background:rgba(21,21,15,0.05);}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
@@ -157,7 +158,7 @@ Error generating stack: `+o.message+`
   .reel{padding-inline:calc((100% - var(--h) * 0.8) / 2);gap:1.25rem;}
   .reel{-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);}
-  .slide{flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
+  .slide{max-height:none;flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
     transition:opacity 400ms ease,transform 400ms cubic-bezier(.2,.7,.3,1);}
   .slide:not(.cur){opacity:0.38;transform:scale(0.93);}
   .slide:not(.cur) .dl{display:none;}
@@ -200,8 +201,8 @@ Error generating stack: `+o.message+`
 .chip .lbl{display:none;}
 
 /* kop */
-.head{padding:3.5rem 0 1.75rem;text-align:center;}
-.head .logo{display:flex;justify-content:center;margin:0 0 1.1rem;color:var(--ink);}
+.head{padding:1.1rem 0 0.9rem;text-align:center;}
+.head .logo{display:flex;justify-content:center;margin:0 0 0.6rem;color:var(--ink);}
 .head .logo svg{height:2.1rem;width:auto;display:block;fill:currentColor;}
 .head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
   font-size:clamp(2rem,8vw,2.75rem);line-height:1.08;letter-spacing:-0.01em;}
@@ -215,7 +216,7 @@ Error generating stack: `+o.message+`
 .add:disabled{opacity:0.5;cursor:default;}
 
 /* dagdeelfilters */
-.chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 1.25rem;}
+.chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 0.7rem;}
 .chip{flex:1 1 0;min-width:0;max-width:3.5rem;height:2.6rem;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;color:var(--muted);transition:background-color 200ms ease,color 200ms ease;}
 .album .chip{color:var(--muted);}
 .album .chip:hover{color:var(--gold);}

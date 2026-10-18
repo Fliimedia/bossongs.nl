@@ -97,8 +97,8 @@ const CSS = `
 .chip .lbl{display:none;}
 
 /* kop */
-.head{padding:3.5rem 0 1.75rem;text-align:center;}
-.head .logo{display:flex;justify-content:center;margin:0 0 1.1rem;color:var(--ink);}
+.head{padding:1.1rem 0 0.9rem;text-align:center;}
+.head .logo{display:flex;justify-content:center;margin:0 0 0.6rem;color:var(--ink);}
 .head .logo svg{height:2.1rem;width:auto;display:block;fill:currentColor;}
 .head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
   font-size:clamp(2rem,8vw,2.75rem);line-height:1.08;letter-spacing:-0.01em;}
@@ -112,7 +112,7 @@ const CSS = `
 .add:disabled{opacity:0.5;cursor:default;}
 
 /* dagdeelfilters */
-.chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 1.25rem;}
+.chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 0.7rem;}
 .chip{flex:1 1 0;min-width:0;max-width:3.5rem;height:2.6rem;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;color:var(--muted);transition:background-color 200ms ease,color 200ms ease;}
 .album .chip{color:var(--muted);}
 .album .chip:hover{color:var(--gold);}

@@ -819,6 +819,7 @@ export const VIEW_CSS = `
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
 .slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
+  max-height:max(18rem,calc(100dvh - 13.5rem));
   overflow:hidden;background:rgba(21,21,15,0.05);}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
@@ -943,7 +944,7 @@ export const VIEW_CSS = `
   .reel{padding-inline:calc((100% - var(--h) * 0.8) / 2);gap:1.25rem;}
   .reel{-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);}
-  .slide{flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
+  .slide{max-height:none;flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
     transition:opacity 400ms ease,transform 400ms cubic-bezier(.2,.7,.3,1);}
   .slide:not(.cur){opacity:0.38;transform:scale(0.93);}
   .slide:not(.cur) .dl{display:none;}
