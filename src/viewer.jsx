@@ -73,6 +73,30 @@ const Reel = forwardRef(function Reel(
     return k.length > 1 ? k[1].offsetLeft - k[0].offsetLeft : el.clientWidth;
   };
 
+  // Mobiel: de onderkant van de foto tegen de onderkant van het scherm.
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const fit = () => {
+      const root = document.documentElement;
+      if (window.innerWidth >= 900) {
+        root.style.removeProperty("--avail");
+        return;
+      }
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      root.style.setProperty("--avail", Math.max(0, window.innerHeight - top) + "px");
+    };
+    fit();
+    const t = window.setTimeout(fit, 400);
+    window.addEventListener("resize", fit);
+    window.addEventListener("orientationchange", fit);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", fit);
+      window.removeEventListener("orientationchange", fit);
+    };
+  }, []);
+
   useLayoutEffect(() => {
     const el = box.current;
     const w = step();
@@ -818,8 +842,8 @@ export const VIEW_CSS = `
   scroll-behavior:smooth;overscroll-behavior-x:contain;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
-  max-height:max(18rem,calc(100dvh - 13.5rem));
+.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:auto;
+  height:max(18rem,var(--avail,calc(100dvh - 13.5rem)));
   overflow:hidden;background:rgba(21,21,15,0.05);}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
