@@ -957,6 +957,7 @@ export default function FotoApp() {
             onRemove={null}
             onEdge={onEdge}
             below={chips("chips-below")}
+            catLabel={label(cat)}
           />
         )}
         {items !== null && !canEdit && all.length === 0 && !onlyFav && (

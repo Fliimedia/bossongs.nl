@@ -51,7 +51,7 @@ const Cross = () => (
 
 
 const Reel = forwardRef(function Reel(
-  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge, onGrid, onRemove },
+  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge, onGrid, onRemove, catLabel },
   ref
 ) {
   const box = useRef(null);
@@ -280,7 +280,7 @@ const Reel = forwardRef(function Reel(
                 {item.caption && <span className="cap">{item.caption}</span>}
               </button>
               <div className="ov">
-                <span className="cnt">{i + 1} / {shots.length}</span>
+                <span className="cnt">{catLabel ? catLabel + " \u00b7 " : ""}{i + 1} / {shots.length}</span>
                 <div className="ovr">
                   {onGrid && (
                     <button className="ob" type="button" onClick={onGrid} aria-label="Overzicht tonen">
@@ -353,7 +353,7 @@ function Grid({ shots, focusId, favs, onPick }) {
 /* ---------- carrousel met werkbalk ---------- */
 
 export function Viewer({
-  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel, onEdge, below,
+  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel, onEdge, below, catLabel,
 }) {
   const [mode, setMode] = useState("reel");
   const [playing, setPlaying] = useState(false);
@@ -454,6 +454,7 @@ export function Viewer({
           uploading={uploading}
           uploadLabel={uploadLabel}
           onEdge={onEdge}
+          catLabel={catLabel}
           onRemove={
             onRemove
               ? (id) => {
