@@ -144,7 +144,7 @@ const Reel = forwardRef(function Reel(
   };
 
   const ratio = Math.min(
-    1.34,
+    2,
     Math.max(0.75, ...shots.map((x) => (x.w && x.h ? x.h / x.w : 1.25)))
   );
 
