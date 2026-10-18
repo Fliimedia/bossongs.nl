@@ -98,11 +98,12 @@ html,body{overscroll-behavior-x:none;}
 .chip .lbl{display:none;}
 
 /* kop */
-.head{padding:1.1rem 0 0.9rem;text-align:center;}
-.head .logo{display:flex;justify-content:center;margin:0 0 0.6rem;color:var(--ink);}
-.head .logo svg{height:2.1rem;width:auto;display:block;fill:currentColor;}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:0 0.7rem;padding:0.6rem 0.5rem 0.55rem;text-align:left;}
+.head > :not(.logo):not(h1){flex-basis:100%;}
+.head .logo{display:flex;margin:0;color:var(--ink);}
+.head .logo svg{height:1.9rem;width:auto;display:block;fill:currentColor;}
 .head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
-  font-size:clamp(2rem,8vw,2.75rem);line-height:1.08;letter-spacing:-0.01em;}
+  font-size:1.6rem;line-height:1.1;letter-spacing:-0.01em;}
 .head p{margin:0.5rem 0 0;font-size:0.95rem;letter-spacing:0.02em;color:var(--muted);}
 .add{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;
   margin-top:1.5rem;min-height:2.875rem;padding:0 1.35rem;border-radius:999px;
@@ -123,8 +124,9 @@ html,body{overscroll-behavior-x:none;}
 @media (min-width:900px){
   .shell{max-width:none;display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;padding:0 2.5rem;}
   .rail{position:sticky;top:0;align-self:start;height:100svh;display:flex;flex-direction:column;justify-content:center;}
-  .head{text-align:left;padding:0 0 1.75rem;}
-  .head .logo{justify-content:flex-start;}
+  .head{display:block;text-align:left;padding:0 0 1.75rem;}
+  .head .logo{justify-content:flex-start;margin:0 0 1.1rem;}
+  .head .logo svg{height:2.1rem;}
   .head h1{font-size:2.6rem;}
   .chips{flex-direction:column;align-items:stretch;gap:0.2rem;padding:0;}
   .chips-rail{display:flex;}

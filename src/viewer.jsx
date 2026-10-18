@@ -49,7 +49,6 @@ const Cross = () => (
 
 /* ---------- carrousel ---------- */
 
-let autoY = 0; // laatste automatische scrollpositie op mobiel
 
 const Reel = forwardRef(function Reel(
   { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge },
@@ -82,17 +81,13 @@ const Reel = forwardRef(function Reel(
     if (!el) return;
     const fit = () => {
       if (window.innerWidth >= 900) return;
-      if (Math.abs(window.scrollY - autoY) > 2) return;
       const r = el.getBoundingClientRect();
       const top = r.top + window.scrollY;
-      // De dagdeel-iconen onder de foto horen ook nog in beeld.
-      const nb = el.closest(".stage") && el.closest(".stage").querySelector(".chips-below");
+      // De dagdeel-iconen onder de foto horen ook in beeld.
+      const st = el.closest(".stage");
+      const nb = st && st.querySelector(".chips-below");
       const extra = nb ? Math.max(0, nb.getBoundingClientRect().bottom - r.bottom) : 0;
-      const avail = Math.max(0, window.innerHeight - top - extra);
-      el.style.setProperty("--avail", avail + "px");
-      const y = Math.max(0, Math.round(el.offsetHeight - avail));
-      autoY = y;
-      if (Math.abs(window.scrollY - y) > 1) window.scrollTo({ top: y, behavior: "instant" });
+      el.style.setProperty("--avail", Math.max(0, window.innerHeight - top - extra) + "px");
     };
     fit();
     const raf = window.requestAnimationFrame(fit);
@@ -947,7 +942,7 @@ export const VIEW_CSS = `
   scroll-behavior:smooth;overscroll-behavior-x:none;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.reel{height:max(var(--avail,0px),calc((100vw - 4px) * var(--r,1.25)));align-items:flex-end;}
+.reel{height:max(14rem,var(--avail,calc((100vw - 4px) * var(--r,1.25))));align-items:flex-end;}
 .slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
   height:auto;max-height:100%;overflow:hidden;}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
