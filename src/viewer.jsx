@@ -935,8 +935,8 @@ export const VIEW_CSS = `
   scroll-behavior:smooth;overscroll-behavior-x:none;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
-  height:auto;max-height:max(14rem,var(--avail,100vh));overflow:hidden;}
+.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:auto;
+  height:max(14rem,var(--avail,calc((100vw - 4px) * 1.25)));overflow:hidden;}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .slide .main{opacity:0;transition:opacity 380ms ease;}

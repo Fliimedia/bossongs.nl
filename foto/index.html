@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Fotoalbum, Nyarayek en Sten</title>
-    <meta name="build" content="b49" />
+    <meta name="build" content="b50" />
     <meta name="description" content="Deel je foto's van de bruiloft van Nyarayek en Sten." />
     <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#f8f5ee" />
@@ -32,8 +32,8 @@ Error generating stack: `+o.message+`
   scroll-behavior:smooth;overscroll-behavior-x:none;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
-  height:auto;max-height:max(14rem,var(--avail,100vh));overflow:hidden;}
+.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:auto;
+  height:max(14rem,var(--avail,calc((100vw - 4px) * 1.25)));overflow:hidden;}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .slide .main{opacity:0;transition:opacity 380ms ease;}
@@ -200,9 +200,8 @@ html,body{overscroll-behavior-x:none;}
 .chip .lbl{display:none;}
 
 /* kop */
-.head{display:flex;flex-wrap:wrap;align-items:center;gap:0 0.7rem;padding:0.6rem 0.5rem 0.55rem;text-align:left;}
-.head > :not(.logo):not(h1){flex-basis:100%;}
-.head .logo{display:flex;margin:0;color:var(--ink);}
+.head{padding:0.6rem 0.5rem 0.55rem;text-align:center;}
+.head .logo{display:flex;justify-content:center;margin:0 0 0.3rem;color:var(--ink);}
 .head .logo svg{height:1.9rem;width:auto;display:block;fill:currentColor;}
 .head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
   font-size:1.6rem;line-height:1.1;letter-spacing:-0.01em;}

@@ -98,9 +98,8 @@ html,body{overscroll-behavior-x:none;}
 .chip .lbl{display:none;}
 
 /* kop */
-.head{display:flex;flex-wrap:wrap;align-items:center;gap:0 0.7rem;padding:0.6rem 0.5rem 0.55rem;text-align:left;}
-.head > :not(.logo):not(h1){flex-basis:100%;}
-.head .logo{display:flex;margin:0;color:var(--ink);}
+.head{padding:0.6rem 0.5rem 0.55rem;text-align:center;}
+.head .logo{display:flex;justify-content:center;margin:0 0 0.3rem;color:var(--ink);}
 .head .logo svg{height:1.9rem;width:auto;display:block;fill:currentColor;}
 .head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
   font-size:1.6rem;line-height:1.1;letter-spacing:-0.01em;}
