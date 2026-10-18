@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CAT_ICONS } from "./catIcons.js";
-import bLetter from "./b-letter.svg";
+import bLetter from "./monogram.svg";
 import { Viewer, Lightbox, VIEW_CSS, imgUrl } from "./viewer.jsx";
 
 const API = "api.php";
@@ -94,7 +94,7 @@ const CSS = `
 /* kop */
 .head{padding:3.5rem 0 1.75rem;text-align:center;}
 .head .logo{display:flex;justify-content:center;margin:0 0 1.1rem;color:var(--ink);}
-.head .logo svg{height:2.6rem;width:auto;display:block;fill:currentColor;}
+.head .logo svg{height:2.1rem;width:auto;display:block;fill:currentColor;}
 .head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
   font-size:clamp(2rem,8vw,2.75rem);line-height:1.08;letter-spacing:-0.01em;}
 .head p{margin:0.5rem 0 0;font-size:0.95rem;letter-spacing:0.02em;color:var(--muted);}
