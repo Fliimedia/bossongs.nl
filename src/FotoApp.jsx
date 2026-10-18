@@ -415,14 +415,25 @@ function readSaved() {
   try {
     const raw = JSON.parse(localStorage.getItem("foto-pos") || "{}");
     if (raw && CAT_IDS.indexOf(raw.cat) !== -1) out.cat = raw.cat;
-    if (raw && raw.at && typeof raw.at === "object") out.at = raw.at;
     const f = JSON.parse(localStorage.getItem("foto-favs") || "[]");
     if (Array.isArray(f)) out.favs = new Set(f.filter((x) => typeof x === "string"));
   } catch (e) {
     /* geen opslag beschikbaar: dan begint alles bij het begin */
   }
-  // Een link als #diner-23 gaat voor wat er onthouden was.
-  const m = /^#([a-z]+)-(\d+)$/.exec(window.location.hash || "");
+  // De plek in de carrousel geldt alleen binnen dit bezoek: na verversen begint
+  // elk dagdeel weer bij de eerste foto. Een link als #diner-23 telt alleen
+  // als hij net is geopend, niet bij verversen.
+  let reloaded = false;
+  try {
+    const nav = performance.getEntriesByType("navigation")[0];
+    reloaded = !!nav && nav.type === "reload";
+  } catch (e) {
+    reloaded = false;
+  }
+  if (reloaded && window.location.hash) {
+    window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+  }
+  const m = reloaded ? null : /^#([a-z]+)-(\d+)$/.exec(window.location.hash || "");
   if (m && CAT_IDS.indexOf(m[1]) !== -1) {
     out.cat = m[1];
     out.link = { cat: m[1], n: parseInt(m[2], 10) };
@@ -631,11 +642,11 @@ export default function FotoApp() {
   // Wat er onthouden moet worden, blijft op dit toestel staan.
   useEffect(() => {
     try {
-      localStorage.setItem("foto-pos", JSON.stringify({ cat, at }));
+      localStorage.setItem("foto-pos", JSON.stringify({ cat }));
     } catch (e) {
       /* niet erg */
     }
-  }, [cat, at]);
+  }, [cat]);
   useEffect(() => {
     try {
       localStorage.setItem("foto-favs", JSON.stringify([...favs]));
@@ -668,20 +679,6 @@ export default function FotoApp() {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
-
-  // De adresbalk volgt de foto, zodat de link zelf al een deellink is.
-  const syncHash = useCallback(() => {
-    const k = Math.max(0, all.findIndex((x) => x.id === focusId));
-    if (all.length) {
-      const h = "#" + cat + "-" + (k + 1);
-      if (window.location.hash !== h) {
-        window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search + h);
-      }
-    }
-  }, [all, cat, focusId]);
-  useEffect(() => {
-    if (view === null) syncHash();
-  });
 
   /* uploaden */
   const onFiles = async (fileList) => {
@@ -829,13 +826,6 @@ export default function FotoApp() {
       const it = view.list[view.i];
       if (it) setAt((a) => (a[view.cat] === it.id ? a : { ...a, [view.cat]: it.id }));
     }
-  }, [view]);
-
-  // Na het sluiten corrigeert de terugknop de adresbalk soms net te laat.
-  useEffect(() => {
-    if (view !== null) return undefined;
-    const t = window.setTimeout(syncHash, 80);
-    return () => window.clearTimeout(t);
   }, [view]);
 
   const remove = async (id) => {
