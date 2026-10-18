@@ -224,16 +224,10 @@ const Reel = forwardRef(function Reel(
     };
   }, []);
 
-  const ratio = Math.min(
-    2,
-    Math.max(0.75, ...shots.map((x) => (x.w && x.h ? x.h / x.w : 1.25)))
-  );
-
   return (
     <div className="reel-box">
       <div
         className="reel"
-        style={{ "--r": ratio }}
         ref={box}
         onScroll={onScroll}
         onPointerDown={onUser}
@@ -245,7 +239,6 @@ const Reel = forwardRef(function Reel(
             <div
               className={"slide" + (i === index ? " cur" : "")}
               key={item.id}
-              style={item.w && item.h ? { aspectRatio: item.w + " / " + item.h } : undefined}
             >
               <button
                 className="hit"
@@ -942,13 +935,11 @@ export const VIEW_CSS = `
   scroll-behavior:smooth;overscroll-behavior-x:none;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.reel{height:max(14rem,var(--avail,calc((100vw - 4px) * var(--r,1.25))));align-items:flex-end;}
 .slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
-  height:auto;max-height:100%;overflow:hidden;}
+  height:auto;max-height:max(14rem,var(--avail,100vh));overflow:hidden;}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-.slide .ph{object-fit:contain;}
-.slide .main{object-fit:contain;opacity:0;transition:opacity 380ms ease;}
+.slide .main{opacity:0;transition:opacity 380ms ease;}
 .slide .main.in{opacity:1;}
 .slide .cap{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 0.9rem 0.8rem;
   background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.55));
@@ -1065,7 +1056,6 @@ export const VIEW_CSS = `
 /* groot scherm: de foto's krijgen de hoogte van het scherm, de buren staan er gedimd naast */
 @media (min-width:900px){
   .stage{left:auto;transform:none;width:100%;--h:max(22rem,calc(100svh - 9rem));}
-  .reel{height:auto;align-items:stretch;}
   .reel{padding-inline:calc((100% - var(--h) * 0.8) / 2);gap:1.25rem;}
   .reel{-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);}
