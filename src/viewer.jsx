@@ -50,7 +50,7 @@ const Cross = () => (
 /* ---------- carrousel ---------- */
 
 const Reel = forwardRef(function Reel(
-  { shots, focusId, onFocus, onOpen, reach, onUser },
+  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel },
   ref
 ) {
   const box = useRef(null);
@@ -73,28 +73,20 @@ const Reel = forwardRef(function Reel(
     return k.length > 1 ? k[1].offsetLeft - k[0].offsetLeft : el.clientWidth;
   };
 
-  // Mobiel: de onderkant van de foto tegen de onderkant van het scherm.
+  // Mobiel: na het openen staat de onderkant van de foto tegen de onderkant van het scherm.
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
     const fit = () => {
-      const root = document.documentElement;
-      if (window.innerWidth >= 900) {
-        root.style.removeProperty("--avail");
-        return;
-      }
+      if (window.innerWidth >= 900 || window.scrollY > 4) return;
       const top = el.getBoundingClientRect().top + window.scrollY;
-      root.style.setProperty("--avail", Math.max(0, window.innerHeight - top) + "px");
+      el.style.setProperty("--avail", Math.max(0, window.innerHeight - top) + "px");
+      const over = el.getBoundingClientRect().bottom - window.innerHeight;
+      if (over > 1) window.scrollTo({ top: over, behavior: "instant" });
     };
     fit();
     const t = window.setTimeout(fit, 400);
-    window.addEventListener("resize", fit);
-    window.addEventListener("orientationchange", fit);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("resize", fit);
-      window.removeEventListener("orientationchange", fit);
-    };
+    return () => window.clearTimeout(t);
   }, []);
 
   useLayoutEffect(() => {
@@ -151,10 +143,16 @@ const Reel = forwardRef(function Reel(
     if (el) el.scrollBy({ left: d * step(), behavior: "smooth" });
   };
 
+  const ratio = Math.min(
+    1.34,
+    Math.max(0.75, ...shots.map((x) => (x.w && x.h ? x.h / x.w : 1.25)))
+  );
+
   return (
     <div className="reel-box">
       <div
         className="reel"
+        style={{ "--r": ratio }}
         ref={box}
         onScroll={onScroll}
         onPointerDown={onUser}
@@ -199,6 +197,18 @@ const Reel = forwardRef(function Reel(
                 )}
                 {item.caption && <span className="cap">{item.caption}</span>}
               </button>
+              {onUpload && (
+                <button
+                  className="up"
+                  type="button"
+                  onClick={onUpload}
+                  disabled={uploading}
+                  aria-label={uploadLabel}
+                  title={uploadLabel}
+                >
+                  <PIcon name="upload" size={20} />
+                </button>
+              )}
               <a
                 className="dl"
                 href={imgUrl(item.id, "full", true)}
@@ -326,7 +336,7 @@ export function Viewer({
 
   return (
     <div className={"stage" + (onUpload ? " has-up" : "")}>
-      {onUpload && (
+      {onUpload && (empty || mode !== "reel") && (
         <button
           className="up"
           type="button"
@@ -351,6 +361,9 @@ export function Viewer({
           }}
           reach={reach}
           onUser={stop}
+          onUpload={onUpload}
+          uploading={uploading}
+          uploadLabel={uploadLabel}
         />
       )}
       {!empty && mode === "grid" && (
@@ -846,7 +859,7 @@ export const VIEW_CSS = `
   scroll-behavior:smooth;overscroll-behavior-x:contain;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.reel{height:max(18rem,var(--avail,calc(100dvh - 13.5rem)));align-items:flex-end;}
+.reel{height:max(var(--avail,0px),calc((100vw - 4px) * var(--r,1.25)));align-items:flex-end;}
 .slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
   height:auto;max-height:100%;overflow:hidden;}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
@@ -976,8 +989,8 @@ export const VIEW_CSS = `
   .slide{max-height:none;flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
     transition:opacity 400ms ease,transform 400ms cubic-bezier(.2,.7,.3,1);}
   .slide:not(.cur){opacity:0.38;transform:scale(0.93);}
-  .slide:not(.cur) .dl{display:none;}
-  .stage.has-up .slide .dl{right:0.65rem;}
+  .slide:not(.cur) .dl,.slide:not(.cur) .up{display:none;}
+  .stage.has-up .slide .dl{right:3.55rem;}
   .tools{width:calc(var(--h) * 0.8);margin:0 auto;}
   .blank{width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;margin:0 auto;}
   .grid{grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:0.5rem;}
