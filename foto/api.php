@@ -25,6 +25,7 @@ switch ($action) {
     case 'img':    action_img();    break;
     case 'delete': action_delete(); break;
     case 'claim':  action_claim();  break;
+    case 'recat':  action_recat();  break;
     case 'status': action_status(); break;
     default:       json_out(['ok' => false, 'error' => 'Onbekende actie'], 400);
 }
@@ -246,7 +247,21 @@ function action_upload(): void
     $mmime = $side['mid'];
 
     $caption = clean_caption((string) ($_POST['caption'] ?? ''));
-    $cat     = clean_cat((string) ($_POST['cat'] ?? ''), admin_ok());
+
+    // Een dagdeel vraagt om de beheersleutel. Zonder sleutel weigeren we,
+    // in plaats van de foto stilletjes bij de gastfoto's te zetten: zo'n
+    // stille verschuiving kost pas uren later moeite om terug te draaien.
+    $wanted = strtolower(trim((string) ($_POST['cat'] ?? 'gast')));
+    if ($wanted === '') {
+        $wanted = 'gast';
+    }
+    if (!in_array($wanted, CATS, true)) {
+        json_out(['ok' => false, 'error' => 'Onbekend dagdeel'], 400);
+    }
+    if (in_array($wanted, ADMIN_CATS, true) && !admin_ok()) {
+        json_out(['ok' => false, 'error' => 'Beheer is niet actief, dus een dagdeel kan niet'], 403);
+    }
+    $cat = $wanted;
 
     // Twaalf hex tekens tijd in milliseconden plus twaalf willekeurig.
     $id   = sprintf('%012x', (int) floor(microtime(true) * 1000)) . bin2hex(random_bytes(6));
@@ -414,8 +429,54 @@ function action_claim(): void
     if (file_put_contents($dir . '/.beheer', $key, LOCK_EX) === false) {
         json_out(['ok' => false, 'error' => 'Sleutel opslaan is mislukt'], 500);
     }
-    @chmod($dir . '/.beheer', 0600);
+    // 0644 en niet strenger: de opslag staat buiten de webroot, dus het bestand
+    // is toch niet op te vragen, en een strengere modus kan het onleesbaar maken
+    // als PHP bij een volgend verzoek onder een andere gebruiker draait.
+    @chmod($dir . '/.beheer', 0644);
+    if (admin_key() !== $key) {
+        json_out(['ok' => false, 'error' => 'Sleutel geschreven maar niet terug te lezen'], 500);
+    }
     json_out(['ok' => true, 'claimed' => true]);
+}
+
+// Foto's naar een ander dagdeel verplaatsen. Alleen met de beheersleutel, en
+// per verzoek een begrensd aantal, zodat een halve mislukking klein blijft.
+function action_recat(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
+    }
+    if (!admin_ok()) {
+        json_out(['ok' => false, 'error' => 'Beheer is niet actief'], 403);
+    }
+    $cat = strtolower(trim((string) ($_POST['cat'] ?? '')));
+    if (!in_array($cat, CATS, true)) {
+        json_out(['ok' => false, 'error' => 'Onbekend dagdeel'], 400);
+    }
+    $ids = array_filter(array_map('trim', explode(',', (string) ($_POST['ids'] ?? ''))));
+    if (!$ids) {
+        json_out(['ok' => false, 'error' => 'Geen foto opgegeven'], 400);
+    }
+    if (count($ids) > 200) {
+        json_out(['ok' => false, 'error' => 'Te veel foto\'s in een keer'], 400);
+    }
+    $moved = [];
+    foreach ($ids as $id) {
+        if (!valid_id($id)) {
+            continue;
+        }
+        foreach (read_dirs() as $dir) {
+            $meta = read_meta($dir, $id);
+            if ($meta === null) {
+                continue;
+            }
+            $meta['cat'] = $cat;
+            write_meta($dir, $meta);
+            $moved[] = $id;
+            break;
+        }
+    }
+    json_out(['ok' => true, 'cat' => $cat, 'moved' => count($moved), 'ids' => $moved]);
 }
 
 function admin_key(): ?string

@@ -21,6 +21,11 @@ const CATS = [
   { id: "avond", label: "Avond" },
 ];
 
+const label = (id) => {
+  const found = CATS.filter((x) => x.id === id)[0];
+  return found ? found.label : "zelf genomen foto's";
+};
+
 // Een sleutel per toestel, zodat een gast de foto's die hij zelf toevoegde kan
 // aanpassen. Hij verlaat deze browser alleen als waarde die de server enkel
 // gehasht bewaart.
@@ -139,11 +144,18 @@ const CSS = `
 .own-empty{margin:0 0 1.25rem;font-size:0.8rem;color:var(--muted);}
 
 /* beheer: alleen zichtbaar met sleutel */
-.mgmt{margin-top:1rem;padding:0.9rem 1rem;border:1px dashed var(--hair);border-radius:12px;
-  display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;font-size:0.8rem;color:var(--muted);}
-.mgmt select{font:inherit;font-size:0.8rem;padding:0.35rem 0.5rem;border-radius:8px;
-  border:1px solid var(--hair);background:#fff;color:var(--ink);}
-.mgmt .add{margin-top:0;min-height:2.25rem;padding:0 0.9rem;font-size:0.8rem;}
+.pick,.pick-to{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;padding:0 0 0.7rem;}
+.pick-to{padding-top:0.1rem;font-size:0.78rem;color:var(--muted);}
+.pick-btn{padding:0.35rem 0.7rem;border-radius:8px;background:var(--chip);
+  font-size:0.76rem;font-weight:500;color:var(--ink);
+  transition:background-color 180ms ease,opacity 180ms ease;}
+.pick-btn:hover:not(:disabled){background:rgba(21,21,15,0.12);}
+.pick-btn:disabled{opacity:0.5;cursor:default;}
+.pick-btn.solid{background:var(--ink);color:var(--paper);}
+.pick-btn.solid:hover:not(:disabled){opacity:0.85;background:var(--ink);}
+.pick-count{font-size:0.76rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+.own-tile.on{outline:2px solid var(--ink);outline-offset:-2px;}
+.own-tile.on img{opacity:0.55;}
 
 /* voortgang */
 .bar{position:relative;height:0.25rem;border-radius:999px;background:var(--chip);
@@ -400,26 +412,31 @@ export default function FotoApp() {
   const [progress, setProgress] = useState({ done: 0, total: 0, frac: 0 });
   const [note, setNote] = useState(null);
   const [beheer, setBeheer] = useState("");
-  const [target, setTarget] = useState("ochtend");
+  const [adminError, setAdminError] = useState("");
   const [ownOpen, setOwnOpen] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [picked, setPicked] = useState([]);
   const [view, setView] = useState(null); // { list, i }
 
   const pickRef = useRef(null);
   const noteTimer = useRef(0);
 
-  /* beheersleutel komt eenmalig via ?beheer= en blijft daarna in de sessie */
+  /* De beheersleutel komt eenmalig binnen via ?beheer= en blijft daarna staan.
+     In localStorage en niet in de sessie: een sessie verdwijnt zodra het
+     tabblad sluit, en dan zou een volgende upload weer stilletjes bij de
+     gastfoto's belanden. Mislukt het aanmelden, dan staat dat in beeld. */
   useEffect(() => {
     let key = "";
     try {
       const params = new URLSearchParams(window.location.search);
       const given = params.get("beheer");
       if (given) {
-        sessionStorage.setItem("beheer", given);
+        localStorage.setItem("beheer", given);
         params.delete("beheer");
         const clean = window.location.pathname + (params.toString() ? "?" + params : "");
         window.history.replaceState(null, "", clean);
       }
-      key = sessionStorage.getItem("beheer") || "";
+      key = localStorage.getItem("beheer") || sessionStorage.getItem("beheer") || "";
     } catch (e) {
       key = "";
     }
@@ -428,8 +445,19 @@ export default function FotoApp() {
     form.append("key", key);
     fetch(API + "?a=claim", { method: "POST", body: form })
       .then((r) => r.json())
-      .then((d) => setBeheer(d && d.ok ? key : ""))
-      .catch(() => setBeheer(""));
+      .then((d) => {
+        if (d && d.ok) {
+          setBeheer(key);
+          setAdminError("");
+        } else {
+          setBeheer("");
+          setAdminError((d && d.error) || "Beheer kon niet worden aangezet.");
+        }
+      })
+      .catch(() => {
+        setBeheer("");
+        setAdminError("Beheer kon niet worden aangezet: geen verbinding.");
+      });
   }, []);
 
   const load = useCallback(async () => {
@@ -495,7 +523,9 @@ export default function FotoApp() {
       .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
     if (!files.length) return;
 
-    const where = beheer ? target : "gast";
+    // Met beheer bepaalt de gekozen chip het dagdeel; zonder beheer kan het
+    // alleen bij de gastfoto's, en dat zegt de knop dan ook.
+    const where = beheer ? cat : "gast";
     setPhase("busy");
     setProgress({ done: 0, total: files.length, frac: 0 });
     const added = [];
@@ -511,7 +541,8 @@ export default function FotoApp() {
         if (added.length) setItems((cur) => [...added, ...(cur || [])]);
         setPhase("idle");
         say(
-          "Gestopt na " + added.length + " van " + files.length + " foto's. Probeer de rest opnieuw.",
+          "Gestopt na " + added.length + " van " + files.length + " foto's: " +
+            e.message + ".",
           true
         );
         return;
@@ -523,9 +554,51 @@ export default function FotoApp() {
       setOwnOpen(true);
       say(added.length === 1 ? "Je foto staat erbij." : "Je foto's staan erbij.", false);
     } else {
-      setCat(where);
-      say(added.length + " foto's toegevoegd.", false);
+      say(added.length + " foto's toegevoegd aan " + label(where) + ".", false);
     }
+  };
+
+  /* foto's naar een ander dagdeel verplaatsen, in blokken van tweehonderd */
+  const move = async (to) => {
+    const ids = picked.slice();
+    if (!ids.length) return;
+    setPhase("busy");
+    let done = 0;
+    try {
+      for (let i = 0; i < ids.length; i += 200) {
+        const form = new FormData();
+        form.append("ids", ids.slice(i, i + 200).join(","));
+        form.append("cat", to);
+        form.append("key", beheer);
+        const r = await fetch(API + "?a=recat", { method: "POST", body: form });
+        const d = await r.json();
+        if (!d || !d.ok) throw new Error((d && d.error) || "verplaatsen mislukt");
+        done += d.moved;
+      }
+    } catch (e) {
+      setPhase("idle");
+      say("Verplaatsen is gestopt na " + done + " foto's: " + e.message + ".", true);
+      await load();
+      return;
+    }
+    setItems((cur) =>
+      (cur || []).map((x) => (ids.indexOf(x.id) === -1 ? x : { ...x, cat: to }))
+    );
+    setPicked([]);
+    setPicking(false);
+    setPhase("idle");
+    setCat(to);
+    say(done + " foto's verplaatst naar " + label(to) + ".", false);
+  };
+
+  const toggle = (id) =>
+    setPicked((cur) => (cur.indexOf(id) === -1 ? [...cur, id] : cur.filter((x) => x !== id)));
+
+  // De nieuwste staan vooraan, dus "t/m hier" pakt precies een reeks die in
+  // een keer is geupload, zonder dat je elke tegel los hoeft aan te tikken.
+  const pickThrough = () => {
+    const last = own.findIndex((x) => x.id === picked[0]);
+    if (last >= 0) setPicked(own.slice(0, last + 1).map((x) => x.id));
   };
 
   /* volledige foto */
@@ -591,21 +664,10 @@ export default function FotoApp() {
             disabled={busy}
           >
             <IconPlus />
-            {busy ? "Bezig" : "Foto toevoegen"}
+            {busy ? "Bezig" : beheer ? "Toevoegen aan " + label(cat) : "Foto toevoegen"}
           </button>
 
-          {beheer && (
-            <div className="mgmt">
-              <span>Beheer: foto&#8217;s toevoegen aan</span>
-              <select value={target} onChange={(e) => setTarget(e.target.value)} disabled={busy}>
-                {CATS.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          {adminError && <p className="note bad">{adminError}</p>}
 
           {busy && (
             <>
@@ -660,14 +722,66 @@ export default function FotoApp() {
           {ownOpen && own.length === 0 && (
             <p className="own-empty">Nog niets toegevoegd.</p>
           )}
+
+          {ownOpen && beheer && own.length > 0 && (
+            <div className="pick">
+              <button
+                className="pick-btn"
+                type="button"
+                onClick={() => {
+                  setPicking((v) => !v);
+                  setPicked([]);
+                }}
+              >
+                {picking ? "Klaar" : "Selecteren"}
+              </button>
+              {picking && (
+                <>
+                  <span className="pick-count">{picked.length} gekozen</span>
+                  <button className="pick-btn" type="button" onClick={() => setPicked(own.map((x) => x.id))}>
+                    Alles
+                  </button>
+                  {picked.length === 1 && (
+                    <button className="pick-btn" type="button" onClick={pickThrough}>
+                      T/m hier
+                    </button>
+                  )}
+                  {picked.length > 0 && (
+                    <button className="pick-btn" type="button" onClick={() => setPicked([])}>
+                      Wis
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {ownOpen && picking && picked.length > 0 && (
+            <div className="pick-to">
+              <span>Verplaats naar</span>
+              {CATS.map((x) => (
+                <button
+                  key={x.id}
+                  className="pick-btn solid"
+                  type="button"
+                  onClick={() => move(x.id)}
+                  disabled={busy}
+                >
+                  {x.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {ownOpen && own.length > 0 && (
             <div className="own-grid">
               {own.map((item, i) => (
                 <button
                   key={item.id}
-                  className="own-tile"
+                  className={"own-tile" + (picked.indexOf(item.id) !== -1 ? " on" : "")}
                   type="button"
-                  onClick={() => setView({ list: own, i })}
+                  onClick={() => (picking ? toggle(item.id) : setView({ list: own, i }))}
+                  aria-pressed={picking ? picked.indexOf(item.id) !== -1 : undefined}
                   aria-label={item.caption || "Zelf genomen foto"}
                 >
                   <img src={imgUrl(item.id, "thumb")} alt="" loading="lazy" decoding="async" />
