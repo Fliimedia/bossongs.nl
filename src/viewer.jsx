@@ -194,7 +194,7 @@ function Grid({ shots, focusId, favs, onPick }) {
 /* ---------- carrousel met werkbalk ---------- */
 
 export function Viewer({
-  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove,
+  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove,
 }) {
   const [mode, setMode] = useState("reel");
   const [playing, setPlaying] = useState(false);
@@ -321,6 +321,19 @@ export function Viewer({
               onClick={() => setPlaying((p) => !p)}
             >
               <PIcon name={playing ? "pause" : "play"} />
+            </button>
+          )}
+          {onRemove && !asGrid && cur && (
+            <button
+              className="tb"
+              type="button"
+              aria-label="Foto verwijderen"
+              onClick={() => {
+                stop();
+                onRemove(cur.id);
+              }}
+            >
+              <PIcon name="trash" />
             </button>
           )}
           {!empty && (
@@ -620,8 +633,8 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
           <PIcon name={fav ? "heartFill" : "heart"} size={20} />
         </button>
         {onRemove && (
-          <button className="lb-btn wide bad" type="button" onClick={() => onRemove(item.id)}>
-            Verwijderen
+          <button className="lb-btn" type="button" aria-label="Foto verwijderen" onClick={() => onRemove(item.id)}>
+            <PIcon name="trash" size={20} />
           </button>
         )}
       </div>

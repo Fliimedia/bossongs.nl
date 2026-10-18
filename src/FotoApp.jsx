@@ -827,6 +827,11 @@ export default function FotoApp() {
       const r = await fetch(API + "?a=delete", { method: "POST", body: form });
       const d = await r.json();
       if (d && d.ok) {
+        // De carrousel blijft op de buurfoto staan in plaats van te verspringen.
+        const k = all.findIndex((x) => x.id === id);
+        const nb = k >= 0 ? all[k + 1] || all[k - 1] : null;
+        if (nb) setAt((a) => ({ ...a, [cat]: nb.id }));
+        lastSig.current = "";
         setItems((cur) => (cur || []).filter((x) => x.id !== id));
         setView(null);
         say("Foto verwijderd.", false);
@@ -851,7 +856,7 @@ export default function FotoApp() {
       <main className="wrap">
         <header className="head">
           <h1>Foto album bruiloft</h1>
-          <p>Nya &#10084;&#65039; Sten</p>
+          <p>N&amp;S 💒💍 19.09.2026</p>
           {SHOW_UPLOAD && (
           <button
             className="add"
@@ -914,6 +919,7 @@ export default function FotoApp() {
             favCount={favCount}
             blank="Nog geen favorieten in dit dagdeel."
             onMove={beheer && !onlyFav ? moveTo : null}
+            onRemove={beheer ? remove : null}
           />
         )}
         {items !== null && all.length === 0 && !onlyFav && (
@@ -1039,7 +1045,7 @@ export default function FotoApp() {
           onClose={() => setView(null)}
           favs={favs}
           onFav={toggleFav}
-          onRemove={SHOW_REMOVE && (current.mine || beheer) ? remove : null}
+          onRemove={beheer ? remove : null}
         />
       )}
     </div>
