@@ -78,6 +78,7 @@ const CSS = `
   --muted:#8a8578;
   --hair:rgba(21,21,15,0.12);
   --chip:rgba(21,21,15,0.06);
+  --gold:#8f6f2e;
   min-height:100svh;
   margin:0;
   background:var(--paper);
@@ -113,8 +114,9 @@ const CSS = `
 /* dagdeelfilters */
 .chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 1.25rem;}
 .chip{flex:1 1 0;min-width:0;max-width:3.5rem;height:2.6rem;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;color:var(--muted);transition:background-color 200ms ease,color 200ms ease;}
-.chip:hover{color:var(--ink);}
-.chip.on{background:var(--ink);color:var(--paper);}
+.album .chip{color:var(--muted);}
+.album .chip:hover{color:var(--gold);}
+.album .chip.on{background:rgba(143,111,46,0.07);color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);}
 @media (min-width:900px){
   .shell{max-width:none;display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;padding:0 2.5rem;}
   .rail{position:sticky;top:0;align-self:start;height:100svh;display:flex;flex-direction:column;justify-content:center;}
