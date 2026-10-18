@@ -823,7 +823,7 @@ export const VIEW_CSS = `
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .slide .ph{filter:blur(16px);transform:scale(1.08);}
-.slide .main{opacity:0;transition:opacity 380ms ease;}
+.slide .main{object-fit:contain;opacity:0;transition:opacity 380ms ease;}
 .slide .main.in{opacity:1;}
 .slide .cap{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 0.9rem 0.8rem;
   background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.55));
@@ -897,7 +897,7 @@ export const VIEW_CSS = `
 .lb-pane.p-1{transform:translateX(calc(-100% - 16px));}
 .lb-pane.p1{transform:translateX(calc(100% + 16px));}
 .lb-pic{position:absolute;inset:0;display:grid;place-items:center;will-change:transform;}
-.lb-pic img{grid-area:1/1;max-width:100vw;max-height:100svh;width:auto;height:auto;
+.lb-pic img{grid-area:1/1;max-width:100vw;max-height:100svh;max-height:100dvh;width:auto;height:auto;
   display:block;object-fit:contain;-webkit-user-drag:none;}
 .lb-pic .full{opacity:0;transition:opacity 260ms ease;}
 .lb-pic .full.in{opacity:1;}
