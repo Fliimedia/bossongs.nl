@@ -194,7 +194,7 @@ function Grid({ shots, focusId, favs, onPick }) {
 /* ---------- carrousel met werkbalk ---------- */
 
 export function Viewer({
-  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove,
+  shots, focusId, onFocus, onOpen, favs, onFav, onlyFav, onOnlyFav, favCount, blank, onMove, onRemove, onUpload, uploading, uploadLabel,
 }) {
   const [mode, setMode] = useState("reel");
   const [playing, setPlaying] = useState(false);
@@ -238,7 +238,19 @@ export function Viewer({
   };
 
   return (
-    <div className="stage">
+    <div className={"stage" + (onUpload ? " has-up" : "")}>
+      {onUpload && (
+        <button
+          className="up"
+          type="button"
+          onClick={onUpload}
+          disabled={uploading}
+          aria-label={uploadLabel}
+          title={uploadLabel}
+        >
+          <PIcon name="upload" size={20} />
+        </button>
+      )}
       {empty && <div className="blank">{blank}</div>}
       {!empty && mode === "reel" && (
         <Reel
@@ -266,6 +278,7 @@ export function Viewer({
         />
       )}
 
+      {!(empty && !onlyFav) && (
       <div className="tools">
         <div className="tl">
           {asGrid ? (
@@ -351,6 +364,7 @@ export function Viewer({
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
@@ -696,6 +710,13 @@ export const VIEW_CSS = `
   background:rgba(14,14,10,0.38);color:#fff;text-decoration:none;
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   transition:background-color 200ms ease;}
+.stage.has-up .slide .dl{right:3.55rem;}
+.album .up{position:absolute;top:0.65rem;right:0.65rem;z-index:4;display:inline-flex;align-items:center;
+  justify-content:center;width:2.4rem;height:2.4rem;padding:0;border-radius:999px;
+  background:rgba(14,14,10,0.38);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  transition:background-color 200ms ease,opacity 200ms ease;}
+.album .up:hover:not(:disabled){background:rgba(14,14,10,0.6);}
+.album .up:disabled{opacity:0.55;cursor:default;}
 .slide .dl:hover{background:rgba(14,14,10,0.6);}
 .reel-nav{position:absolute;top:50%;z-index:2;display:none;
   align-items:center;justify-content:center;width:2.25rem;height:2.25rem;padding:0;

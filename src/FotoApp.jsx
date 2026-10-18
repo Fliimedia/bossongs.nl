@@ -18,7 +18,6 @@ const Q_THUMB = 0.8;
 const MAX_CAPTION = 160;
 
 // Uploaden en verwijderen staan uit in beeld; de code blijft staan voor later.
-const SHOW_UPLOAD = false;
 const SHOW_REMOVE = false;
 
 const CATS = [
@@ -857,17 +856,6 @@ export default function FotoApp() {
         <header className="head">
           <h1>Foto album bruiloft</h1>
           <p>N&amp;S 💒💍 19.09.2026</p>
-          {SHOW_UPLOAD && (
-          <button
-            className="add"
-            type="button"
-            onClick={() => pickRef.current && pickRef.current.click()}
-            disabled={busy}
-          >
-            <IconPlus />
-            {busy ? "Bezig" : beheer ? "Toevoegen aan " + label(cat) : "Foto toevoegen"}
-          </button>
-          )}
 
           {adminError && <p className="note bad">{adminError}</p>}
 
@@ -905,7 +893,7 @@ export default function FotoApp() {
         {loadError && items === null && (
           <div className="blank">Het album kon niet worden geladen.</div>
         )}
-        {items !== null && (shots.length > 0 || onlyFav || all.length > 0) && (
+        {items !== null && (beheer || shots.length > 0 || onlyFav || all.length > 0) && (
           <Viewer
             key={cat}
             shots={shots}
@@ -917,12 +905,15 @@ export default function FotoApp() {
             onlyFav={onlyFav}
             onOnlyFav={setOnlyFav}
             favCount={favCount}
-            blank="Nog geen favorieten in dit dagdeel."
+            blank={onlyFav ? "Nog geen favorieten in dit dagdeel." : "Nog geen foto\u2019s in dit dagdeel."}
+            onUpload={beheer ? () => pickRef.current && pickRef.current.click() : null}
+            uploading={busy}
+            uploadLabel={"Foto\u2019s toevoegen aan " + label(cat)}
             onMove={beheer && !onlyFav ? moveTo : null}
             onRemove={beheer ? remove : null}
           />
         )}
-        {items !== null && all.length === 0 && !onlyFav && (
+        {items !== null && !beheer && all.length === 0 && !onlyFav && (
           <div className="blank">Nog geen foto&#8217;s in dit dagdeel.</div>
         )}
 
@@ -1023,7 +1014,7 @@ export default function FotoApp() {
         </section>
       </main>
 
-      {SHOW_UPLOAD && (
+      {beheer && (
       <input
         ref={pickRef}
         type="file"
