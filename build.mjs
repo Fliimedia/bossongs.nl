@@ -15,6 +15,7 @@ async function bundle(entry) {
     format: "iife",
     target: ["es2019"],
     charset: "utf8",
+    loader: { ".svg": "text" },
     define: { "process.env.NODE_ENV": '"production"' },
     write: false,
   });
@@ -28,7 +29,7 @@ function page({ title, description, fonts, extraHead, noscript, script }) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>${title}</title>
-    <meta name="build" content="b30" />
+    <meta name="build" content="b31" />
     <meta name="description" content="${description}" />
 ${extraHead}    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
