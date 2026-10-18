@@ -79,7 +79,12 @@ const Reel = forwardRef(function Reel(
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
-    const fit = () => {
+    let lastW = 0;
+    const fit = (e) => {
+      // Op een telefoon verandert de hoogte als de adresbalk in- of uitschuift tijdens het
+      // scrollen. Alleen een andere breedte (draaien) is een echte maatwijziging.
+      if (e && e.type === "resize" && window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
       if (window.innerWidth >= 900) return;
       const r = el.getBoundingClientRect();
       const top = r.top + window.scrollY;
@@ -118,7 +123,10 @@ const Reel = forwardRef(function Reel(
 
   // Een ander venster of een gedraaid scherm verandert de maat: opnieuw uitlijnen.
   useEffect(() => {
+    let lastW = window.innerWidth;
     const onSize = () => {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
       const el = box.current;
       const w = step();
       if (el && w && found >= 0) el.scrollTo({ left: found * w, behavior: "instant" });
