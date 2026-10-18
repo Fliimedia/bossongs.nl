@@ -51,7 +51,7 @@ const Cross = () => (
 
 
 const Reel = forwardRef(function Reel(
-  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge },
+  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge, onGrid },
   ref
 ) {
   const box = useRef(null);
@@ -271,26 +271,31 @@ const Reel = forwardRef(function Reel(
                 )}
                 {item.caption && <span className="cap">{item.caption}</span>}
               </button>
-              {onUpload && (
-                <button
-                  className="up"
-                  type="button"
-                  onClick={onUpload}
-                  disabled={uploading}
-                  aria-label={uploadLabel}
-                  title={uploadLabel}
-                >
-                  <PIcon name="upload" size={20} />
-                </button>
-              )}
-              <a
-                className="dl"
-                href={imgUrl(item.id, "full", true)}
-                download
-                aria-label="Foto downloaden"
-              >
-                <PIcon name="download" size={20} />
-              </a>
+              <div className="ov">
+                <span className="cnt">{i + 1} / {shots.length}</span>
+                <div className="ovr">
+                  {onGrid && (
+                    <button className="ob" type="button" onClick={onGrid} aria-label="Overzicht tonen">
+                      <PIcon name="grid" size={20} />
+                    </button>
+                  )}
+                  {onUpload && (
+                    <button
+                      className="ob"
+                      type="button"
+                      onClick={onUpload}
+                      disabled={uploading}
+                      aria-label={uploadLabel}
+                      title={uploadLabel}
+                    >
+                      <PIcon name="upload" size={20} />
+                    </button>
+                  )}
+                  <a className="ob" href={imgUrl(item.id, "full", true)} download aria-label="Foto downloaden">
+                    <PIcon name="download" size={20} />
+                  </a>
+                </div>
+              </div>
             </div>
           );
         })}
@@ -326,9 +331,6 @@ function Grid({ shots, focusId, favs, onPick }) {
           aria-label={item.caption || "Foto openen"}
         >
           <img src={imgUrl(item.id, "thumb")} alt="" loading="lazy" decoding="async" />
-          {favs.has(item.id) && (
-            <span className="heart"><PIcon name="heartFill" size={14} /></span>
-          )}
         </button>
       ))}
     </div>
@@ -439,6 +441,10 @@ export function Viewer({
           uploading={uploading}
           uploadLabel={uploadLabel}
           onEdge={onEdge}
+          onGrid={() => {
+            stop();
+            setMode("grid");
+          }}
         />
       )}
       {!empty && mode === "grid" && (
@@ -454,33 +460,10 @@ export function Viewer({
       )}
       {below}
 
-      {!(empty && !onlyFav) && (
+      {!empty && (asGrid || (onMove && shots.length > 1)) && (
       <div className="tools">
-        <div className="tl">
-          {asGrid ? (
-            <button
-              className={"tb" + (onlyFav ? " on" : "")}
-              type="button"
-              aria-pressed={onlyFav}
-              aria-label="Alleen favorieten"
-              onClick={() => onOnlyFav(!onlyFav)}
-            >
-              <PIcon name={onlyFav ? "heartFill" : "heart"} />
-              {favCount > 0 && <span>{favCount}</span>}
-            </button>
-          ) : (
-            <button
-              className={"tb" + (cur && favs.has(cur.id) ? " on" : "")}
-              type="button"
-              aria-pressed={!!(cur && favs.has(cur.id))}
-              aria-label="Favoriet"
-              onClick={() => cur && onFav(cur.id)}
-            >
-              <PIcon name={cur && favs.has(cur.id) ? "heartFill" : "heart"} />
-            </button>
-          )}
-        </div>
-        {onMove && !asGrid && shots.length > 1 ? (
+        <div className="tl" />
+        {onMove && !asGrid ? (
           <form className="meter jump" onSubmit={submit}>
             <input
               type="number"
@@ -497,45 +480,12 @@ export function Viewer({
             )}
           </form>
         ) : (
-          <p className="meter">
-            {empty ? "0" : asGrid ? shots.length : <><em>{index + 1}</em> / {shots.length}</>}
-          </p>
+          <p className="meter">{shots.length}</p>
         )}
         <div className="tr">
-          {!asGrid && shots.length > 1 && (
-            <button
-              className="tb"
-              type="button"
-              aria-label={playing ? "Diavoorstelling stoppen" : "Diavoorstelling starten"}
-              onClick={() => setPlaying((p) => !p)}
-            >
-              <PIcon name={playing ? "pause" : "play"} />
-            </button>
-          )}
-          {onRemove && !asGrid && cur && (
-            <button
-              className="tb"
-              type="button"
-              aria-label="Foto verwijderen"
-              onClick={() => {
-                stop();
-                onRemove(cur.id);
-              }}
-            >
-              <PIcon name="trash" />
-            </button>
-          )}
-          {!empty && (
-            <button
-              className="tb"
-              type="button"
-              aria-label={mode === "grid" ? "Carrousel tonen" : "Overzicht tonen"}
-              onClick={() => {
-                stop();
-                setMode(mode === "grid" ? "reel" : "grid");
-              }}
-            >
-              <PIcon name={mode === "grid" ? "photo" : "grid"} />
+          {asGrid && (
+            <button className="tb" type="button" aria-label="Carrousel tonen" onClick={() => setMode("reel")}>
+              <PIcon name="photo" />
             </button>
           )}
         </div>
@@ -805,7 +755,6 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
     }
   };
 
-  const fav = favs.has(item.id);
 
   return (
     <div
@@ -860,20 +809,6 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
       </div>
 
       <div className="lb-top l">
-        <button
-          className={"lb-btn" + (fav ? " on" : "")}
-          type="button"
-          aria-pressed={fav}
-          aria-label="Favoriet"
-          onClick={() => onFav(item.id)}
-        >
-          <PIcon name={fav ? "heartFill" : "heart"} size={20} />
-        </button>
-        {onRemove && (
-          <button className="lb-btn" type="button" aria-label="Foto verwijderen" onClick={() => onRemove(item.id)}>
-            <PIcon name="trash" size={20} />
-          </button>
-        )}
       </div>
       <div className="lb-top r">
         <a
@@ -950,7 +885,6 @@ export const VIEW_CSS = `
   background:rgba(14,14,10,0.38);color:#fff;text-decoration:none;
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   transition:background-color 200ms ease;}
-.stage.has-up .slide .dl{right:3.55rem;}
 .album .up{position:absolute;top:0.65rem;right:0.65rem;z-index:4;display:inline-flex;align-items:center;
   justify-content:center;width:2.4rem;height:2.4rem;padding:0;border-radius:999px;
   background:rgba(14,14,10,0.38);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
@@ -958,6 +892,18 @@ export const VIEW_CSS = `
 .album .up:hover:not(:disabled){background:rgba(14,14,10,0.6);}
 .album .up:disabled{opacity:0.55;cursor:default;}
 .slide .dl:hover{background:rgba(14,14,10,0.6);}
+.ov{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;justify-content:space-between;
+  padding:0.65rem;pointer-events:none;}
+.ov > *{pointer-events:auto;}
+.ovr{display:flex;gap:0.45rem;}
+.album .ob{display:inline-flex;align-items:center;justify-content:center;width:2.4rem;height:2.4rem;padding:0;
+  border-radius:999px;background:rgba(14,14,10,0.38);color:#fff;text-decoration:none;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background-color 200ms ease,opacity 200ms ease;}
+.album .ob:hover:not(:disabled){background:rgba(14,14,10,0.6);}
+.album .ob:disabled{opacity:0.55;cursor:default;}
+.ov .cnt{pointer-events:none;display:inline-flex;align-items:center;height:2rem;padding:0 0.75rem;border-radius:999px;
+  background:rgba(14,14,10,0.38);color:#fff;font-size:0.75rem;letter-spacing:0.06em;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font-variant-numeric:tabular-nums;}
 .reel-nav{position:absolute;top:50%;z-index:2;display:none;
   align-items:center;justify-content:center;width:2.25rem;height:2.25rem;padding:0;
   margin-top:-1.125rem;border-radius:999px;background:rgba(255,255,255,0.9);
@@ -1062,8 +1008,7 @@ export const VIEW_CSS = `
   .slide{max-height:none;flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
     transition:opacity 400ms ease,transform 400ms cubic-bezier(.2,.7,.3,1);}
   .slide:not(.cur){opacity:0.38;transform:scale(0.93);}
-  .slide:not(.cur) .dl,.slide:not(.cur) .up{display:none;}
-  .stage.has-up .slide .dl{right:3.55rem;}
+  .slide:not(.cur) .ov{display:none;}
   .tools{width:calc(var(--h) * 0.8);margin:0 auto;}
   .blank{width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;margin:0 auto;}
   .grid{grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:0.5rem;}
