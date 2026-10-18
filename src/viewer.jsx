@@ -163,7 +163,11 @@ const Reel = forwardRef(function Reel(
         {shots.map((item, i) => {
           const near = Math.abs(i - index) <= reach;
           return (
-            <div className={"slide" + (i === index ? " cur" : "")} key={item.id}>
+            <div
+              className={"slide" + (i === index ? " cur" : "")}
+              key={item.id}
+              style={item.w && item.h ? { aspectRatio: item.w + " / " + item.h } : undefined}
+            >
               <button
                 className="hit"
                 type="button"
@@ -842,9 +846,9 @@ export const VIEW_CSS = `
   scroll-behavior:smooth;overscroll-behavior-x:contain;
   scrollbar-width:none;-ms-overflow-style:none;}
 .reel::-webkit-scrollbar{display:none;}
-.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:auto;
-  height:max(18rem,var(--avail,calc(100dvh - 13.5rem)));
-  overflow:hidden;background:rgba(21,21,15,0.05);}
+.reel{height:max(18rem,var(--avail,calc(100dvh - 13.5rem)));align-items:flex-end;}
+.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;
+  height:auto;max-height:100%;overflow:hidden;}
 .slide .hit{position:absolute;inset:0;width:100%;height:100%;padding:0;display:block;line-height:0;}
 .slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .slide .ph{object-fit:contain;}
@@ -965,6 +969,7 @@ export const VIEW_CSS = `
 /* groot scherm: de foto's krijgen de hoogte van het scherm, de buren staan er gedimd naast */
 @media (min-width:900px){
   .stage{left:auto;transform:none;width:100%;--h:max(22rem,calc(100svh - 9rem));}
+  .reel{height:auto;align-items:stretch;}
   .reel{padding-inline:calc((100% - var(--h) * 0.8) / 2);gap:1.25rem;}
   .reel{-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);}
