@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CAT_ICONS } from "./catIcons.js";
 
 const API = "api.php";
 const POLL_MS = 60000;
@@ -29,73 +30,16 @@ const CATS = [
   { id: "feest", label: "Feest" },
 ];
 
-/* lijniconen voor de dagdelen, 24x24, volgen de tekstkleur */
-const ICON_PATHS = {
-  ochtend: (
-    <>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" />
-    </>
-  ),
-  firstlook: (
-    <>
-      <path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z" />
-      <circle cx="12" cy="12" r="2.8" />
-    </>
-  ),
-  fotoshoot: (
-    <>
-      <path d="M4 8h3l1.6-2.2h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
-      <circle cx="12" cy="13.2" r="3.4" />
-    </>
-  ),
-  ceremonie: (
-    <>
-      <circle cx="9" cy="14.5" r="5" />
-      <circle cx="15.5" cy="14.5" r="5" />
-      <path d="M7.4 5.4L9 3.5l1.6 1.9" />
-    </>
-  ),
-  receptie: (
-    <>
-      <g transform="translate(8 11) rotate(-14)">
-        <path d="M-2.2 -8h4.4l-.5 8.2a1.7 1.7 0 0 1-3.4 0z" />
-        <path d="M0 2.4v6M-2.6 8.4h5.2" />
-      </g>
-      <g transform="translate(16 11) rotate(14)">
-        <path d="M-2.2 -8h4.4l-.5 8.2a1.7 1.7 0 0 1-3.4 0z" />
-        <path d="M0 2.4v6M-2.6 8.4h5.2" />
-      </g>
-    </>
-  ),
-  diner: (
-    <>
-      <path d="M5.5 3v6a2.5 2.5 0 0 0 5 0V3M8 3v18" />
-      <path d="M17 21V3c-2.2 1.6-3.2 4.2-3.2 7.2H17" />
-    </>
-  ),
-  feest: (
-    <>
-      <circle cx="12" cy="13.5" r="7" />
-      <path d="M5 13.5h14M6.4 9.2h11.2M6.4 17.8h11.2M12 6.5v14M9 7c-1.6 4-1.6 9 0 13M15 7c1.6 4 1.6 9 0 13M12 2v4.5" />
-    </>
-  ),
-};
-
+/* iconen voor de dagdelen, zie src/catIcons.js */
 const CatIcon = ({ id }) => (
   <svg
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.4"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    width="26"
+    height="26"
+    viewBox="0 0 256 256"
+    fill="currentColor"
     aria-hidden="true"
-  >
-    {ICON_PATHS[id]}
-  </svg>
+    dangerouslySetInnerHTML={{ __html: CAT_ICONS[id] }}
+  />
 );
 
 const label = (id) => {
@@ -190,8 +134,10 @@ const CSS = `
 /* Een staande 4:5 foto is 1,25 keer zo hoog als breed, dus op een laag scherm
    bepaalt de hoogte de maat: breedte = beschikbare hoogte maal 0,8. Op een
    telefoon wint de 100% en verandert er niets. */
-.stage{position:relative;left:50%;transform:translateX(-50%);
-  width:min(calc(100vw - 4px),max(16rem,calc((100svh - 19rem) * 0.8)));}
+.stage{position:relative;left:50%;transform:translateX(-50%);width:calc(100vw - 4px);}
+@media (min-width:700px){
+  .stage{width:min(calc(100vw - 4px),max(16rem,calc((100svh - 19rem) * 0.8)));}
+}
 .album{overflow-x:clip;}
 .meter{display:flex;align-items:center;justify-content:center;gap:0.5rem;
   padding:0.85rem 0 0;font-size:0.75rem;letter-spacing:0.08em;color:var(--muted);
