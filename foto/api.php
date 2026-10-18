@@ -18,7 +18,12 @@ const OLD_CATS = ['middag', 'avond'];
 
 // Deze versie staat in a=status, zodat van buitenaf te zien is welke code er
 // draait zonder dat je het aan de uitkomst hoeft af te leiden.
-const API_VERSION = 'a8';
+const API_VERSION = 'a9';
+// Voorlopig mag iedereen foto's aan een dagdeel toevoegen en een enkele foto
+// verwijderen. Zet dit op false en het is weer alleen met de beheersleutel.
+// Verplaatsen, leegmaken en meerdere foto's tegelijk verwijderen blijven
+// altijd alleen voor beheer.
+const OPEN_EDIT = true;
 
 // De beheersleutel staat hier als SHA-256, niet als sleutel. Daarmee werkt
 // beheer zodra deze code er staat: geen bestand dat eerst geschreven en daarna
@@ -287,7 +292,7 @@ function action_upload(): void
     if (!in_array($wanted, CATS, true)) {
         json_out(['ok' => false, 'error' => 'Onbekend dagdeel'], 400);
     }
-    if (in_array($wanted, ADMIN_CATS, true) && !admin_ok()) {
+    if (in_array($wanted, ADMIN_CATS, true) && !OPEN_EDIT && !admin_ok()) {
         json_out(['ok' => false, 'error' => 'Beheer is niet actief, dus een dagdeel kan niet'], 403);
     }
     $cat = $wanted;
@@ -439,7 +444,7 @@ function action_delete(): void
         if (!valid_id($id)) {
             continue;
         }
-        if (!$admin) {
+        if (!$admin && !OPEN_EDIT) {
             $mine = false;
             foreach (read_dirs() as $dir) {
                 $meta = read_meta($dir, $id);

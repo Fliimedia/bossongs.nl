@@ -21,6 +21,9 @@ const MAX_CAPTION = 160;
 // Uploaden en verwijderen staan uit in beeld; de code blijft staan voor later.
 const SHOW_REMOVE = false;
 
+// Gelijk aan OPEN_EDIT in api.php: voorlopig mag iedereen toevoegen en een foto verwijderen.
+const OPEN_EDIT = true;
+
 const CATS = [
   { id: "ochtend", label: "Ochtend" },
   { id: "firstlook", label: "First look" },
@@ -675,7 +678,7 @@ export default function FotoApp() {
 
     // Met beheer bepaalt de gekozen chip het dagdeel; zonder beheer kan het
     // alleen bij de gastfoto's, en dat zegt de knop dan ook.
-    const where = beheer ? cat : "gast";
+    const where = canEdit ? cat : "gast";
     setPhase("busy");
     setProgress({ done: 0, total: files.length, frac: 0 });
     const added = [];
@@ -847,6 +850,7 @@ export default function FotoApp() {
 
   const current = view ? view.list[view.i] : null;
   const busy = phase === "busy";
+  const canEdit = OPEN_EDIT || !!beheer;
   const pct = progress.total
     ? Math.round(((progress.done + progress.frac) / progress.total) * 100)
     : 0;
@@ -897,7 +901,7 @@ export default function FotoApp() {
         {loadError && items === null && (
           <div className="blank">Het album kon niet worden geladen.</div>
         )}
-        {items !== null && (beheer || shots.length > 0 || onlyFav || all.length > 0) && (
+        {items !== null && (canEdit || shots.length > 0 || onlyFav || all.length > 0) && (
           <Viewer
             key={cat}
             shots={shots}
@@ -910,14 +914,14 @@ export default function FotoApp() {
             onOnlyFav={setOnlyFav}
             favCount={favCount}
             blank={onlyFav ? "Nog geen favorieten in dit dagdeel." : "Nog geen foto\u2019s in dit dagdeel."}
-            onUpload={beheer ? () => pickRef.current && pickRef.current.click() : null}
+            onUpload={canEdit ? () => pickRef.current && pickRef.current.click() : null}
             uploading={busy}
             uploadLabel={"Foto\u2019s toevoegen aan " + label(cat)}
             onMove={beheer && !onlyFav ? moveTo : null}
-            onRemove={beheer ? remove : null}
+            onRemove={canEdit ? remove : null}
           />
         )}
-        {items !== null && !beheer && all.length === 0 && !onlyFav && (
+        {items !== null && !canEdit && all.length === 0 && !onlyFav && (
           <div className="blank">Nog geen foto&#8217;s in dit dagdeel.</div>
         )}
 
@@ -1018,7 +1022,7 @@ export default function FotoApp() {
         </section>
       </main>
 
-      {beheer && (
+      {canEdit && (
       <input
         ref={pickRef}
         type="file"
@@ -1040,7 +1044,7 @@ export default function FotoApp() {
           onClose={() => setView(null)}
           favs={favs}
           onFav={toggleFav}
-          onRemove={beheer ? remove : null}
+          onRemove={canEdit ? remove : null}
         />
       )}
     </div>
