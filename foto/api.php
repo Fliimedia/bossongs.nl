@@ -4,9 +4,15 @@
 // voorkeur buiten de webroot, zodat een deploy vanuit GitHub er nooit bij kan.
 declare(strict_types=1);
 
-const MAX_BYTES   = 15 * 1024 * 1024;
+const MAX_BYTES   = 25 * 1024 * 1024;
 const MAX_CAPTION = 160;
 const TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+
+// Drie dagdelen plus de foto's die gasten zelf toevoegen. Alleen met de
+// beheersleutel kan een foto in een dagdeel komen; zonder sleutel wordt het
+// altijd 'gast', ook als het formulier iets anders beweert.
+const CATS = ['ochtend', 'middag', 'avond', 'gast'];
+const ADMIN_CATS = ['ochtend', 'middag', 'avond'];
 
 header('X-Content-Type-Options: nosniff');
 
@@ -18,6 +24,7 @@ switch ($action) {
     case 'upload': action_upload(); break;
     case 'img':    action_img();    break;
     case 'delete': action_delete(); break;
+    case 'claim':  action_claim();  break;
     case 'status': action_status(); break;
     default:       json_out(['ok' => false, 'error' => 'Onbekende actie'], 400);
 }
@@ -146,8 +153,24 @@ function public_item(array $meta): array
         'ts'      => (int) ($meta['ts'] ?? 0),
         'w'       => (int) ($meta['w'] ?? 0),
         'h'       => (int) ($meta['h'] ?? 0),
+        'cat'     => clean_cat((string) ($meta['cat'] ?? ''), true),
+        'mid'     => !empty($meta['mmime']),
         'mine'    => owns($meta),
     ];
+}
+
+// Alles wat geen bekend dagdeel is valt terug op 'gast'. De foto's van voor
+// deze indeling hebben geen cat en horen daar inderdaad thuis.
+function clean_cat(string $raw, bool $admin): string
+{
+    $cat = strtolower(trim($raw));
+    if (!in_array($cat, CATS, true)) {
+        return 'gast';
+    }
+    if (in_array($cat, ADMIN_CATS, true) && !$admin) {
+        return 'gast';
+    }
+    return $cat;
 }
 
 function write_meta(string $dir, array $meta): void
@@ -205,17 +228,25 @@ function action_upload(): void
         json_out(['ok' => false, 'error' => 'Het bestand is geen geldige afbeelding'], 415);
     }
 
-    // De miniatuur is optioneel; zonder wordt de grote versie gebruikt.
-    $thumb = $_FILES['thumb'] ?? null;
-    $tmime = null;
-    if (is_array($thumb) && (int) ($thumb['error'] ?? 1) === UPLOAD_ERR_OK && (int) $thumb['size'] <= MAX_BYTES) {
-        $candidate = sniff((string) $thumb['tmp_name']);
-        if (isset(TYPES[$candidate]) && @getimagesize((string) $thumb['tmp_name'])) {
-            $tmime = $candidate;
+    // Miniatuur en middenformaat zijn optioneel; zonder valt alles terug op de
+    // grote versie. Het middenformaat voedt de carrousel, zodat die niet het
+    // volle bestand van een paar megabyte hoeft te trekken.
+    $side = [];
+    foreach (['thumb', 'mid'] as $slot) {
+        $file = $_FILES[$slot] ?? null;
+        $side[$slot] = null;
+        if (is_array($file) && (int) ($file['error'] ?? 1) === UPLOAD_ERR_OK && (int) $file['size'] <= MAX_BYTES) {
+            $candidate = sniff((string) $file['tmp_name']);
+            if (isset(TYPES[$candidate]) && @getimagesize((string) $file['tmp_name'])) {
+                $side[$slot] = $candidate;
+            }
         }
     }
+    $tmime = $side['thumb'];
+    $mmime = $side['mid'];
 
     $caption = clean_caption((string) ($_POST['caption'] ?? ''));
+    $cat     = clean_cat((string) ($_POST['cat'] ?? ''), admin_ok());
 
     // Twaalf hex tekens tijd in milliseconden plus twaalf willekeurig.
     $id   = sprintf('%012x', (int) floor(microtime(true) * 1000)) . bin2hex(random_bytes(6));
@@ -224,8 +255,11 @@ function action_upload(): void
     if (!move_uploaded_file((string) $photo['tmp_name'], $base . '.' . TYPES[$mime])) {
         json_out(['ok' => false, 'error' => 'Opslaan is mislukt'], 500);
     }
-    if ($tmime !== null && !move_uploaded_file((string) $thumb['tmp_name'], $base . '.thumb.' . TYPES[$tmime])) {
+    if ($tmime !== null && !move_uploaded_file((string) $_FILES['thumb']['tmp_name'], $base . '.thumb.' . TYPES[$tmime])) {
         $tmime = null;
+    }
+    if ($mmime !== null && !move_uploaded_file((string) $_FILES['mid']['tmp_name'], $base . '.mid.' . TYPES[$mmime])) {
+        $mmime = null;
     }
 
     // Het JSON bestand komt als laatste, zodat een half geschreven foto nooit in de lijst staat.
@@ -235,8 +269,10 @@ function action_upload(): void
         'ts'      => time(),
         'w'       => (int) $size[0],
         'h'       => (int) $size[1],
+        'cat'     => $cat,
         'mime'    => $mime,
         'tmime'   => $tmime,
+        'mmime'   => $mmime,
         'owner'   => owner_hash(owner_token()),
     ];
     write_meta($dir, $meta);
@@ -271,7 +307,10 @@ function action_update(): void
 function action_img(): void
 {
     $id   = (string) ($_GET['id'] ?? '');
-    $size = ((string) ($_GET['s'] ?? 'full')) === 'thumb' ? 'thumb' : 'full';
+    $want = (string) ($_GET['s'] ?? 'full');
+    if (!in_array($want, ['thumb', 'mid', 'full'], true)) {
+        $want = 'full';
+    }
     if (!valid_id($id)) {
         http_response_code(400);
         exit;
@@ -283,9 +322,15 @@ function action_img(): void
         }
         $mime = (string) ($meta['mime'] ?? 'image/jpeg');
         $file = $dir . '/' . $id . '.' . (TYPES[$mime] ?? 'jpg');
-        if ($size === 'thumb' && !empty($meta['tmime'])) {
-            $mime = (string) $meta['tmime'];
-            $file = $dir . '/' . $id . '.thumb.' . (TYPES[$mime] ?? 'jpg');
+        // Ontbreekt het gevraagde formaat, dan valt het terug op de grote versie.
+        $slot = ['thumb' => 'tmime', 'mid' => 'mmime'][$want] ?? null;
+        if ($slot !== null && !empty($meta[$slot])) {
+            $alt  = (string) $meta[$slot];
+            $path = $dir . '/' . $id . '.' . $want . '.' . (TYPES[$alt] ?? 'jpg');
+            if (is_file($path)) {
+                $mime = $alt;
+                $file = $path;
+            }
         }
         if (!is_file($file)) {
             break;
@@ -344,6 +389,33 @@ function action_delete(): void
         }
     }
     json_out(['ok' => $removed, 'error' => $removed ? null : 'Foto niet gevonden'], $removed ? 200 : 404);
+}
+
+// De beheersleutel wordt eenmalig gezet, vanaf de telefoon, door /foto/ te
+// openen met ?beheer=<sleutel>. Bestaat het bestand al, dan verandert er niets
+// en zegt dit alleen of de sleutel klopt.
+function action_claim(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
+    }
+    $key = trim((string) ($_POST['key'] ?? ''));
+    if (strlen($key) < 24) {
+        json_out(['ok' => false, 'error' => 'Sleutel te kort'], 400);
+    }
+    $existing = admin_key();
+    if ($existing !== null) {
+        json_out(['ok' => hash_equals($existing, $key), 'claimed' => false]);
+    }
+    [$dir] = write_dir();
+    if ($dir === null) {
+        json_out(['ok' => false, 'error' => 'De opslag is niet beschrijfbaar'], 500);
+    }
+    if (file_put_contents($dir . '/.beheer', $key, LOCK_EX) === false) {
+        json_out(['ok' => false, 'error' => 'Sleutel opslaan is mislukt'], 500);
+    }
+    @chmod($dir . '/.beheer', 0600);
+    json_out(['ok' => true, 'claimed' => true]);
 }
 
 function admin_key(): ?string

@@ -1,17 +1,33 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const API = "api.php";
-const POLL_MS = 20000;
-const MAX_FULL = 1600;
-const MAX_THUMB = 480;
+const POLL_MS = 60000;
+
+// Drie afgeleiden per foto. De carrousel trekt het middenformaat, dat op een
+// telefoon met drievoudige pixeldichtheid nog ruim boven de schermbreedte zit;
+// de volledige foto komt pas bij het openen.
+const MAX_FULL = 3200;
+const MAX_MID = 1400;
+const MAX_THUMB = 640;
+const Q_FULL = 0.9;
+const Q_MID = 0.84;
+const Q_THUMB = 0.8;
+
 const MAX_CAPTION = 160;
 
-// A per device key, so a guest can manage the photos they added themselves.
-// It never leaves this browser except as a value the server only stores hashed.
+const CATS = [
+  { id: "ochtend", label: "Ochtend" },
+  { id: "middag", label: "Middag" },
+  { id: "avond", label: "Avond" },
+];
+
+// Een sleutel per toestel, zodat een gast de foto's die hij zelf toevoegde kan
+// aanpassen. Hij verlaat deze browser alleen als waarde die de server enkel
+// gehasht bewaart.
 function myKey() {
   try {
     let key = localStorage.getItem("mijn-sleutel");
-    if (!key || !/^[a-f0-9]{32}$/.test(key)) {
+    if (!key || /^[a-f0-9]{32}$/.test(key) === false) {
       const bytes = new Uint8Array(16);
       (window.crypto || window.msCrypto).getRandomValues(bytes);
       key = Array.from(bytes)
@@ -25,359 +41,155 @@ function myKey() {
   }
 }
 
-const COPY = {
-  nl: {
-    eyebrow: "Fotoalbum",
-    lead: "Maak een foto en zet hem meteen in ons album.",
-    take: "Camera",
-    pick: "Galerij",
-    takeLong: "Maak een foto",
-    pickLong: "Kies uit je galerij",
-    captionLabel: "Beschrijving",
-    optional: "optioneel",
-    placeholder: "Bijvoorbeeld: de eerste dans",
-    forAll: "Deze beschrijving komt bij alle gekozen foto's",
-    share: "Zet in het album",
-    preparing: "Foto's voorbereiden",
-    uploading: "Bezig met uploaden",
-    of: "van",
-    cancel: "Annuleren",
-    retry: "Opnieuw proberen",
-    doneOne: "Je foto staat in het album",
-    doneMany: "Je foto's staan in het album",
-    album: "Het album",
-    empty: "Nog geen foto's. Maak jij de eerste?",
-    loadFailed: "Het album kon niet worden geladen.",
-    refresh: "Vernieuwen",
-    one: "foto",
-    many: "foto's",
-    failed: "Uploaden is niet gelukt. Controleer je verbinding en probeer het opnieuw.",
-    unreadable: "Dit bestand kon niet als foto worden gelezen.",
-    close: "Sluiten",
-    prev: "Vorige",
-    next: "Volgende",
-    remove: "Verwijderen",
-    removeAsk: "Deze foto uit het album halen?",
-    edit: "Beschrijving aanpassen",
-    save: "Opslaan",
-    saved: "Aangepast",
-    removed: "Foto verwijderd",
-    mine: "Jouw foto",
-    home: "Naar de uitnodiging",
-    photoAlt: "Foto uit het album",
-    today: "Vandaag",
-    yesterday: "Gisteren",
-    composeTitle: "Zet in het album",
-  },
-  en: {
-    eyebrow: "Photo album",
-    lead: "Take a photo and drop it straight into our album.",
-    take: "Camera",
-    pick: "Gallery",
-    takeLong: "Take a photo",
-    pickLong: "Choose from your gallery",
-    captionLabel: "Caption",
-    optional: "optional",
-    placeholder: "For example: the first dance",
-    forAll: "This caption goes with all selected photos",
-    share: "Add to the album",
-    preparing: "Preparing photos",
-    uploading: "Uploading",
-    of: "of",
-    cancel: "Cancel",
-    retry: "Try again",
-    doneOne: "Your photo is in the album",
-    doneMany: "Your photos are in the album",
-    album: "The album",
-    empty: "No photos yet. Will you take the first?",
-    loadFailed: "The album could not be loaded.",
-    refresh: "Refresh",
-    one: "photo",
-    many: "photos",
-    failed: "The upload did not go through. Check your connection and try again.",
-    unreadable: "This file could not be read as a photo.",
-    close: "Close",
-    prev: "Previous",
-    next: "Next",
-    remove: "Remove",
-    removeAsk: "Remove this photo from the album?",
-    edit: "Edit caption",
-    save: "Save",
-    saved: "Updated",
-    removed: "Photo removed",
-    mine: "Your photo",
-    home: "Back to the invitation",
-    photoAlt: "Photo from the album",
-    today: "Today",
-    yesterday: "Yesterday",
-    composeTitle: "Add to the album",
-  },
-};
-
 const CSS = `
 .album{
-  --shade-1:#ffffff;
-  --shade-3:hsl(0,0%,81.9%);
-  --shade-4:hsl(204,2.2%,45.3%);
-  --shade-6:#000000;
-  --brand:hsl(48,35.7%,94.5%);
-  --paper:#faf3e6;
-  --gold-pale:#f3e0b4;
-  --gold-light:#d9b268;
-  --gold:#b1873f;
-  --gold-deep:#8a6524;
-  --gold-line:rgba(177,135,63,0.42);
-  --gold-line-soft:rgba(177,135,63,0.22);
-  --space-1:0.5rem;
-  --space-2:1rem;
-  --space-3:1.5rem;
-  --space-4:2.5rem;
-  --space-5:4rem;
-  --type-label:0.78rem;
-  min-height:100vh;
-  font-family:Inter,system-ui,sans-serif;
-  color:var(--shade-6);
+  --paper:#f8f5ee;
+  --ink:#15150f;
+  --muted:#8a8578;
+  --hair:rgba(21,21,15,0.12);
+  --chip:rgba(21,21,15,0.06);
+  min-height:100svh;
+  margin:0;
   background:var(--paper);
+  color:var(--ink);
+  font-family:Inter,system-ui,sans-serif;
   line-height:1.5;
-  padding-bottom:calc(7rem + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
 }
 .album *{box-sizing:border-box;}
 .album button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
-.album :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px;}
-.serif{font-family:"Instrument Serif",Georgia,serif;font-weight:400;letter-spacing:0;}
-.wrap{width:100%;max-width:64rem;margin:0 auto;padding:0 var(--space-3);}
+.album :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:3px;}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+.wrap{width:100%;max-width:34rem;margin:0 auto;padding:0 1.25rem;}
 
-/* top bar */
-.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
-  gap:var(--space-2);padding:0.6rem var(--space-3);background:rgba(250,243,230,0.92);
-  backdrop-filter:blur(8px);border-bottom:1px solid var(--gold-line-soft);}
-.top-home{display:inline-flex;}
-.top-home img{width:1.75rem;height:auto;display:block;}
-.lang{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;
-  padding:0.2rem;border-radius:999px;border:1px solid var(--gold-line-soft);
-  background:rgba(255,255,255,0.72);}
-.lang-thumb{position:absolute;top:0.2rem;bottom:0.2rem;left:0.2rem;width:calc(50% - 0.2rem);
-  border-radius:999px;background:var(--shade-1);box-shadow:0 1px 3px rgba(96,74,40,0.2);
-  transition:transform 260ms cubic-bezier(.4,0,.2,1);}
-.lang-thumb[data-on="en"]{transform:translateX(100%);}
-.lang-opt{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;
-  gap:0.32rem;padding:0.32rem 0.62rem;border-radius:999px;line-height:1;
-  color:var(--shade-4);white-space:nowrap;transition:color 200ms ease;}
-.lang-opt.is-on{color:var(--shade-6);}
-.lang-flag{font-size:0.85rem;line-height:1;filter:grayscale(1);opacity:0.5;
-  transition:filter 200ms ease,opacity 200ms ease;}
-.lang-opt.is-on .lang-flag{filter:none;opacity:1;}
-.lang-code{font-size:0.68rem;font-weight:600;letter-spacing:0.08em;}
+/* kop */
+.head{padding:3.5rem 0 1.75rem;text-align:center;}
+.head h1{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;
+  font-size:clamp(2rem,8vw,2.75rem);line-height:1.08;letter-spacing:-0.01em;}
+.head p{margin:0.5rem 0 0;font-size:0.95rem;letter-spacing:0.02em;color:var(--muted);}
+.add{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;
+  margin-top:1.5rem;min-height:2.875rem;padding:0 1.35rem;border-radius:999px;
+  background:var(--ink);color:var(--paper);font-size:0.875rem;font-weight:500;
+  letter-spacing:0.01em;transition:opacity 200ms ease,transform 200ms ease;}
+.add:hover:not(:disabled){opacity:0.85;}
+.add:active:not(:disabled){transform:scale(0.98);}
+.add:disabled{opacity:0.5;cursor:default;}
 
-/* hero */
-.hero{display:flex;flex-direction:column;align-items:center;text-align:center;
-  padding:var(--space-3) 0 var(--space-4);}
-.polaroids{width:min(100%,30rem);height:auto;margin:var(--space-2) auto 0;display:block;
-  filter:drop-shadow(0 12px 22px rgba(96,74,40,0.18));}
-.eyebrow{margin:0;font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--gold);}
-.rule{display:flex;align-items:center;gap:0.5rem;width:7rem;margin:0.5rem auto 0.75rem;color:var(--gold);}
-.rule span{flex:1 1 0;height:1px;background:currentColor;}
-.rule span:first-child{background:linear-gradient(90deg,transparent,currentColor);}
-.rule span:last-child{background:linear-gradient(90deg,currentColor,transparent);}
-.rule i{width:0.32rem;height:0.32rem;transform:rotate(45deg);background:currentColor;border-radius:1px;}
-.lead{margin:0.6rem 0 0;color:var(--shade-4);max-width:32ch;font-size:0.95rem;}
-.actions{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-2);justify-content:center;
-  margin-top:var(--space-3);}
+/* dagdeelfilters */
+.chips{display:flex;gap:0.5rem;justify-content:center;padding:0.25rem 0 1.25rem;}
+.chip{flex:0 1 auto;padding:0.5rem 0.95rem;border-radius:10px;background:var(--chip);
+  font-size:0.82rem;font-weight:500;letter-spacing:0.01em;color:var(--muted);
+  transition:background-color 200ms ease,color 200ms ease;}
+.chip:hover{color:var(--ink);}
+.chip.on{background:var(--ink);color:var(--paper);}
 
-/* two big targets: camera and gallery, nothing else competing */
-.choices{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);
-  width:min(100%,26rem);margin:var(--space-3) auto 0;}
-.choice{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:0.6rem;min-height:8.5rem;padding:var(--space-2);
-  border:1px solid var(--gold-line);border-radius:16px;
-  background:rgba(255,255,255,0.7);color:var(--shade-6);
-  font-size:0.85rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
-  transition:transform 200ms cubic-bezier(.2,.7,.3,1),box-shadow 200ms ease,
-    background-color 200ms ease;}
-.choice svg{color:var(--gold);}
-.choice:hover:not(:disabled){transform:translateY(-3px);
-  box-shadow:0 14px 26px rgba(96,74,40,0.18);}
-.choice:active:not(:disabled){transform:translateY(0);}
-.choice:disabled{opacity:0.55;cursor:default;}
-.choice-primary{background:var(--shade-6);border-color:var(--shade-6);color:var(--shade-1);}
-.choice-primary svg{color:var(--gold-light);}
-.choice-primary:hover:not(:disabled){background:#241d12;}
-.hint{margin:0;font-size:0.85rem;color:var(--shade-4);text-align:center;}
-
-/* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.55rem;min-height:3.25rem;
-  padding:0 1.5rem;border-radius:999px;font-size:0.92rem;font-weight:600;letter-spacing:0.02em;
-  transition:transform 200ms ease,background-color 200ms ease,opacity 200ms ease,box-shadow 200ms ease;}
-.btn:disabled{opacity:0.55;cursor:default;}
-.btn-primary{background:var(--shade-6);color:var(--shade-1);}
-.btn-primary:hover:not(:disabled){background:#241d12;}
-.btn-primary svg{color:var(--gold-light);}
-.btn-ghost{border:1px solid var(--gold-line);color:var(--shade-6);background:rgba(255,255,255,0.65);}
-.btn-ghost:hover:not(:disabled){background:var(--shade-1);}
-.btn-ghost svg{color:var(--gold);}
-
-/* compose */
-.scrim{position:fixed;inset:0;z-index:40;background:rgba(38,28,12,0.55);
-  backdrop-filter:blur(2px);animation:lb-in 200ms ease both;}
-.compose{position:fixed;left:0;right:0;bottom:0;z-index:41;
-  display:flex;flex-direction:column;gap:var(--space-2);
-  max-height:92vh;overflow-y:auto;
-  padding:0.75rem var(--space-3) calc(var(--space-3) + env(safe-area-inset-bottom));
-  background:var(--paper);border-radius:20px 20px 0 0;
-  box-shadow:0 -18px 40px rgba(20,12,2,0.28);
-  animation:sheet-up 320ms cubic-bezier(.2,.8,.3,1) both;}
-.grip{width:2.5rem;height:0.25rem;margin:0 auto 0.4rem;border-radius:999px;
-  background:var(--gold-line);}
-.compose-title{margin:0 0 0.25rem;font-size:1.35rem;line-height:1.2;text-align:center;}
-@keyframes sheet-up{from{transform:translateY(100%);}to{transform:none;}}
-@keyframes sheet-up-wide{
-  from{transform:translate(-50%,110%);}
-  to{transform:translate(-50%,0);}
-}
-.previews{display:flex;justify-content:center;}
-.previews img{display:block;max-width:100%;max-height:42vh;border-radius:12px;
-  box-shadow:0 18px 34px rgba(96,74,40,0.2);}
-.previews.many{justify-content:flex-start;gap:0.5rem;overflow-x:auto;padding-bottom:0.35rem;
-  scrollbar-width:thin;}
-.previews.many img{flex:0 0 auto;height:9rem;width:auto;border-radius:8px;
-  box-shadow:0 8px 18px rgba(96,74,40,0.16);}
-.field{position:relative;display:flex;flex-direction:column;gap:0.5rem;}
-.field-label{font-size:var(--type-label);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
-.field-label em{margin-left:0.4rem;font-style:normal;font-weight:400;letter-spacing:0;
-  text-transform:none;color:var(--shade-4);}
-.field textarea{width:100%;resize:none;padding:0.9rem 1rem 1.7rem;border:1px solid var(--gold-line);
-  border-radius:10px;background:var(--shade-1);font:inherit;font-size:1rem;line-height:1.45;}
-.field textarea:focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent;}
-.count{position:absolute;right:0.85rem;bottom:0.55rem;font-size:0.7rem;color:var(--shade-4);
-  font-variant-numeric:tabular-nums;}
-.upload-state{display:flex;flex-direction:column;gap:0.6rem;}
-.bar{position:relative;height:0.45rem;border-radius:999px;background:var(--gold-pale);overflow:hidden;}
-.bar span{position:absolute;top:0;bottom:0;left:0;border-radius:999px;background:var(--gold);
-  transition:width 200ms ease;}
-.error{margin:0;padding:0.8rem 1rem;border-radius:10px;background:hsl(0,100%,95%);
-  color:hsl(0,72%,30%);font-size:0.9rem;text-align:center;}
-.compose .actions{margin-top:0;}
-
-/* gallery */
-.gallery{padding-top:var(--space-2);}
-.day{display:flex;align-items:center;gap:0.75rem;margin:var(--space-3) 0 var(--space-2);
-  font-size:var(--type-label);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
-  color:var(--gold);}
-.day::after{content:"";flex:1 1 0;height:1px;background:var(--gold-line-soft);}
-.day:first-of-type{margin-top:var(--space-1);}
-.gallery-head{display:flex;align-items:baseline;gap:var(--space-2);margin-bottom:var(--space-2);}
-.gallery-head h2{margin:0;font-size:1.75rem;line-height:1.1;}
-.count-pill{font-size:var(--type-label);letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);}
-.refresh{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;padding:0;width:2.5rem;height:2.5rem;
-  border-radius:999px;color:var(--gold);border:1px solid var(--gold-line-soft);background:rgba(255,255,255,0.65);
-  transition:transform 400ms ease;}
-.refresh:active{transform:rotate(180deg);}
-/* photographs keep their own shape; cropping every face into a square is
-   the fastest way to make a wedding album look like a spreadsheet */
-.grid{columns:2;column-gap:0.5rem;}
-.tile{position:relative;display:block;width:100%;margin:0 0 0.5rem;padding:0;overflow:hidden;
-  border-radius:10px;background:var(--brand);line-height:0;
-  break-inside:avoid;-webkit-column-break-inside:avoid;
-  box-shadow:0 6px 16px rgba(96,74,40,0.14);
-  transition:transform 260ms cubic-bezier(.2,.7,.3,1),box-shadow 260ms ease;
-  animation:tile-in 400ms ease both;}
-.tile:hover{transform:translateY(-3px);box-shadow:0 14px 26px rgba(96,74,40,0.22);}
-.tile img{width:100%;height:auto;display:block;}
-.tile-cap{position:absolute;left:0;right:0;bottom:0;padding:1.6rem 0.7rem 0.6rem;
-  background:linear-gradient(180deg,rgba(20,12,2,0),rgba(20,12,2,0.72));
-  color:#fff;font-size:0.78rem;line-height:1.35;text-align:left;
+/* carrousel */
+.reel{display:flex;gap:0.5rem;overflow-x:auto;scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;overscroll-behavior-x:contain;
+  scrollbar-width:none;-ms-overflow-style:none;}
+.reel::-webkit-scrollbar{display:none;}
+.slide{position:relative;flex:0 0 100%;scroll-snap-align:center;display:block;
+  width:100%;padding:0;aspect-ratio:4/5;overflow:hidden;border-radius:14px;
+  background:rgba(21,21,15,0.05);line-height:0;}
+.slide img{width:100%;height:100%;object-fit:cover;display:block;
+  animation:fade 420ms ease both;}
+.slide figcaption{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 0.9rem 0.8rem;
+  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.55));
+  color:#fff;font-size:0.8rem;line-height:1.35;text-align:left;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.skeleton{columns:2;column-gap:0.5rem;}
-.skeleton span{display:block;margin:0 0 0.5rem;border-radius:10px;break-inside:avoid;
-  background:linear-gradient(90deg,var(--brand),#fff,var(--brand));background-size:200% 100%;
-  animation:shimmer 1.4s linear infinite;}
-.skeleton span:nth-child(3n){height:9rem;}
-.skeleton span:nth-child(3n+1){height:12rem;}
-.skeleton span:nth-child(3n+2){height:7rem;}
-.empty{margin:0;padding:var(--space-4) 0;text-align:center;color:var(--shade-4);}
-@keyframes tile-in{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:none;}}
+.reel-nav{position:absolute;top:50%;z-index:2;display:none;
+  align-items:center;justify-content:center;width:2.25rem;height:2.25rem;padding:0;
+  margin-top:-1.125rem;border-radius:999px;background:rgba(255,255,255,0.9);
+  color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,0.18);
+  transition:background-color 200ms ease;}
+.reel-nav:hover{background:#fff;}
+.reel-nav[disabled]{opacity:0;pointer-events:none;}
+.reel-prev{left:-0.5rem;}
+.reel-next{right:-0.5rem;}
+/* Een staande 4:5 foto is 1,25 keer zo hoog als breed, dus op een laag scherm
+   bepaalt de hoogte de maat: breedte = beschikbare hoogte maal 0,8. Op een
+   telefoon wint de 100% en verandert er niets. */
+.stage{position:relative;margin:0 auto;
+  width:min(100%,max(16rem,calc((100svh - 22rem) * 0.8)));}
+.meter{display:flex;align-items:center;justify-content:center;gap:0.5rem;
+  padding:0.85rem 0 0;font-size:0.75rem;letter-spacing:0.08em;color:var(--muted);
+  font-variant-numeric:tabular-nums;}
+.meter em{font-style:normal;color:var(--ink);}
+.blank{display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;
+  border-radius:14px;background:rgba(21,21,15,0.04);color:var(--muted);
+  font-size:0.875rem;text-align:center;padding:2rem;}
+.shimmer{aspect-ratio:4/5;border-radius:14px;
+  background:linear-gradient(90deg,rgba(21,21,15,0.04),rgba(21,21,15,0.09),rgba(21,21,15,0.04));
+  background-size:200% 100%;animation:shimmer 1.4s linear infinite;}
+
+/* zelf genomen foto's, bewust klein */
+.own{margin:3.5rem 0 0;padding:0 0 4rem;border-top:1px solid var(--hair);}
+.own-toggle{display:flex;align-items:center;gap:0.45rem;width:100%;padding:1rem 0;
+  font-size:0.8rem;color:var(--muted);transition:color 200ms ease;}
+.own-toggle:hover{color:var(--ink);}
+.own-toggle b{font-weight:500;}
+.own-toggle span{margin-left:auto;font-variant-numeric:tabular-nums;}
+.own-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.3rem;padding-bottom:0.5rem;}
+.own-tile{display:block;width:100%;padding:0;aspect-ratio:1;overflow:hidden;
+  border-radius:6px;background:rgba(21,21,15,0.05);line-height:0;
+  transition:opacity 200ms ease;}
+.own-tile:hover{opacity:0.82;}
+.own-tile img{width:100%;height:100%;object-fit:cover;display:block;}
+.own-empty{margin:0 0 1.25rem;font-size:0.8rem;color:var(--muted);}
+
+/* beheer: alleen zichtbaar met sleutel */
+.mgmt{margin-top:1rem;padding:0.9rem 1rem;border:1px dashed var(--hair);border-radius:12px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;font-size:0.8rem;color:var(--muted);}
+.mgmt select{font:inherit;font-size:0.8rem;padding:0.35rem 0.5rem;border-radius:8px;
+  border:1px solid var(--hair);background:#fff;color:var(--ink);}
+.mgmt .add{margin-top:0;min-height:2.25rem;padding:0 0.9rem;font-size:0.8rem;}
+
+/* voortgang */
+.bar{position:relative;height:0.25rem;border-radius:999px;background:var(--chip);
+  overflow:hidden;margin-top:0.9rem;}
+.bar span{position:absolute;inset:0 auto 0 0;border-radius:999px;background:var(--ink);
+  transition:width 180ms ease;}
+.note{margin:0.5rem 0 0;font-size:0.78rem;color:var(--muted);text-align:center;}
+.note.bad{color:hsl(0,55%,42%);}
+
+/* volledige foto */
+.lb{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  padding:1rem;background:rgba(14,14,10,0.94);animation:fade 200ms ease both;}
+.lb img{max-width:100%;max-height:calc(100svh - 6rem);width:auto;height:auto;display:block;
+  animation:pop 260ms cubic-bezier(.2,.75,.3,1) both;}
+.lb-cap{position:absolute;left:1rem;right:1rem;bottom:1.1rem;margin:0;text-align:center;
+  font-size:0.82rem;color:rgba(255,255,255,0.8);}
+.lb-x{position:absolute;top:1rem;right:1rem;display:inline-flex;align-items:center;
+  justify-content:center;width:2.5rem;height:2.5rem;padding:0;border-radius:999px;
+  background:rgba(255,255,255,0.14);color:#fff;}
+.lb-arrow{position:absolute;top:50%;margin-top:-1.25rem;display:inline-flex;align-items:center;
+  justify-content:center;width:2.5rem;height:2.5rem;padding:0;border-radius:999px;
+  background:rgba(255,255,255,0.14);color:#fff;}
+.lb-arrow.l{left:1rem;}
+.lb-arrow.r{right:1rem;}
+.lb-tools{position:absolute;top:1rem;left:1rem;display:flex;gap:0.4rem;}
+.lb-tool{display:inline-flex;align-items:center;gap:0.35rem;padding:0.5rem 0.8rem;
+  border-radius:999px;background:rgba(255,255,255,0.14);color:#fff;font-size:0.78rem;}
+.lb-tool.bad{background:hsl(0,55%,42%);}
+
+@keyframes fade{from{opacity:0;}to{opacity:1;}}
+@keyframes pop{from{opacity:0;transform:scale(0.98);}to{opacity:1;transform:none;}}
 @keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
 
-/* the camera button follows you down the page */
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;
-  padding:var(--space-4) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom));
-  background:linear-gradient(180deg,rgba(250,243,230,0),var(--paper) 55%);pointer-events:none;
-  animation:dock-in 300ms ease both;}
-.dock .btn{pointer-events:auto;min-width:min(100%,20rem);box-shadow:0 12px 28px rgba(96,74,40,0.28);}
-@keyframes dock-in{from{opacity:0;transform:translateY(0.75rem);}to{opacity:1;transform:none;}}
-
-/* toast */
-.toast{position:fixed;left:50%;bottom:calc(7rem + env(safe-area-inset-bottom));z-index:30;
-  transform:translateX(-50%);max-width:90vw;padding:0.75rem 1.1rem;border-radius:999px;
-  background:var(--shade-6);color:var(--shade-1);font-size:0.9rem;text-align:center;
-  box-shadow:0 12px 28px rgba(0,0,0,0.25);animation:toast-in 250ms ease both;}
-.toast.bad{background:hsl(0,60%,38%);}
-@keyframes toast-in{from{opacity:0;transform:translate(-50%,0.5rem);}to{opacity:1;transform:translate(-50%,0);}}
-
-/* lightbox */
-.lb{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
-  padding:var(--space-3);background:rgba(38,28,12,0.78);backdrop-filter:blur(3px);
-  animation:lb-in 220ms ease both;touch-action:pan-y;}
-.lb-frame{position:relative;margin:0;max-width:min(92vw,58rem);max-height:88vh;display:flex;
-  flex-direction:column;padding:0.7rem;background:var(--shade-1);border-radius:10px;
-  box-shadow:0 30px 60px rgba(20,12,2,0.5);animation:lb-rise 300ms cubic-bezier(.2,.75,.3,1) both;}
-.lb-frame::after{content:"";position:absolute;inset:0.35rem;border-radius:7px;
-  border:1px solid var(--gold-line-soft);pointer-events:none;}
-.lb-frame img{display:block;max-width:100%;max-height:calc(88vh - 5.5rem);width:auto;height:auto;
-  margin:0 auto;border-radius:5px;}
-.lb-frame figcaption{padding:0.75rem 0.4rem 0.2rem;text-align:center;}
-.lb-caption{margin:0;font-family:"Instrument Serif",Georgia,serif;font-size:1.2rem;line-height:1.3;}
-.lb-meta{margin:0.2rem 0 0;font-size:var(--type-label);letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--gold);}
-.lb-btn{position:absolute;z-index:2;display:inline-flex;align-items:center;justify-content:center;padding:0;
-  width:2.75rem;height:2.75rem;border-radius:999px;background:rgba(255,255,255,0.92);color:var(--shade-6);
-  box-shadow:0 4px 12px rgba(20,12,2,0.3);transition:background-color 200ms ease,transform 200ms ease;}
-.lb-btn:hover{background:#fff;transform:scale(1.05);}
-.lb-close{top:var(--space-3);right:var(--space-3);}
-.lb-prev{left:var(--space-2);top:50%;margin-top:-1.375rem;}
-.lb-next{right:var(--space-2);top:50%;margin-top:-1.375rem;}
-.lb-count{position:absolute;bottom:var(--space-3);left:0;right:0;margin:0;text-align:center;
-  font-size:var(--type-label);letter-spacing:0.14em;color:rgba(255,252,244,0.75);}
-.lb-tools{position:absolute;top:var(--space-3);left:var(--space-3);z-index:2;
-  display:flex;flex-wrap:wrap;gap:0.4rem;}
-.lb-tool{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 0.9rem;
-  border-radius:999px;background:rgba(255,255,255,0.92);color:var(--shade-6);
-  font-size:0.8rem;font-weight:600;box-shadow:0 4px 12px rgba(20,12,2,0.3);
-  transition:background-color 200ms ease;}
-.lb-tool svg{color:var(--gold);}
-.lb-tool:hover{background:#fff;}
-.lb-tool-bad{background:hsl(0,60%,38%);color:#fff;}
-.lb-tool-bad svg{color:#fff;}
-.lb-tool-bad:hover{background:hsl(0,60%,32%);}
-.lb-edit{display:flex;flex-direction:column;gap:0.6rem;padding-top:0.2rem;}
-.lb-edit textarea{width:100%;resize:none;padding:0.7rem 0.85rem;border:1px solid var(--gold-line);
-  border-radius:10px;background:var(--shade-1);font:inherit;font-size:0.95rem;line-height:1.4;}
-.lb-edit-actions{display:flex;gap:0.5rem;justify-content:center;}
-.btn-small{min-height:2.5rem;padding:0 1.1rem;font-size:0.82rem;}
-@keyframes lb-in{from{opacity:0;}to{opacity:1;}}
-@keyframes lb-rise{from{opacity:0;transform:translateY(1.2rem) scale(0.97);}to{opacity:1;transform:none;}}
-
-@media (min-width:600px){
-  .grid,.skeleton{columns:3;column-gap:0.7rem;}
-  .tile,.skeleton span{margin-bottom:0.7rem;}
-  .compose{left:50%;right:auto;width:min(38rem,100%);
-    border-radius:20px;bottom:var(--space-3);animation-name:sheet-up-wide;}
-}
-@media (min-width:900px){
-  .grid,.skeleton{columns:4;}
-  .hero{padding-top:var(--space-4);}
+@media (min-width:700px){
+  .reel-nav{display:inline-flex;}
+  .own-grid{grid-template-columns:repeat(6,1fr);}
 }
 @media (prefers-reduced-motion:reduce){
   .album *{animation:none !important;transition:none !important;}
+  .reel{scroll-behavior:auto;}
 }
 `;
 
-/* ---------- icons ---------- */
+/* ---------- iconen ---------- */
 
-const Icon = ({ children, size = 20 }) => (
+const Icon = ({ children, size = 18 }) => (
   <svg
     viewBox="0 0 24 24"
     width={size}
@@ -394,64 +206,35 @@ const Icon = ({ children, size = 20 }) => (
   </svg>
 );
 
-const IconCamera = ({ size }) => (
-  <Icon size={size}>
-    <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.1-2h6.4l1.1 2h2.2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5z" />
-    <circle cx="12" cy="13" r="3.4" />
-  </Icon>
-);
-
-const IconImages = ({ size }) => (
-  <Icon size={size}>
-    <rect x="3.5" y="5.5" width="14" height="12" rx="1.5" />
-    <path d="M20.5 8v9.5a2 2 0 0 1-2 2H7" />
-    <path d="M3.5 15l4-4 3 3 2.5-2.5 4.5 4.5" />
-    <circle cx="13.5" cy="9" r="1.2" />
-  </Icon>
-);
-
-const IconHeart = () => (
-  <Icon size={18}>
-    <path d="M12 20s-7.2-4.4-9.1-8.6A5.1 5.1 0 0 1 12 6.6a5.1 5.1 0 0 1 9.1 4.8C19.2 15.6 12 20 12 20z" />
-  </Icon>
-);
-
-const IconRefresh = () => (
-  <Icon size={18}>
-    <path d="M20 12a8 8 0 1 1-2.3-5.7" />
-    <path d="M20 4v5h-5" />
+const IconPlus = () => (
+  <Icon size={16}>
+    <path d="M12 5v14M5 12h14" />
   </Icon>
 );
 
 const IconClose = () => (
-  <Icon>
+  <Icon size={20}>
     <path d="M6 6l12 12M18 6L6 18" />
   </Icon>
 );
 
 const IconChevron = ({ back }) => (
-  <Icon size={22}>
+  <Icon size={20}>
     <path d={back ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
   </Icon>
 );
 
-const IconPencil = () => (
-  <Icon size={16}>
-    <path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z" />
-    <path d="M14.5 6.5l3 3" />
-  </Icon>
-);
-
 const IconTrash = () => (
-  <Icon size={16}>
+  <Icon size={15}>
     <path d="M4 7h16M9 7V5h6v2M7 7l1 12h8l1-12" />
   </Icon>
 );
 
-/* ---------- image handling ---------- */
+/* ---------- beeldbewerking ---------- */
 
-// Browsers apply EXIF orientation when decoding into an <img>, so drawing from
-// one gives the upright pixels, and re-encoding strips the metadata (and GPS).
+// Browsers passen de EXIF-rotatie toe bij het decoderen naar een <img>, dus
+// tekenen vanaf zo'n element geeft de rechtop staande pixels. Opnieuw coderen
+// haalt meteen alle metadata weg, inclusief de GPS-locatie.
 function decode(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -477,7 +260,10 @@ function scaled(img, max, quality) {
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
-  canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, w, h);
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => (blob ? resolve({ blob, w, h }) : reject(new Error("encode"))),
@@ -489,23 +275,23 @@ function scaled(img, max, quality) {
 
 async function prepare(file) {
   const img = await decode(file);
-  const full = await scaled(img, MAX_FULL, 0.84);
-  const thumb = await scaled(img, MAX_THUMB, 0.78);
-  return { full, thumb, preview: URL.createObjectURL(full.blob) };
+  const full = await scaled(img, MAX_FULL, Q_FULL);
+  const mid = await scaled(img, MAX_MID, Q_MID);
+  const thumb = await scaled(img, MAX_THUMB, Q_THUMB);
+  return { full, mid, thumb };
 }
 
-function release(entry) {
-  if (entry && entry.preview) URL.revokeObjectURL(entry.preview);
-}
-
-// XMLHttpRequest, because fetch gives no upload progress.
-function upload(entry, caption, onProgress) {
+// XMLHttpRequest, omdat fetch geen voortgang van een upload geeft.
+function send(parts, caption, cat, beheer, onProgress) {
   return new Promise((resolve, reject) => {
     const form = new FormData();
-    form.append("photo", entry.full.blob, "foto.jpg");
-    form.append("thumb", entry.thumb.blob, "thumb.jpg");
+    form.append("photo", parts.full.blob, "foto.jpg");
+    form.append("mid", parts.mid.blob, "mid.jpg");
+    form.append("thumb", parts.thumb.blob, "thumb.jpg");
     form.append("caption", caption);
+    form.append("cat", cat);
     form.append("owner", myKey());
+    if (beheer) form.append("key", beheer);
     const xhr = new XMLHttpRequest();
     xhr.open("POST", API + "?a=upload");
     xhr.upload.onprogress = (e) => {
@@ -526,118 +312,126 @@ function upload(entry, caption, onProgress) {
   });
 }
 
-const thumbUrl = (id) => API + "?a=img&s=thumb&id=" + id;
-const fullUrl = (id) => API + "?a=img&s=full&id=" + id;
+const imgUrl = (id, size) => API + "?a=img&s=" + size + "&id=" + id;
 
-function dayKey(ts) {
-  return new Date(ts * 1000).toDateString();
-}
+/* ---------- carrousel ---------- */
 
-function dayLabel(ts, lang, c) {
-  const d = new Date(ts * 1000);
-  const today = new Date();
-  const yesterday = new Date(today.getTime() - 86400000);
-  if (d.toDateString() === today.toDateString()) return c.today;
-  if (d.toDateString() === yesterday.toDateString()) return c.yesterday;
-  return d.toLocaleDateString(lang === "nl" ? "nl-NL" : "en-GB", {
-    day: "numeric",
-    month: "long",
-    year: d.getFullYear() === today.getFullYear() ? undefined : "numeric",
-  });
-}
+function Reel({ shots, onOpen }) {
+  const ref = useRef(null);
+  const [index, setIndex] = useState(0);
 
-function groupByDay(items) {
-  const groups = [];
-  let current = null;
-  items.forEach((item, index) => {
-    const key = dayKey(item.ts);
-    if (!current || current.key !== key) {
-      current = { key, ts: item.ts, photos: [] };
-      groups.push(current);
-    }
-    current.photos.push({ item, index });
-  });
-  return groups;
-}
+  // Terug naar het begin zodra er een ander dagdeel onder zit.
+  useEffect(() => {
+    const el = ref.current;
+    if (el) el.scrollLeft = 0;
+    setIndex(0);
+  }, [shots]);
 
-function formatTime(ts, lang) {
-  const d = new Date(ts * 1000);
-  const loc = lang === "nl" ? "nl-NL" : "en-GB";
-  const time = d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit" });
-  if (d.toDateString() === new Date().toDateString()) return time;
-  return d.toLocaleDateString(loc, { day: "numeric", month: "long" }) + ", " + time;
+  const onScroll = () => {
+    const el = ref.current;
+    if (!el || !el.clientWidth) return;
+    const step = el.clientWidth;
+    setIndex(Math.max(0, Math.min(shots.length - 1, Math.round(el.scrollLeft / step))));
+  };
+
+  const go = (d) => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: d * el.clientWidth, behavior: "smooth" });
+  };
+
+  return (
+    <div className="stage">
+      <div className="reel" ref={ref} onScroll={onScroll}>
+        {shots.map((item, i) => (
+          <button
+            key={item.id}
+            className="slide"
+            type="button"
+            onClick={() => onOpen(i)}
+            aria-label={item.caption || "Foto " + (i + 1) + " van " + shots.length}
+          >
+            {/* alleen wat in de buurt is krijgt een bron, anders trekt de
+                carrousel honderden foto's tegelijk */}
+            {Math.abs(i - index) <= 2 && (
+              <img
+                src={imgUrl(item.id, item.mid ? "mid" : "full")}
+                alt={item.caption || ""}
+                decoding="async"
+                loading={i === 0 ? "eager" : "lazy"}
+              />
+            )}
+            {item.caption && <figcaption>{item.caption}</figcaption>}
+          </button>
+        ))}
+      </div>
+      <button
+        className="reel-nav reel-prev"
+        type="button"
+        onClick={() => go(-1)}
+        disabled={index === 0}
+        aria-label="Vorige foto"
+      >
+        <IconChevron back />
+      </button>
+      <button
+        className="reel-nav reel-next"
+        type="button"
+        onClick={() => go(1)}
+        disabled={index >= shots.length - 1}
+        aria-label="Volgende foto"
+      >
+        <IconChevron />
+      </button>
+      <p className="meter">
+        <em>{index + 1}</em> / {shots.length}
+      </p>
+    </div>
+  );
 }
 
 /* ---------- app ---------- */
 
 export default function FotoApp() {
-  const [lang, setLang] = useState("nl");
   const [items, setItems] = useState(null);
   const [loadError, setLoadError] = useState(false);
-  const [queue, setQueue] = useState([]);
-  const [caption, setCaption] = useState("");
+  const [cat, setCat] = useState("ochtend");
   const [phase, setPhase] = useState("idle");
-  const [progress, setProgress] = useState({ index: 0, frac: 0 });
-  const [toast, setToast] = useState(null);
-  const [open, setOpen] = useState(null);
-  const [heroVisible, setHeroVisible] = useState(true);
+  const [progress, setProgress] = useState({ done: 0, total: 0, frac: 0 });
+  const [note, setNote] = useState(null);
   const [beheer, setBeheer] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [target, setTarget] = useState("ochtend");
+  const [ownOpen, setOwnOpen] = useState(false);
+  const [view, setView] = useState(null); // { list, i }
 
-  const cameraRef = useRef(null);
   const pickRef = useRef(null);
-  const heroRef = useRef(null);
-  const albumRef = useRef(null);
-  const toastTimer = useRef(0);
-  const touchX = useRef(null);
+  const noteTimer = useRef(0);
 
-  const c = COPY[lang];
-  const composing = queue.length > 0;
-
-  /* language, same rules as the invitation */
+  /* beheersleutel komt eenmalig via ?beheer= en blijft daarna in de sessie */
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("taal");
-      if (stored === "nl" || stored === "en") {
-        setLang(stored);
-        return;
-      }
-    } catch (e) {
-      // no storage, fall through
-    }
-    const nav = typeof navigator !== "undefined" ? navigator.language || "" : "";
-    if (nav.toLowerCase().startsWith("en")) setLang("en");
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = lang;
-    try {
-      localStorage.setItem("taal", lang);
-    } catch (e) {
-      // not fatal
-    }
-  }, [lang]);
-
-  /* moderation key arrives once via ?beheer= and then lives in the session */
-  useEffect(() => {
+    let key = "";
     try {
       const params = new URLSearchParams(window.location.search);
-      const key = params.get("beheer");
-      if (key) {
-        sessionStorage.setItem("beheer", key);
+      const given = params.get("beheer");
+      if (given) {
+        sessionStorage.setItem("beheer", given);
         params.delete("beheer");
         const clean = window.location.pathname + (params.toString() ? "?" + params : "");
         window.history.replaceState(null, "", clean);
       }
-      setBeheer(sessionStorage.getItem("beheer") || "");
+      key = sessionStorage.getItem("beheer") || "";
     } catch (e) {
-      setBeheer("");
+      key = "";
     }
+    if (!key) return;
+    const form = new FormData();
+    form.append("key", key);
+    fetch(API + "?a=claim", { method: "POST", body: form })
+      .then((r) => r.json())
+      .then((d) => setBeheer(d && d.ok ? key : ""))
+      .catch(() => setBeheer(""));
   }, []);
 
-  /* gallery */
   const load = useCallback(async () => {
     try {
       const body = new FormData();
@@ -661,7 +455,7 @@ export default function FotoApp() {
 
   useEffect(() => {
     const tick = () => {
-      if (document.visibilityState === "visible" && !composing) load();
+      if (document.visibilityState === "visible" && phase === "idle") load();
     };
     const t = window.setInterval(tick, POLL_MS);
     document.addEventListener("visibilitychange", tick);
@@ -669,102 +463,80 @@ export default function FotoApp() {
       window.clearInterval(t);
       document.removeEventListener("visibilitychange", tick);
     };
-  }, [load, composing]);
+  }, [load, phase]);
 
-  /* the bottom camera button shows once the hero has scrolled away */
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el || !("IntersectionObserver" in window)) return undefined;
-    const io = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting), {
-      threshold: 0.2,
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [composing]);
-
-  const showToast = useCallback((text, bad) => {
-    window.clearTimeout(toastTimer.current);
-    setToast({ text, bad });
-    toastTimer.current = window.setTimeout(() => setToast(null), 3200);
+  const say = useCallback((text, bad) => {
+    window.clearTimeout(noteTimer.current);
+    setNote({ text, bad });
+    noteTimer.current = window.setTimeout(() => setNote(null), 4000);
   }, []);
 
-  /* choosing photos */
+  // Het id begint met de tijd in milliseconden, dus oplopend sorteren op id
+  // geeft precies de volgorde waarin de foto's zijn toegevoegd.
+  const byCat = useMemo(() => {
+    const map = { ochtend: [], middag: [], avond: [], gast: [] };
+    (items || []).forEach((it) => {
+      (map[it.cat] || map.gast).push(it);
+    });
+    CATS.forEach(({ id }) => map[id].sort((a, b) => (a.id < b.id ? -1 : 1)));
+    map.gast.sort((a, b) => (a.id > b.id ? -1 : 1));
+    return map;
+  }, [items]);
+
+  const shots = byCat[cat];
+  const own = byCat.gast;
+
+  /* uploaden */
   const onFiles = async (fileList) => {
-    const files = Array.from(fileList || []).filter((f) => f && f.size > 0);
+    // Op naam sorteren, zodat een reeks van de fotograaf in de juiste volgorde
+    // op de server belandt; het id bepaalt later de volgorde in de carrousel.
+    const files = Array.from(fileList || [])
+      .filter((f) => f && f.size > 0)
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
     if (!files.length) return;
-    setPhase("preparing");
-    const prepared = [];
-    for (const file of files) {
-      try {
-        prepared.push(await prepare(file));
-      } catch (e) {
-        // skip what cannot be decoded, report below if nothing survived
-      }
-    }
-    if (!prepared.length) {
-      setPhase("idle");
-      showToast(c.unreadable, true);
-      return;
-    }
-    queue.forEach(release);
-    setQueue(prepared);
-    setPhase("idle");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
-  const cancel = () => {
-    queue.forEach(release);
-    setQueue([]);
-    setCaption("");
-    setPhase("idle");
-  };
-
-  const share = async () => {
-    setPhase("uploading");
+    const where = beheer ? target : "gast";
+    setPhase("busy");
+    setProgress({ done: 0, total: files.length, frac: 0 });
     const added = [];
-    for (let i = 0; i < queue.length; i++) {
-      setProgress({ index: i, frac: 0 });
+    for (let i = 0; i < files.length; i++) {
+      setProgress({ done: i, total: files.length, frac: 0 });
       try {
-        const item = await upload(queue[i], caption.trim(), (frac) =>
-          setProgress({ index: i, frac })
+        const parts = await prepare(files[i]);
+        const item = await send(parts, "", where, beheer, (frac) =>
+          setProgress({ done: i, total: files.length, frac })
         );
         added.push(item);
       } catch (e) {
-        // keep the ones that did not make it, so a retry only sends those
-        queue.slice(0, i).forEach(release);
-        setQueue(queue.slice(i));
         if (added.length) setItems((cur) => [...added, ...(cur || [])]);
-        setPhase("error");
+        setPhase("idle");
+        say(
+          "Gestopt na " + added.length + " van " + files.length + " foto's. Probeer de rest opnieuw.",
+          true
+        );
         return;
       }
     }
-    queue.forEach(release);
     setItems((cur) => [...added, ...(cur || [])]);
-    setQueue([]);
-    setCaption("");
     setPhase("idle");
-    showToast(added.length > 1 ? c.doneMany : c.doneOne, false);
-    window.setTimeout(() => {
-      if (albumRef.current) albumRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 120);
+    if (where === "gast") {
+      setOwnOpen(true);
+      say(added.length === 1 ? "Je foto staat erbij." : "Je foto's staan erbij.", false);
+    } else {
+      setCat(where);
+      say(added.length + " foto's toegevoegd.", false);
+    }
   };
 
-  /* lightbox */
-  const step = useCallback(
-    (d) => {
-      setOpen((v) => (v === null || !items ? v : (v + d + items.length) % items.length));
-    },
-    [items]
-  );
+  /* volledige foto */
+  const step = useCallback((d) => {
+    setView((v) => (v === null ? v : { ...v, i: (v.i + d + v.list.length) % v.list.length }));
+  }, []);
 
   useEffect(() => {
-    setEditing(false);
-  }, [open]);
-
-  useEffect(() => {
-    if (open === null) return undefined;
+    if (view === null) return undefined;
     const onKey = (e) => {
-      if (e.key === "Escape") setOpen(null);
+      if (e.key === "Escape") setView(null);
       if (e.key === "ArrowRight") step(1);
       if (e.key === "ArrowLeft") step(-1);
     };
@@ -775,33 +547,10 @@ export default function FotoApp() {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = previous;
     };
-  }, [open, step]);
-
-  const saveCaption = async (id) => {
-    setSaving(true);
-    try {
-      const form = new FormData();
-      form.append("id", id);
-      form.append("caption", draft.trim());
-      form.append("owner", myKey());
-      if (beheer) form.append("key", beheer);
-      const r = await fetch(API + "?a=update", { method: "POST", body: form });
-      const d = await r.json();
-      if (d && d.ok) {
-        setItems((cur) => (cur || []).map((x) => (x.id === id ? { ...x, ...d.item } : x)));
-        setEditing(false);
-        showToast(c.saved, false);
-      } else {
-        showToast((d && d.error) || c.failed, true);
-      }
-    } catch (e) {
-      showToast(c.failed, true);
-    }
-    setSaving(false);
-  };
+  }, [view, step]);
 
   const remove = async (id) => {
-    if (!window.confirm(c.removeAsk)) return;
+    if (!window.confirm("Deze foto verwijderen?")) return;
     try {
       const form = new FormData();
       form.append("id", id);
@@ -811,244 +560,124 @@ export default function FotoApp() {
       const d = await r.json();
       if (d && d.ok) {
         setItems((cur) => (cur || []).filter((x) => x.id !== id));
-        setOpen(null);
-        showToast(c.removed, false);
+        setView(null);
+        say("Foto verwijderd.", false);
       } else {
-        showToast((d && d.error) || c.failed, true);
+        say((d && d.error) || "Verwijderen is niet gelukt.", true);
       }
     } catch (e) {
-      showToast(c.failed, true);
+      say("Verwijderen is niet gelukt.", true);
     }
   };
 
-  const pct = Math.round(progress.frac * 100);
-  const current = open !== null && items ? items[open] : null;
+  const current = view ? view.list[view.i] : null;
+  const busy = phase === "busy";
+  const pct = progress.total
+    ? Math.round(((progress.done + progress.frac) / progress.total) * 100)
+    : 0;
 
   return (
     <div className="album">
       <style>{CSS}</style>
 
-      <header className="top">
-        <a className="top-home" href="../" aria-label={c.home}>
-          <img src="../images/logo-icoon.png" width="192" height="192" alt="" />
-        </a>
-        <div className="lang" role="group" aria-label="Taal / Language">
-          <span className="lang-thumb" data-on={lang} aria-hidden="true" />
-          <button
-            type="button"
-            className={"lang-opt" + (lang === "nl" ? " is-on" : "")}
-            aria-pressed={lang === "nl"}
-            onClick={() => setLang("nl")}
-          >
-            <span className="lang-flag" aria-hidden="true">&#127475;&#127473;</span>
-            <span className="lang-code">NL</span>
-            <span className="sr-only">Nederlands</span>
-          </button>
-          <button
-            type="button"
-            className={"lang-opt" + (lang === "en" ? " is-on" : "")}
-            aria-pressed={lang === "en"}
-            onClick={() => setLang("en")}
-          >
-            <span className="lang-flag" aria-hidden="true">&#127468;&#127463;</span>
-            <span className="lang-code">EN</span>
-            <span className="sr-only">English</span>
-          </button>
-        </div>
-      </header>
-
       <main className="wrap">
-        <section className="hero" ref={heroRef}>
-            <p className="eyebrow">{c.eyebrow}</p>
-            <div className="rule" aria-hidden="true">
-              <span />
-              <i />
-              <span />
-            </div>
-            <p className="lead">{c.lead}</p>
-            <img
-              className="polaroids"
-              src="../images/polaroids-042b22aa.webp"
-              width="1200"
-              height="666"
-              alt=""
-            />
-            <div className="choices">
-              <button
-                className="choice choice-primary"
-                type="button"
-                onClick={() => cameraRef.current && cameraRef.current.click()}
-                disabled={phase === "preparing"}
-                aria-label={c.takeLong}
-              >
-                <IconCamera size={44} />
-                <span>{c.take}</span>
-              </button>
-              <button
-                className="choice"
-                type="button"
-                onClick={() => pickRef.current && pickRef.current.click()}
-                disabled={phase === "preparing"}
-                aria-label={c.pickLong}
-              >
-                <IconImages size={44} />
-                <span>{c.pick}</span>
-              </button>
-            </div>
-          {phase === "preparing" && <p className="hint" style={{ marginTop: "1rem" }}>{c.preparing}</p>}
-        </section>
+        <header className="head">
+          <h1>Foto album bruiloft</h1>
+          <p>Nya &#10084;&#65039; Sten</p>
+          <button
+            className="add"
+            type="button"
+            onClick={() => pickRef.current && pickRef.current.click()}
+            disabled={busy}
+          >
+            <IconPlus />
+            {busy ? "Bezig" : "Foto toevoegen"}
+          </button>
 
-        {composing && <div className="scrim" onClick={phase === "uploading" ? undefined : cancel} />}
-        {composing && (
-          <section className="compose" aria-live="polite">
-            <span className="grip" aria-hidden="true" />
-            <h2 className="serif compose-title">{c.composeTitle}</h2>
-            <div className={"previews" + (queue.length > 1 ? " many" : "")}>
-              {queue.map((q, i) => (
-                <img key={q.preview} src={q.preview} width={q.full.w} height={q.full.h} alt="" />
-              ))}
-            </div>
-
-            <label className="field">
-              <span className="field-label">
-                {c.captionLabel}
-                <em>{c.optional}</em>
-              </span>
-              <textarea
-                value={caption}
-                maxLength={MAX_CAPTION}
-                rows={2}
-                placeholder={c.placeholder}
-                onChange={(e) => setCaption(e.target.value)}
-                disabled={phase === "uploading"}
-              />
-              <span className="count" aria-hidden="true">
-                {caption.length}/{MAX_CAPTION}
-              </span>
-            </label>
-            {queue.length > 1 && <p className="hint">{c.forAll}</p>}
-
-            {phase === "uploading" && (
-              <div className="upload-state">
-                <div
-                  className="bar"
-                  role="progressbar"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={pct}
-                >
-                  <span style={{ width: pct + "%" }} />
-                </div>
-                <p className="hint">
-                  {c.uploading}
-                  {queue.length > 1 ? " " + (progress.index + 1) + " " + c.of + " " + queue.length : ""}
-                </p>
-              </div>
-            )}
-            {phase === "error" && <p className="error">{c.failed}</p>}
-
-            <div className="actions">
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={share}
-                disabled={phase === "uploading"}
-              >
-                <IconHeart />
-                {phase === "error" ? c.retry : c.share}
-              </button>
-              <button
-                className="btn btn-ghost"
-                type="button"
-                onClick={cancel}
-                disabled={phase === "uploading"}
-              >
-                {c.cancel}
-              </button>
-            </div>
-          </section>
-        )}
-
-        <section className="gallery" ref={albumRef} aria-live="polite">
-          <div className="gallery-head">
-            <h2 className="serif">{c.album}</h2>
-            {items && items.length > 0 && (
-              <span className="count-pill">
-                {items.length} {items.length === 1 ? c.one : c.many}
-              </span>
-            )}
-            <button className="refresh" type="button" onClick={load} aria-label={c.refresh}>
-              <IconRefresh />
-            </button>
-          </div>
-
-          {items === null && !loadError && (
-            <div className="grid skeleton" aria-hidden="true">
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <span key={i} />
-              ))}
+          {beheer && (
+            <div className="mgmt">
+              <span>Beheer: foto&#8217;s toevoegen aan</span>
+              <select value={target} onChange={(e) => setTarget(e.target.value)} disabled={busy}>
+                {CATS.map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.label}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
-          {loadError && items === null && <p className="error">{c.loadFailed}</p>}
-          {items && items.length === 0 && <p className="empty">{c.empty}</p>}
-          {items && items.length > 0 && (
+
+          {busy && (
             <>
-              {groupByDay(items).map((group) => (
-                <section key={group.key}>
-                  <h3 className="day">{dayLabel(group.ts, lang, c)}</h3>
-                  <div className="grid">
-                    {group.photos.map(({ item, index }) => (
-                      <button
-                        key={item.id}
-                        className="tile"
-                        type="button"
-                        onClick={() => setOpen(index)}
-                        aria-label={item.caption || c.photoAlt}
-                      >
-                        <img
-                          src={thumbUrl(item.id)}
-                          width={item.w || undefined}
-                          height={item.h || undefined}
-                          alt={item.caption || ""}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        {item.caption && <span className="tile-cap">{item.caption}</span>}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ))}
+              <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+                <span style={{ width: pct + "%" }} />
+              </div>
+              <p className="note">
+                Foto {Math.min(progress.done + 1, progress.total)} van {progress.total}
+              </p>
             </>
+          )}
+          {note && <p className={"note" + (note.bad ? " bad" : "")}>{note.text}</p>}
+        </header>
+
+        <div className="chips" role="tablist" aria-label="Dagdeel">
+          {CATS.map((x) => (
+            <button
+              key={x.id}
+              className={"chip" + (cat === x.id ? " on" : "")}
+              type="button"
+              role="tab"
+              aria-selected={cat === x.id}
+              onClick={() => setCat(x.id)}
+            >
+              {x.label}
+            </button>
+          ))}
+        </div>
+
+        {items === null && !loadError && <div className="shimmer" aria-hidden="true" />}
+        {loadError && items === null && (
+          <div className="blank">Het album kon niet worden geladen.</div>
+        )}
+        {items !== null && shots.length === 0 && (
+          <div className="blank">Nog geen foto&#8217;s in dit dagdeel.</div>
+        )}
+        {items !== null && shots.length > 0 && (
+          <Reel shots={shots} onOpen={(i) => setView({ list: shots, i })} />
+        )}
+
+        <section className="own">
+          <button
+            className="own-toggle"
+            type="button"
+            onClick={() => setOwnOpen((v) => !v)}
+            aria-expanded={ownOpen}
+          >
+            <IconPlus />
+            <b>zelf genomen foto&#8217;s</b>
+            <span>{own.length}</span>
+          </button>
+          {ownOpen && own.length === 0 && (
+            <p className="own-empty">Nog niets toegevoegd.</p>
+          )}
+          {ownOpen && own.length > 0 && (
+            <div className="own-grid">
+              {own.map((item, i) => (
+                <button
+                  key={item.id}
+                  className="own-tile"
+                  type="button"
+                  onClick={() => setView({ list: own, i })}
+                  aria-label={item.caption || "Zelf genomen foto"}
+                >
+                  <img src={imgUrl(item.id, "thumb")} alt="" loading="lazy" decoding="async" />
+                </button>
+              ))}
+            </div>
           )}
         </section>
       </main>
 
-      {!composing && !heroVisible && (
-        <div className="dock">
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => cameraRef.current && cameraRef.current.click()}
-            disabled={phase === "preparing"}
-          >
-            <IconCamera />
-            {c.take}
-          </button>
-        </div>
-      )}
-
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={(e) => {
-          onFiles(e.target.files);
-          e.target.value = "";
-        }}
-      />
       <input
         ref={pickRef}
         type="file"
@@ -1061,128 +690,62 @@ export default function FotoApp() {
         }}
       />
 
-      {toast && (
-        <div className={"toast" + (toast.bad ? " bad" : "")} role="status">
-          {toast.text}
-        </div>
-      )}
-
       {current && (
         <div
           className="lb"
           role="dialog"
           aria-modal="true"
-          aria-label={current.caption || c.photoAlt}
-          onClick={() => setOpen(null)}
-          onTouchStart={(e) => {
-            touchX.current = e.touches[0].clientX;
-          }}
-          onTouchEnd={(e) => {
-            if (touchX.current === null) return;
-            const dx = e.changedTouches[0].clientX - touchX.current;
-            touchX.current = null;
-            if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
-          }}
+          aria-label={current.caption || "Volledige foto"}
+          onClick={() => setView(null)}
         >
-          <button className="lb-btn lb-close" type="button" aria-label={c.close}>
+          <button className="lb-x" type="button" aria-label="Sluiten">
             <IconClose />
           </button>
           {(current.mine || beheer) && (
             <div className="lb-tools" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="lb-tool"
-                type="button"
-                onClick={() => {
-                  setDraft(current.caption || "");
-                  setEditing(true);
-                }}
-              >
-                <IconPencil />
-                {c.edit}
-              </button>
-              <button
-                className="lb-tool lb-tool-bad"
-                type="button"
-                onClick={() => remove(current.id)}
-              >
+              <button className="lb-tool bad" type="button" onClick={() => remove(current.id)}>
                 <IconTrash />
-                {c.remove}
+                Verwijderen
               </button>
             </div>
           )}
-          <button
-            className="lb-btn lb-prev"
-            type="button"
-            aria-label={c.prev}
-            onClick={(e) => {
-              e.stopPropagation();
-              step(-1);
-            }}
-          >
-            <IconChevron back />
-          </button>
-          <figure className="lb-frame" onClick={(e) => e.stopPropagation()}>
-            <img
-              key={current.id}
-              src={fullUrl(current.id)}
-              width={current.w || undefined}
-              height={current.h || undefined}
-              alt={current.caption || c.photoAlt}
-            />
-            <figcaption>
-              {editing ? (
-                <div className="lb-edit">
-                  <textarea
-                    value={draft}
-                    maxLength={MAX_CAPTION}
-                    rows={2}
-                    placeholder={c.placeholder}
-                    onChange={(e) => setDraft(e.target.value)}
-                    disabled={saving}
-                  />
-                  <div className="lb-edit-actions">
-                    <button
-                      className="btn btn-primary btn-small"
-                      type="button"
-                      onClick={() => saveCaption(current.id)}
-                      disabled={saving}
-                    >
-                      {c.save}
-                    </button>
-                    <button
-                      className="btn btn-ghost btn-small"
-                      type="button"
-                      onClick={() => setEditing(false)}
-                      disabled={saving}
-                    >
-                      {c.cancel}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {current.caption && <p className="lb-caption">{current.caption}</p>}
-                  <p className="lb-meta">
-                    {formatTime(current.ts, lang)}
-                    {current.mine ? " \u00b7 " + c.mine : ""}
-                  </p>
-                </>
-              )}
-            </figcaption>
-          </figure>
-          <button
-            className="lb-btn lb-next"
-            type="button"
-            aria-label={c.next}
-            onClick={(e) => {
-              e.stopPropagation();
-              step(1);
-            }}
-          >
-            <IconChevron />
-          </button>
-          <p className="lb-count">
-            {open + 1} / {items.length}
+          {view.list.length > 1 && (
+            <button
+              className="lb-arrow l"
+              type="button"
+              aria-label="Vorige"
+              onClick={(e) => {
+                e.stopPropagation();
+                step(-1);
+              }}
+            >
+              <IconChevron back />
+            </button>
+          )}
+          <img
+            key={current.id}
+            src={imgUrl(current.id, "full")}
+            width={current.w || undefined}
+            height={current.h || undefined}
+            alt={current.caption || "Volledige foto"}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {view.list.length > 1 && (
+            <button
+              className="lb-arrow r"
+              type="button"
+              aria-label="Volgende"
+              onClick={(e) => {
+                e.stopPropagation();
+                step(1);
+              }}
+            >
+              <IconChevron />
+            </button>
+          )}
+          <p className="lb-cap">
+            {current.caption ? current.caption + " · " : ""}
+            {view.i + 1} / {view.list.length}
           </p>
         </div>
       )}

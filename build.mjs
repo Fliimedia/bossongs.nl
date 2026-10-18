@@ -28,14 +28,14 @@ function page({ title, description, icon, fonts, extraHead, noscript, script }) 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>${title}</title>
-    <meta name="build" content="b16" />
+    <meta name="build" content="b17" />
     <meta name="description" content="${description}" />
 ${extraHead}    <link rel="icon" href="${icon}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="${fonts}" />
   </head>
-  <body style="margin:0;background:#faf3e6">
+  <body style="margin:0;background:#f8f5ee">
     <div id="root"><noscript>${noscript}</noscript></div>
     <script>${script}</script>
   </body>
@@ -120,7 +120,7 @@ const album = page({
   fonts:
     "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap",
   extraHead:
-    '    <meta name="robots" content="noindex" />\n    <meta name="theme-color" content="#faf3e6" />\n',
+    '    <meta name="robots" content="noindex" />\n    <meta name="theme-color" content="#f8f5ee" />\n',
   noscript: "Zet JavaScript aan om foto's te delen.",
   script: await bundle("src/foto.jsx"),
 });
