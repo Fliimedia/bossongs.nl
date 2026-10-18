@@ -43,71 +43,22 @@ ${extraHead}    <link rel="icon" href="${icon}" />
 `;
 }
 
-// The home page: the Bossongs mark on its own, nothing else. No framework and no
-// webfont, so the first paint is the finished page and the fade never stutters.
-// The mark is traced vector (src/bossongs-logo.svg), inlined so it needs no request.
-const PAPER = "#f8f5ee"; // sampled from the logo artwork
-const LOGO = readFileSync("src/bossongs-logo.svg", "utf8").trim();
+// De homepagina staat als gewone HTML in src/home.html: geen framework, zodat
+// de eerste weergave meteen de afgewerkte pagina is en de fade niet hapert. De
+// twee vectoren worden ingevoegd, zodat de pagina er geen verzoek voor nodig
+// heeft. src/bossongs-logo.svg is het volledige merk, src/b-monogram.svg de
+// losse B die in de menuknop opkomt.
+const indent = (svg, pad) =>
+  svg
+    .trim()
+    .split("\n")
+    .map((line) => pad + line)
+    .join("\n");
 
-const home = `<!doctype html>
-<html lang="nl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Bossongs</title>
-    <meta name="build" content="b17" />
-    <meta name="description" content="Nyarayek en Sten, 19 september 2026." />
-    <meta name="theme-color" content="${PAPER}" />
-    <link rel="icon" href="images/logo-icoon.png" />
-    <style>
-      :root { color-scheme: light; }
-      html, body {
-        margin: 0;
-        height: 100%;
-        background: ${PAPER};
-        overflow: hidden;
-      }
-      .stage {
-        min-height: 100svh;
-        display: grid;
-        place-items: center;
-        padding: 6vmin;
-        box-sizing: border-box;
-      }
-      .mark {
-        display: block;
-        width: min(64vw, 46svh, 430px);
-        height: auto;
-        transform: scale(1.045) translateY(12px);
-        animation: settle 4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-      }
-      .mark-monogram { opacity: 0; animation: rise 2.2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both; }
-      .mark-word     { opacity: 0; animation: rise 2s   cubic-bezier(0.4, 0, 0.2, 1) 1.15s both; }
-      .mark-rule {
-        opacity: 0;
-        transform-box: fill-box;
-        transform-origin: center;
-        animation: draw 1.6s cubic-bezier(0.22, 1, 0.36, 1) 1.7s both;
-      }
-      @keyframes settle { to { transform: none; } }
-      @keyframes rise   { to { opacity: 1; } }
-      @keyframes draw   { from { opacity: 0; transform: scaleX(0.25); } to { opacity: 1; transform: none; } }
-      @media (prefers-reduced-motion: reduce) {
-        .mark { transform: none; }
-        .mark, .mark-monogram, .mark-word, .mark-rule {
-          opacity: 1;
-          animation: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <main class="stage">
-${LOGO.split("\n").map((l) => "      " + l).join("\n")}
-    </main>
-  </body>
-</html>
-`;
+const home = readFileSync("src/home.html", "utf8")
+  .replace("<!--MARK-->", indent(readFileSync("src/bossongs-logo.svg", "utf8"), "      "))
+  .replace("<!--B-->", indent(readFileSync("src/b-monogram.svg", "utf8"), "        "));
+
 writeFileSync("index.html", home);
 console.log("index.html written, " + Math.round(home.length / 1024) + "K");
 

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Bossongs</title>
+    <meta name="build" content="b18" />
+    <meta name="description" content="Nyarayek en Sten, 19 september 2026." />
+    <meta name="theme-color" content="#f8f5ee" />
+    <link rel="icon" href="images/logo-icoon.png" />
+    <!-- De letter wordt pas gebruikt zodra het menu opengaat, dus hij mag de
+         eerste weergave niet ophouden: als print geladen, daarna aangezet. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <style>
+      :root { color-scheme: light; --paper:#f8f5ee; --ink:#15150f; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--paper);
+        overflow: hidden;
+      }
+      .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+      }
+      .stage {
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 6vmin;
+        box-sizing: border-box;
+      }
+      .mark {
+        display: block;
+        width: min(64vw, 46svh, 430px);
+        height: auto;
+        transform: scale(1.045) translateY(12px);
+        animation: settle 4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+      }
+      .mark-monogram { opacity: 0; animation: rise 2.2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both; }
+      .mark-word     { opacity: 0; animation: rise 2s   cubic-bezier(0.4, 0, 0.2, 1) 1.15s both; }
+      .mark-rule {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: draw 1.6s cubic-bezier(0.22, 1, 0.36, 1) 1.7s both;
+      }
+      @keyframes settle { to { transform: none; } }
+      @keyframes rise   { to { opacity: 1; } }
+      @keyframes draw   { from { opacity: 0; transform: scaleX(0.25); } to { opacity: 1; transform: none; } }
+
+      /* knop rechtsboven: drie streepjes, waarvan het middelste korter, zodat
+         het blok rechts uitlijnt en links een trap maakt */
+      .nav-btn {
+        position: fixed;
+        top: calc(env(safe-area-inset-top) + 1.1rem);
+        right: calc(env(safe-area-inset-right) + 1.1rem);
+        z-index: 50;
+        width: 44px; height: 44px; padding: 0;
+        border: 0; background: none; color: var(--ink); cursor: pointer;
+        animation: rise 900ms ease 2.2s both;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .nav-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+      .bars, .cross, .bmark { position: absolute; inset: 0; }
+      .bars i, .cross i {
+        position: absolute; right: 11px; height: 1.5px;
+        background: currentColor; border-radius: 1px;
+        transform-origin: center;
+      }
+      .bars i:nth-child(1) { top: 15.25px; width: 22px; }
+      .bars i:nth-child(2) { top: 21.25px; width: 14px; transition: width 300ms cubic-bezier(.2,.7,.3,1); }
+      .bars i:nth-child(3) { top: 27.25px; width: 22px; }
+      .nav-btn:hover .bars i:nth-child(2) { width: 22px; }
+
+      .cross { opacity: 0; visibility: hidden; }
+      .cross i { top: 21.25px; width: 21px; }
+      .cross i:nth-child(1) { transform: rotate(45deg); }
+      .cross i:nth-child(2) { transform: rotate(-45deg); }
+
+      .bmark { display: grid; place-items: center; opacity: 0; }
+      .bmark svg { width: 21px; height: auto; display: block; }
+
+      /* de omslag: streepjes weg, de B uit het logo komt op en vervaagt weer */
+      [data-nav="opening"] .bars { animation: barsGo 220ms cubic-bezier(0.4, 0, 1, 1) both; }
+      [data-nav="opening"] .bmark { animation: bGo 500ms cubic-bezier(0.2, 0.7, 0.3, 1) 140ms both; }
+      @keyframes barsGo { to { opacity: 0; transform: scale(0.55) rotate(-8deg); } }
+      @keyframes bGo {
+        0%   { opacity: 0; transform: scale(0.5); }
+        38%  { opacity: 1; transform: scale(1); }
+        62%  { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1.4); }
+      }
+      [data-nav="open"] .bars, [data-nav="opening"] .cross { opacity: 0; visibility: hidden; }
+      [data-nav="open"] .cross { visibility: visible; animation: rise 300ms ease 80ms both; }
+      [data-nav="closing"] .cross { visibility: visible; animation: sink 200ms ease both; }
+      [data-nav="closing"] .bars { animation: rise 260ms ease 120ms both; }
+
+      .menu {
+        position: fixed; inset: 0; z-index: 40;
+        display: grid; place-items: center;
+        background: var(--paper);
+        opacity: 0; visibility: hidden;
+      }
+      [data-nav="open"] .menu { visibility: visible; animation: rise 420ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+      [data-nav="closing"] .menu { visibility: visible; animation: sink 260ms ease both; }
+      .menu ul {
+        list-style: none; margin: 0; padding: 0;
+        display: grid; justify-items: center; text-align: center;
+        gap: clamp(1.1rem, 4.5vh, 2.25rem);
+      }
+      .menu a {
+        display: inline-block;
+        font-family: "Instrument Serif", "Iowan Old Style", Palatino, Georgia, serif;
+        font-size: clamp(2rem, 9vw, 3.25rem);
+        line-height: 1.1;
+        letter-spacing: 0.005em;
+        color: var(--ink);
+        text-decoration: none;
+        opacity: 0;
+        transition: opacity 240ms ease;
+      }
+      .menu a::after {
+        content: ""; display: block; height: 1px; margin-top: 0.3rem;
+        background: currentColor; transform: scaleX(0); transform-origin: center;
+        transition: transform 320ms cubic-bezier(0.2, 0.7, 0.3, 1);
+      }
+      .menu a:hover::after, .menu a:focus-visible::after { transform: scaleX(1); }
+      .menu a:focus-visible { outline: 0; }
+      [data-nav="open"] .menu a { animation: lift 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+      [data-nav="open"] .menu li:nth-child(1) a { animation-delay: 60ms; }
+      [data-nav="open"] .menu li:nth-child(2) a { animation-delay: 150ms; }
+
+      @keyframes sink { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes lift { from { opacity: 0; transform: translateY(0.65rem); } to { opacity: 1; transform: none; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .mark { transform: none; }
+        .mark, .mark-monogram, .mark-word, .mark-rule, .nav-btn { opacity: 1; animation: none; }
+        [data-nav="opening"] .bars, [data-nav="opening"] .bmark,
+        [data-nav="open"] .cross, [data-nav="open"] .menu,
+        [data-nav="open"] .menu a, [data-nav="closing"] .cross,
+        [data-nav="closing"] .bars, [data-nav="closing"] .menu { animation: none; opacity: 1; }
+        [data-nav="opening"] .bars, [data-nav="opening"] .bmark { opacity: 0; }
+        .menu a { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+<!--MARK-->
+    </main>
+
+    <button id="navbtn" class="nav-btn" type="button" aria-expanded="false" aria-controls="navmenu">
+      <span class="sr-only">Menu</span>
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="bmark" aria-hidden="true">
+<!--B-->
+      </span>
+      <span class="cross" aria-hidden="true"><i></i><i></i></span>
+    </button>
+
+    <nav id="navmenu" class="menu" aria-label="Menu">
+      <ul>
+        <li><a href="/stamboom">Stamboom</a></li>
+        <li><a href="/foto-albums">Foto albums</a></li>
+      </ul>
+    </nav>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var btn = document.getElementById("navbtn");
+        var menu = document.getElementById("navmenu");
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var timer = 0;
+
+        function phase(name) {
+          if (name) root.setAttribute("data-nav", name);
+          else root.removeAttribute("data-nav");
+        }
+
+        function open() {
+          window.clearTimeout(timer);
+          btn.setAttribute("aria-expanded", "true");
+          // De streepjes worden eerst de B, die daarna vervaagt; pas daarna
+          // komt het menu. Zonder animatievoorkeur slaan we de omslag over.
+          var ceremony = still.matches ? 0 : 640;
+          phase("opening");
+          timer = window.setTimeout(function () {
+            phase("open");
+            var first = menu.querySelector("a");
+            if (first) first.focus();
+          }, ceremony);
+        }
+
+        function close() {
+          window.clearTimeout(timer);
+          btn.setAttribute("aria-expanded", "false");
+          phase("closing");
+          btn.focus();
+          timer = window.setTimeout(function () {
+            phase("");
+          }, still.matches ? 0 : 300);
+        }
+
+        btn.addEventListener("click", function () {
+          if (btn.getAttribute("aria-expanded") === "true") close();
+          else open();
+        });
+
+        menu.addEventListener("click", function (e) {
+          if (e.target === menu || e.target.tagName === "UL") close();
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") close();
+        });
+      })();
+    </script>
+  </body>
+</html>
