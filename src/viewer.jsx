@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 import { UI_ICONS } from "./uiIcons.js";
 
 export const imgUrl = (id, size, dl) =>
@@ -437,7 +438,8 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
   const ptr = useRef(new Map());
   const g = useRef({ mode: "", sx: 0, sy: 0, bx: 0, by: 0, t0: 0, d0: 1, s0: 1, mx: 0, my: 0, moved: false });
   const tap = useRef({ t: 0, x: 0, y: 0 });
-  const [loaded, setLoaded] = useState(false);
+  const track = useRef(null);
+  const snapping = useRef(false);
   const [desk] = useState(
     () => window.matchMedia("(min-width:900px) and (hover:hover)").matches
   );
@@ -467,11 +469,38 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
     fade(1);
   };
 
+  // De drie panelen (vorige, huidige, volgende) liggen naast elkaar op een baan
+  // die met de vinger meegaat. Daarna schuift de baan met een vloeiende
+  // beweging naar de buurfoto; pas dan wisselt de huidige foto, in dezelfde
+  // beeldslag als waarin de baan terugspringt, zodat er niets knippert.
+  const GAP = 16;
+  const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const wraps = n > 2;
+  const hasNb = (dir) => (wraps ? n > 1 : dir > 0 ? index < n - 1 : index > 0);
+  const moveTrack = (x, ms) => {
+    const el = track.current;
+    if (!el) return;
+    el.style.transition = ms ? "transform " + ms + "ms cubic-bezier(.22,.8,.3,1)" : "none";
+    el.style.transform = "translate3d(" + x + "px,0,0)";
+  };
+  const slide = (dir) => {
+    if (snapping.current || !hasNb(dir)) return false;
+    snapping.current = true;
+    if (T.current.s > 1.02) reset(false);
+    const to = -dir * (window.innerWidth + GAP);
+    const ms = calm ? 0 : 300;
+    moveTrack(to, ms);
+    window.setTimeout(() => {
+      flushSync(() => onIndex(wraps ? (index + dir + n) % n : index + dir));
+      moveTrack(0, 0);
+      snapping.current = false;
+    }, ms ? ms - 10 : 0);
+    return true;
+  };
+
   // Een nieuwe foto begint altijd onvergroot en op zijn plek.
   useLayoutEffect(() => {
     reset(false);
-    const el = pic.current && pic.current.querySelector("img.full");
-    setLoaded(!!(el && el.complete && el.naturalWidth));
   }, [item.id]);
 
   useEffect(() => {
@@ -503,8 +532,8 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
   useEffect(() => {
     const key = (e) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight" && n > 1) onIndex((index + 1) % n);
-      if (e.key === "ArrowLeft" && n > 1) onIndex((index - 1 + n) % n);
+      if (e.key === "ArrowRight") slide(1);
+      if (e.key === "ArrowLeft") slide(-1);
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
@@ -537,6 +566,7 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
   };
 
   const down = (e) => {
+    if (snapping.current) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     ptr.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const gg = g.current;
@@ -592,8 +622,8 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
       paint(false);
       fade(Math.max(0.15, 1 - Math.abs(dy) / 420));
     } else if (gg.mode === "swipe") {
-      T.current = { s: 1, x: dx, y: 0 };
-      paint(false);
+      // Zonder buurfoto aan die kant rekt de baan maar een stukje mee.
+      moveTrack(hasNb(dx < 0 ? 1 : -1) ? dx : dx * 0.3, 0);
     }
   };
 
@@ -652,11 +682,9 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
       return;
     }
     if (gg.mode === "swipe") {
-      if ((Math.abs(dx) > 70 || Math.abs(dx) / dt > 0.5) && n > 1) {
-        onIndex((index + (dx < 0 ? 1 : -1) + n) % n);
-      } else {
-        reset(true);
-      }
+      const dir = dx < 0 ? 1 : -1;
+      const far = Math.abs(dx) > window.innerWidth * 0.18 || Math.abs(dx) / dt > 0.45;
+      if (!(far && slide(dir))) moveTrack(0, calm ? 0 : 260);
     }
   };
 
@@ -677,19 +705,36 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
         onPointerUp={up}
         onPointerCancel={up}
       >
-        <div className="lb-pic" ref={pic}>
-          {item.mid && <img className="base" src={imgUrl(item.id, "mid")} alt="" draggable="false" />}
-          <img
-            key={item.id}
-            className={"full" + (loaded ? " in" : "")}
-            src={imgUrl(item.id, "full")}
-            alt={item.caption || "Volledige foto"}
-            draggable="false"
-            onLoad={() => setLoaded(true)}
-            ref={(el) => {
-              if (el && el.complete && el.naturalWidth) setLoaded(true);
-            }}
-          />
+        <div className="lb-track" ref={track}>
+          {[-1, 0, 1].map((pos) => {
+            if (pos !== 0 && (n < 2 || !hasNb(pos))) return null;
+            const it = list[wraps ? (index + pos + n) % n : index + pos];
+            if (!it) return null;
+            return (
+              <div className={"lb-pane p" + pos} key={it.id}>
+                <div className="lb-pic" ref={pos === 0 ? pic : null}>
+                  <img
+                    className="base"
+                    src={imgUrl(it.id, it.mid ? "mid" : "thumb")}
+                    alt=""
+                    draggable="false"
+                  />
+                  {pos === 0 && (
+                    <img
+                      className="full"
+                      src={imgUrl(it.id, "full")}
+                      alt={it.caption || "Volledige foto"}
+                      draggable="false"
+                      onLoad={(e) => e.currentTarget.classList.add("in")}
+                      ref={(el) => {
+                        if (el && el.complete && el.naturalWidth) el.classList.add("in");
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -730,11 +775,11 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
       {n > 1 && (
         <>
           <button className="lb-arrow l" type="button" aria-label="Vorige"
-            onClick={() => onIndex((index - 1 + n) % n)}>
+            onClick={() => slide(-1)}>
             <Chevron back />
           </button>
           <button className="lb-arrow r" type="button" aria-label="Volgende"
-            onClick={() => onIndex((index + 1) % n)}>
+            onClick={() => slide(1)}>
             <Chevron />
           </button>
         </>
@@ -847,6 +892,10 @@ export const VIEW_CSS = `
   overscroll-behavior:contain;animation:fade 200ms ease both;}
 .lb-stage{position:absolute;inset:0;touch-action:none;user-select:none;
   -webkit-user-select:none;-webkit-touch-callout:none;overflow:hidden;}
+.lb-track{position:absolute;inset:0;will-change:transform;}
+.lb-pane{position:absolute;inset:0;}
+.lb-pane.p-1{transform:translateX(calc(-100% - 16px));}
+.lb-pane.p1{transform:translateX(calc(100% + 16px));}
 .lb-pic{position:absolute;inset:0;display:grid;place-items:center;will-change:transform;}
 .lb-pic img{grid-area:1/1;max-width:100vw;max-height:100svh;width:auto;height:auto;
   display:block;object-fit:contain;-webkit-user-drag:none;}
