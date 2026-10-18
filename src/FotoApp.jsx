@@ -17,8 +17,12 @@ const MAX_CAPTION = 160;
 
 const CATS = [
   { id: "ochtend", label: "Ochtend" },
-  { id: "middag", label: "Middag" },
-  { id: "avond", label: "Avond" },
+  { id: "firstlook", label: "First look" },
+  { id: "fotoshoot", label: "Fotoshoot" },
+  { id: "ceremonie", label: "Ceremonie" },
+  { id: "receptie", label: "Receptie" },
+  { id: "diner", label: "Diner" },
+  { id: "feest", label: "Feest" },
 ];
 
 const label = (id) => {
@@ -82,7 +86,7 @@ const CSS = `
 .add:disabled{opacity:0.5;cursor:default;}
 
 /* dagdeelfilters */
-.chips{display:flex;gap:0.5rem;justify-content:center;padding:0.25rem 0 1.25rem;}
+.chips{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;padding:0.25rem 0 1.25rem;}
 .chip{flex:0 1 auto;padding:0.5rem 0.95rem;border-radius:10px;background:var(--chip);
   font-size:0.82rem;font-weight:500;letter-spacing:0.01em;color:var(--muted);
   transition:background-color 200ms ease,color 200ms ease;}
@@ -522,9 +526,16 @@ export default function FotoApp() {
      gastfoto's belanden. Mislukt het aanmelden, dan staat dat in beeld. */
   useEffect(() => {
     let key = "";
+    let wantEmpty = false;
     try {
       const params = new URLSearchParams(window.location.search);
       const given = params.get("beheer");
+      if (params.get("leeg") === "1") {
+        wantEmpty = true;
+        params.delete("leeg");
+        const clean0 = window.location.pathname + (params.toString() ? "?" + params : "");
+        window.history.replaceState(null, "", clean0);
+      }
       if (given) {
         localStorage.setItem("beheer", given);
         params.delete("beheer");
@@ -544,6 +555,21 @@ export default function FotoApp() {
         if (d && d.ok) {
           setBeheer(key);
           setAdminError("");
+          if (wantEmpty && window.confirm("Alle foto's in de dagdelen verwijderen? De foto's van het feest blijven staan.")) {
+            const f2 = new FormData();
+            f2.append("key", key);
+            fetch(API + "?a=empty", { method: "POST", body: f2 })
+              .then((r) => r.json())
+              .then((e) => {
+                if (e && e.ok) {
+                  setItems((cur) => (cur || []).filter((x) => x.cat === "gast"));
+                  say(e.removed + " foto's verwijderd.", false);
+                } else {
+                  say((e && e.error) || "Leegmaken mislukt.", true);
+                }
+              })
+              .catch(() => say("Leegmaken mislukt: geen verbinding.", true));
+          }
         } else {
           setBeheer("");
           setAdminError((d && d.error) || "Beheer kon niet worden aangezet.");
@@ -599,7 +625,8 @@ export default function FotoApp() {
   // id begint met de tijd in milliseconden, dus oplopend sorteren op id geeft
   // precies die volgorde terug. De gastfoto's staan juist nieuwste eerst.
   const byCat = useMemo(() => {
-    const map = { ochtend: [], middag: [], avond: [], gast: [] };
+    const map = { gast: [] };
+    CATS.forEach(({ id }) => (map[id] = []));
     (items || []).forEach((it) => {
       (map[it.cat] || map.gast).push(it);
     });

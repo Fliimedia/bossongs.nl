@@ -11,12 +11,14 @@ const TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'web
 // Drie dagdelen plus de foto's die gasten zelf toevoegen. Alleen met de
 // beheersleutel kan een foto in een dagdeel komen; zonder sleutel wordt het
 // altijd 'gast', ook als het formulier iets anders beweert.
-const CATS = ['ochtend', 'middag', 'avond', 'gast'];
-const ADMIN_CATS = ['ochtend', 'middag', 'avond'];
+const CATS = ['ochtend', 'firstlook', 'fotoshoot', 'ceremonie', 'receptie', 'diner', 'feest', 'gast'];
+const ADMIN_CATS = ['ochtend', 'firstlook', 'fotoshoot', 'ceremonie', 'receptie', 'diner', 'feest'];
+// De indeling van daarvoor; die foto's zijn bij het leegmaken ook mee.
+const OLD_CATS = ['middag', 'avond'];
 
 // Deze versie staat in a=status, zodat van buitenaf te zien is welke code er
 // draait zonder dat je het aan de uitkomst hoeft af te leiden.
-const API_VERSION = 'a4';
+const API_VERSION = 'a5';
 
 // De beheersleutel staat hier als SHA-256, niet als sleutel. Daarmee werkt
 // beheer zodra deze code er staat: geen bestand dat eerst geschreven en daarna
@@ -36,6 +38,7 @@ switch ($action) {
     case 'delete': action_delete(); break;
     case 'claim':  action_claim();  break;
     case 'recat':  action_recat();  break;
+    case 'empty':  action_empty();  break;
     case 'status': action_status(); break;
     default:       json_out(['ok' => false, 'error' => 'Onbekende actie'], 400);
 }
@@ -534,6 +537,38 @@ function action_recat(): void
         }
     }
     json_out(['ok' => true, 'cat' => $cat, 'moved' => count($moved), 'ids' => $moved]);
+}
+
+function action_empty(): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        json_out(['ok' => false, 'error' => 'POST verwacht'], 405);
+    }
+    if (!admin_ok()) {
+        json_out(['ok' => false, 'error' => 'Beheer is niet actief'], 403);
+    }
+    // Alleen foto's met een dagdeel; de foto's van het feest (gast) blijven staan.
+    $targets = array_merge(ADMIN_CATS, OLD_CATS);
+    $removed = 0;
+    foreach (read_dirs() as $dir) {
+        foreach (glob($dir . '/*.json') ?: [] as $json) {
+            $id = basename($json, '.json');
+            if (!valid_id($id)) {
+                continue;
+            }
+            $meta = read_meta($dir, $id);
+            if ($meta === null || !in_array(strtolower((string) ($meta['cat'] ?? '')), $targets, true)) {
+                continue;
+            }
+            if (@unlink($json)) {
+                $removed++;
+            }
+            foreach (glob($dir . '/' . $id . '.*') ?: [] as $file) {
+                @unlink($file);
+            }
+        }
+    }
+    json_out(['ok' => true, 'removed' => $removed]);
 }
 
 function admin_key(): ?string
