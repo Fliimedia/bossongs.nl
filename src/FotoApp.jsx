@@ -92,7 +92,8 @@ const CSS = `
 .album :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:3px;}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;border:0;}
-.wrap{width:100%;max-width:34rem;margin:0 auto;padding:0 1.25rem;}
+.shell{width:100%;max-width:34rem;margin:0 auto;padding:0 1.25rem;}
+.chip .lbl{display:none;}
 
 /* kop */
 .head{padding:3.5rem 0 1.75rem;text-align:center;}
@@ -114,6 +115,19 @@ const CSS = `
 .chip{flex:1 1 0;min-width:0;max-width:3.5rem;height:2.6rem;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;color:var(--muted);transition:background-color 200ms ease,color 200ms ease;}
 .chip:hover{color:var(--ink);}
 .chip.on{background:var(--ink);color:var(--paper);}
+@media (min-width:900px){
+  .shell{max-width:none;display:grid;grid-template-columns:17rem minmax(0,1fr);gap:2.5rem;padding:0 2.5rem;}
+  .rail{position:sticky;top:0;align-self:start;height:100svh;display:flex;flex-direction:column;justify-content:center;}
+  .head{text-align:left;padding:0 0 1.75rem;}
+  .head .logo{justify-content:flex-start;}
+  .head h1{font-size:2.6rem;}
+  .chips{flex-direction:column;align-items:stretch;gap:0.2rem;padding:0;}
+  .chip{flex:none;max-width:none;height:2.9rem;justify-content:flex-start;gap:0.85rem;padding:0 0.9rem;
+    font-size:0.9rem;font-weight:500;}
+  .chip .lbl{display:inline;}
+  .main{padding-top:2rem;min-width:0;}
+  .own{max-width:60rem;margin-left:auto;margin-right:auto;}
+}
 
 .shimmer{aspect-ratio:4/5;border-radius:14px;
   background:linear-gradient(90deg,rgba(21,21,15,0.04),rgba(21,21,15,0.09),rgba(21,21,15,0.04));
@@ -859,7 +873,8 @@ export default function FotoApp() {
     <div className="album">
       <style>{CSS + VIEW_CSS}</style>
 
-      <main className="wrap">
+      <main className="shell">
+        <aside className="rail">
         <header className="head">
           <div className="logo" aria-hidden="true" dangerouslySetInnerHTML={{ __html: bLetter }} />
           <h1>Foto album bruiloft</h1>
@@ -893,10 +908,13 @@ export default function FotoApp() {
               onClick={() => setCat(x.id)}
             >
               <CatIcon id={x.id} />
+              <span className="lbl">{x.label}</span>
             </button>
           ))}
         </div>
+        </aside>
 
+        <div className="main">
         {items === null && !loadError && <div className="shimmer" aria-hidden="true" />}
         {loadError && items === null && (
           <div className="blank">Het album kon niet worden geladen.</div>
@@ -1020,6 +1038,7 @@ export default function FotoApp() {
             </div>
           )}
         </section>
+        </div>
       </main>
 
       {canEdit && (

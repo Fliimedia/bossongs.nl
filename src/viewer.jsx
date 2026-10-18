@@ -62,22 +62,45 @@ const Reel = forwardRef(function Reel(
   // deellink) of als de lijst verschuift. Tijdens het vegen zelf blijft de
   // carrousel met rust: de React-staat loopt dan een paar beeldjes achter, en
   // terugzetten naar die oude stand voelde als terugspringen.
+  // Eén stap is de afstand tussen twee foto's. Op een telefoon is dat de
+  // schermbreedte; op een groot scherm zijn de foto's smaller dan het vak, met
+  // de buren zichtbaar aan weerszijden, en de ruimte ertussen telt dan mee.
+  const step = () => {
+    const el = box.current;
+    if (!el) return 0;
+    const k = el.children;
+    return k.length > 1 ? k[1].offsetLeft - k[0].offsetLeft : el.clientWidth;
+  };
+
   useLayoutEffect(() => {
     const el = box.current;
-    if (!el || !el.clientWidth || found < 0) return;
+    const w = step();
+    if (!el || !w || found < 0) return;
     const external = focusId !== own.current;
     const idle = Date.now() - lastScroll.current > 300;
     if (!external && !idle) return;
     own.current = focusId;
-    if (Math.round(el.scrollLeft / el.clientWidth) !== found) {
-      el.scrollTo({ left: found * el.clientWidth, behavior: "instant" });
+    if (Math.round(el.scrollLeft / w) !== found) {
+      el.scrollTo({ left: found * w, behavior: "instant" });
     }
   }, [focusId, shots, found]);
 
+  // Een ander venster of een gedraaid scherm verandert de maat: opnieuw uitlijnen.
+  useEffect(() => {
+    const onSize = () => {
+      const el = box.current;
+      const w = step();
+      if (el && w && found >= 0) el.scrollTo({ left: found * w, behavior: "instant" });
+    };
+    window.addEventListener("resize", onSize);
+    return () => window.removeEventListener("resize", onSize);
+  }, [found]);
+
   const here = () => {
     const el = box.current;
-    if (!el || !el.clientWidth) return 0;
-    return Math.max(0, Math.min(shots.length - 1, Math.round(el.scrollLeft / el.clientWidth)));
+    const w = step();
+    if (!el || !w) return 0;
+    return Math.max(0, Math.min(shots.length - 1, Math.round(el.scrollLeft / w)));
   };
 
   const onScroll = () => {
@@ -94,13 +117,13 @@ const Reel = forwardRef(function Reel(
     index: here,
     goTo: (i, smooth) => {
       const el = box.current;
-      if (el) el.scrollTo({ left: i * el.clientWidth, behavior: smooth ? "smooth" : "instant" });
+      if (el) el.scrollTo({ left: i * step(), behavior: smooth ? "smooth" : "instant" });
     },
   }));
 
   const go = (d) => {
     const el = box.current;
-    if (el) el.scrollBy({ left: d * el.clientWidth, behavior: "smooth" });
+    if (el) el.scrollBy({ left: d * step(), behavior: "smooth" });
   };
 
   return (
@@ -115,11 +138,19 @@ const Reel = forwardRef(function Reel(
         {shots.map((item, i) => {
           const near = Math.abs(i - index) <= reach;
           return (
-            <div className="slide" key={item.id}>
+            <div className={"slide" + (i === index ? " cur" : "")} key={item.id}>
               <button
                 className="hit"
                 type="button"
-                onClick={() => onOpen(i)}
+                onClick={() => {
+                  // Op een groot scherm haalt een tik op een buurfoto die naar het midden.
+                  if (i !== index && window.matchMedia("(min-width:900px)").matches) {
+                    const el = box.current;
+                    if (el) el.scrollTo({ left: i * step(), behavior: "smooth" });
+                  } else {
+                    onOpen(i);
+                  }
+                }}
                 aria-label={item.caption || "Foto " + (i + 1) + " van " + shots.length}
               >
                 {near && (
@@ -226,6 +257,33 @@ export function Viewer({
   }, [playing, shots.length]);
 
   const stop = () => setPlaying(false);
+
+  // Op een computer: pijltjes bladeren door de carrousel, Enter opent de foto.
+  useEffect(() => {
+    if (mode !== "reel" || empty) return undefined;
+    const key = (e) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target;
+      const tag = t && t.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (document.querySelector(".lb")) return;
+      const r = reel.current;
+      if (!r) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        stop();
+        r.goTo(Math.min(shots.length - 1, r.index() + 1), true);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        stop();
+        r.goTo(Math.max(0, r.index() - 1), true);
+      } else if (e.key === "Enter" && tag !== "BUTTON" && tag !== "A") {
+        onOpen(r.index());
+      }
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [mode, empty, shots.length, onOpen]);
 
   // Alleen met beheer: de positie in het dagdeel is in te vullen.
   const [draft, setDraft] = useState("");
@@ -380,6 +438,9 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
   const g = useRef({ mode: "", sx: 0, sy: 0, bx: 0, by: 0, t0: 0, d0: 1, s0: 1, mx: 0, my: 0, moved: false });
   const tap = useRef({ t: 0, x: 0, y: 0 });
   const [loaded, setLoaded] = useState(false);
+  const [desk] = useState(
+    () => window.matchMedia("(min-width:900px) and (hover:hover)").matches
+  );
   const n = list.length;
 
   const paint = (anim) => {
@@ -678,6 +739,24 @@ export function Lightbox({ list, index, onIndex, onClose, favs, onFav, onRemove 
           </button>
         </>
       )}
+      {desk && n > 1 && (
+        <div className="lb-strip">
+          {list.slice(Math.max(0, index - 8), Math.min(n, index + 9)).map((it, j) => {
+            const k = Math.max(0, index - 8) + j;
+            return (
+              <button
+                key={it.id}
+                className={"th" + (k === index ? " on" : "")}
+                type="button"
+                aria-label={"Foto " + (k + 1)}
+                onClick={() => onIndex(k)}
+              >
+                <img src={imgUrl(it.id, "thumb")} alt="" loading="lazy" decoding="async" />
+              </button>
+            );
+          })}
+        </div>
+      )}
       <p className="lb-cap">
         {item.caption ? item.caption + " · " : ""}
         {index + 1} / {n}
@@ -799,4 +878,37 @@ export const VIEW_CSS = `
 .album .tb:hover{color:var(--ink);}
 .album .tb.on{color:hsl(0,62%,48%);}
 .album .reel-nav{color:var(--ink);}
+
+.lb-strip{position:absolute;left:50%;bottom:3rem;transform:translateX(-50%);z-index:3;display:flex;gap:0.35rem;
+  padding:0.4rem;border-radius:10px;background:rgba(255,255,255,0.08);max-width:calc(100vw - 2rem);overflow:hidden;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+.album .th{flex:0 0 auto;width:3rem;height:3.75rem;padding:0;overflow:hidden;border-radius:4px;opacity:0.5;
+  transition:opacity 200ms ease;}
+.album .th:hover{opacity:0.85;}
+.album .th.on{opacity:1;outline:2px solid #fff;outline-offset:-2px;}
+.th img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* groot scherm: de foto's krijgen de hoogte van het scherm, de buren staan er gedimd naast */
+@media (min-width:900px){
+  .stage{left:auto;transform:none;width:100%;--h:max(22rem,calc(100svh - 9rem));}
+  .reel{padding-inline:calc((100% - var(--h) * 0.8) / 2);gap:1.25rem;}
+  .reel{-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);}
+  .slide{flex:0 0 auto;width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;border-radius:6px;
+    transition:opacity 400ms ease,transform 400ms cubic-bezier(.2,.7,.3,1);}
+  .slide:not(.cur){opacity:0.38;transform:scale(0.93);}
+  .slide:not(.cur) .dl{display:none;}
+  .stage.has-up .slide .dl{right:0.65rem;}
+  .tools{width:calc(var(--h) * 0.8);margin:0 auto;}
+  .blank{width:calc(var(--h) * 0.8);height:var(--h);aspect-ratio:auto;margin:0 auto;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:0.5rem;}
+  .cell{border-radius:4px;}
+  .reel-nav{width:2.75rem;height:2.75rem;margin-top:-1.375rem;}
+  .reel-prev{left:1rem;}
+  .reel-next{right:1rem;}
+}
+@media (min-width:900px) and (hover:hover){
+  .lb-pic{padding:3.5rem 0 7.5rem;}
+  .lb-pic img{max-height:calc(100svh - 11rem);}
+}
 `;
