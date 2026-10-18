@@ -888,7 +888,6 @@ export default function FotoApp() {
         <header className="head">
           <div className="logo" aria-hidden="true" dangerouslySetInnerHTML={{ __html: bLetter }} />
           <h1>Foto album bruiloft</h1>
-          <p>N&amp;S 💒💍 19.09.2026</p>
 
           {adminError && <p className="note bad">{adminError}</p>}
 
