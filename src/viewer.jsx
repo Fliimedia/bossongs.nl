@@ -51,7 +51,7 @@ const Cross = () => (
 
 
 const Reel = forwardRef(function Reel(
-  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge, onGrid },
+  { shots, focusId, onFocus, onOpen, reach, onUser, onUpload, uploading, uploadLabel, onEdge, onGrid, onRemove },
   ref
 ) {
   const box = useRef(null);
@@ -294,6 +294,11 @@ const Reel = forwardRef(function Reel(
                   <a className="ob" href={imgUrl(item.id, "full", true)} download aria-label="Foto downloaden">
                     <PIcon name="download" size={20} />
                   </a>
+                  {onRemove && (
+                    <button className="ob" type="button" onClick={() => onRemove(item.id)} aria-label="Foto verwijderen">
+                      <PIcon name="trash" size={20} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -441,6 +446,14 @@ export function Viewer({
           uploading={uploading}
           uploadLabel={uploadLabel}
           onEdge={onEdge}
+          onRemove={
+            onRemove
+              ? (id) => {
+                  stop();
+                  onRemove(id);
+                }
+              : null
+          }
           onGrid={() => {
             stop();
             setMode("grid");
