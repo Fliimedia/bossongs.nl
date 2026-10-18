@@ -754,6 +754,28 @@ export default function FotoApp() {
     say(done + " foto's verwijderd.", false);
   };
 
+  /* alle foto's van het gekozen dagdeel in een keer weg */
+  const emptyCat = async () => {
+    const n = (byCat[cat] || []).length;
+    if (!n) return;
+    if (!window.confirm("Alle " + n + " foto's in " + label(cat) + " verwijderen?")) return;
+    setPhase("busy");
+    try {
+      const form = new FormData();
+      form.append("key", beheer);
+      form.append("cat", cat);
+      const r = await fetch(API + "?a=empty", { method: "POST", body: form });
+      const d = await r.json();
+      if (!d || !d.ok) throw new Error((d && d.error) || "leegmaken mislukt");
+      setItems((cur) => (cur || []).filter((x) => x.cat !== cat));
+      say(d.removed + " foto's verwijderd uit " + label(cat) + ".", false);
+    } catch (e) {
+      say("Leegmaken is mislukt: " + e.message + ".", true);
+      await load();
+    }
+    setPhase("idle");
+  };
+
   const toggle = (id) =>
     setPicked((cur) => (cur.indexOf(id) === -1 ? [...cur, id] : cur.filter((x) => x !== id)));
 
@@ -869,6 +891,14 @@ export default function FotoApp() {
         )}
         {items !== null && shots.length > 0 && (
           <Reel shots={shots} onOpen={(i) => setView({ list: shots, i })} />
+        )}
+
+        {beheer && shots.length > 0 && (
+          <div className="pick-to">
+            <button className="pick-btn bad" type="button" onClick={emptyCat} disabled={busy}>
+              {"Leeg " + label(cat)}
+            </button>
+          </div>
         )}
 
         <section className="own">

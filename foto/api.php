@@ -18,7 +18,7 @@ const OLD_CATS = ['middag', 'avond'];
 
 // Deze versie staat in a=status, zodat van buitenaf te zien is welke code er
 // draait zonder dat je het aan de uitkomst hoeft af te leiden.
-const API_VERSION = 'a5';
+const API_VERSION = 'a6';
 
 // De beheersleutel staat hier als SHA-256, niet als sleutel. Daarmee werkt
 // beheer zodra deze code er staat: geen bestand dat eerst geschreven en daarna
@@ -549,6 +549,14 @@ function action_empty(): void
     }
     // Alleen foto's met een dagdeel; de foto's van het feest (gast) blijven staan.
     $targets = array_merge(ADMIN_CATS, OLD_CATS);
+    // Met 'cat' alleen dat ene dagdeel; ochtend is ook een dagdeel van vroeger.
+    $only = strtolower(trim((string) ($_POST['cat'] ?? '')));
+    if ($only !== '') {
+        if (!in_array($only, ADMIN_CATS, true)) {
+            json_out(['ok' => false, 'error' => 'Onbekend dagdeel'], 400);
+        }
+        $targets = [$only];
+    }
     $removed = 0;
     foreach (read_dirs() as $dir) {
         foreach (glob($dir . '/*.json') ?: [] as $json) {
