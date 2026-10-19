@@ -115,7 +115,9 @@ html,body{overscroll-behavior-x:none;}
 /* dagdeelfilters */
 .chips{display:flex;flex-wrap:nowrap;gap:0.35rem;justify-content:center;padding:0.25rem 0 0.7rem;}
 .chips-rail{display:none;}
-.chips-below{padding:0.6rem 0 0.4rem;}
+.chips-below{padding:0.6rem 0 0.4rem;justify-content:space-between;}
+/* binnenruimte links/rechts van het icoon 10% kleiner dan bij een volle rij */
+.chips-below .chip{flex:0 0 auto;width:calc(26px + 0.9 * (min(3.5rem, (100% - 2.1rem) / 7) - 26px));}
 .chip{flex:1 1 0;min-width:0;max-width:3.5rem;height:2.6rem;display:flex;align-items:center;justify-content:center;border-radius:10px;background:transparent;color:var(--muted);transition:background-color 200ms ease,color 200ms ease;}
 .album .chip{color:var(--muted);}
 .album .chip:hover{color:var(--gold);}
