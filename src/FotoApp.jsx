@@ -988,61 +988,6 @@ export default function FotoApp() {
             <p className="own-empty">Nog niets toegevoegd.</p>
           )}
 
-          {ownOpen && beheer && own.length > 0 && (
-            <div className="pick">
-              <button
-                className="pick-btn"
-                type="button"
-                onClick={() => {
-                  setPicking((v) => !v);
-                  setPicked([]);
-                }}
-              >
-                {picking ? "Klaar" : "Selecteren"}
-              </button>
-              {picking && (
-                <>
-                  <span className="pick-count">{picked.length} gekozen</span>
-                  <button className="pick-btn" type="button" onClick={() => setPicked(own.map((x) => x.id))}>
-                    Alles
-                  </button>
-                  {picked.length === 1 && (
-                    <button className="pick-btn" type="button" onClick={pickThrough}>
-                      T/m hier
-                    </button>
-                  )}
-                  {picked.length > 0 && (
-                    <button className="pick-btn" type="button" onClick={() => setPicked([])}>
-                      Wis
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-
-          {ownOpen && picking && picked.length > 0 && (
-            <div className="pick-to">
-              <span>Verplaats naar</span>
-              {CATS.map((x) => (
-                <button
-                  key={x.id}
-                  className="pick-btn solid"
-                  type="button"
-                  onClick={() => move(x.id)}
-                  disabled={busy}
-                >
-                  {x.label}
-                </button>
-              ))}
-              {SHOW_REMOVE && (
-                <button className="pick-btn bad" type="button" onClick={wipe} disabled={busy}>
-                  Verwijderen
-                </button>
-              )}
-            </div>
-          )}
-
           {ownOpen && own.length > 0 && (
             <div className="own-grid">
               {own.map((item, i) => (
