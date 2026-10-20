@@ -952,7 +952,7 @@ export default function FotoApp() {
             onOnlyFav={setOnlyFav}
             favCount={favCount}
             blank={onlyFav ? "Nog geen favorieten in dit dagdeel." : "Nog geen foto\u2019s in dit dagdeel."}
-            onUpload={canEdit ? () => pickRef.current && pickRef.current.click() : null}
+            onUpload={null}
             uploading={busy}
             uploadLabel={"Foto\u2019s toevoegen aan " + label(cat)}
             onMove={null}
