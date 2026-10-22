@@ -38,7 +38,7 @@ function page({ title, description, fonts, extraHead, noscript, script }) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>${title}</title>
-    <meta name="build" content="b60" />
+    <meta name="build" content="b61" />
     <meta name="description" content="${description}" />
 ${extraHead}    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
@@ -75,7 +75,7 @@ const home = readFileSync("src/home.html", "utf8")
 writeFileSync("index.html", home);
 console.log("index.html written, " + Math.round(home.length / 1024) + "K");
 
-// The guest photo album at /foto, backed by foto/api.php
+// The guest photo album at /trouw-album, backed by foto/api.php
 mkdirSync("foto", { recursive: true });
 const album = page({
   title: "Fotoalbum, Nyarayek en Sten",
@@ -87,11 +87,31 @@ const album = page({
   noscript: "Zet JavaScript aan om foto's te delen.",
   script: await bundle("src/foto.jsx"),
 });
-writeFileSync("foto/index.html", album);
-console.log("foto/index.html written, " + Math.round(album.length / 1024) + "K");
+mkdirSync("trouw-album", { recursive: true });
+writeFileSync("trouw-album/index.html", album);
+console.log("trouw-album/index.html written, " + Math.round(album.length / 1024) + "K");
+
+// /foto blijft de plek van api.php en de opslag; de pagina zelf stuurt door naar /trouw-album.
+writeFileSync(
+  "foto/index.html",
+  `<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Trouw album</title>
+    <script>location.replace("/trouw-album/" + location.search + location.hash);</script>
+    <meta http-equiv="refresh" content="0; url=/trouw-album/" />
+  </head>
+  <body style="margin:0;background:#f8f5ee"></body>
+</html>
+`
+);
 
 // Linkpagina op /l, gewone HTML met het monogram erin.
 mkdirSync("l", { recursive: true });
 const links = readFileSync("src/links.html", "utf8").replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim());
 writeFileSync("l/index.html", links);
+const albums = readFileSync("src/foto-albums.html", "utf8").replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim());
+writeFileSync("foto-albums/index.html", albums);
 console.log("l/index.html written, " + Math.round(links.length / 1024) + "K");

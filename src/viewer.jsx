@@ -10,7 +10,7 @@ import { flushSync } from "react-dom";
 import { UI_ICONS } from "./uiIcons.js";
 
 export const imgUrl = (id, size, dl) =>
-  "api.php?a=img&s=" + size + "&id=" + id + (dl ? "&dl=1" : "");
+  "/foto/api.php?a=img&s=" + size + "&id=" + id + (dl ? "&dl=1" : "");
 
 const saver = () => {
   try {

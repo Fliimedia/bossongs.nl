@@ -3,7 +3,7 @@ import { CAT_ICONS } from "./catIcons.js";
 import bLetter from "./monogram.svg";
 import { Viewer, Lightbox, VIEW_CSS, imgUrl } from "./viewer.jsx";
 
-const API = "api.php";
+const API = "/foto/api.php"; // de opslag blijft bij /foto
 const POLL_MS = 60000;
 
 // Drie afgeleiden per foto. De carrousel trekt het middenformaat, dat op een
