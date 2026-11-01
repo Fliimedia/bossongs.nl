@@ -126,18 +126,20 @@ const SOC = {
   instagram: { label: "Instagram", svg: iconInner("src/icons/instagram.svg") },
   linkedin: { label: "LinkedIn", svg: iconInner("src/icons/linkedin.svg") },
 };
-const person = (p) => {
+const person = (p, blood) => {
   const links = ["instagram", "linkedin"]
     .filter((k) => p[k])
     .map(
       (k) =>
-        `<a href="${esc(p[k])}" target="_blank" rel="noopener" aria-label="${esc(p.name)} op ${SOC[k].label}"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">${SOC[k].svg}</svg></a>`
+        `<a href="${esc(p[k])}" target="_blank" rel="noopener" aria-label="${esc(p.first + " " + p.last)} op ${SOC[k].label}"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">${SOC[k].svg}</svg></a>`
     )
     .join("");
-  return `<div class="p"><span class="name">${esc(p.name)}</span><span class="soc">${links}</span></div>`;
+  const id = p.id ? ` id="${esc(p.id)}"` : "";
+  return `<div class="p${blood ? " blood" : ""}"${id}><span class="first">${esc(p.first)}</span>${p.last ? `<span class="last">${esc(p.last)}</span>` : ""}<span class="soc">${links}</span></div>`;
 };
 const branch = (n, pad) => {
-  const card = `<div class="node">${n.people.map(person).join('<span class="tie" aria-label="partner"></span>')}</div>`;
+  const blood = n.blood || 0;
+  const card = `<div class="node">${n.people.map((p, i) => person(p, i === blood)).join('<span class="tie"></span>')}</div>`;
   const kids = n.children && n.children.length
     ? `\n${pad}  <ul>\n${n.children.map((c) => branch(c, pad + "    ")).join("\n")}\n${pad}  </ul>`
     : "";
@@ -146,7 +148,13 @@ const branch = (n, pad) => {
 const family = JSON.parse(readFileSync("src/stamboom.json", "utf8"));
 const tree = readFileSync("src/stamboom.html", "utf8")
   .replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim())
-  .replace("<!--TREE-->", `        <ul>\n${branch(family.root, "          ")}\n        </ul>`);
+  .replace(
+    "<!--TREE-->",
+    `        <ul>\n${branch(family.root, "          ")}\n        </ul>\n` +
+      (family.above || [])
+        .map((x) => `        <div class="extra" data-of="${esc(x.of)}">${x.people.map((p) => person(p, false)).join("")}</div>`)
+        .join("\n")
+  );
 mkdirSync("stamboom", { recursive: true });
 writeFileSync("stamboom/index.html", tree);
 console.log("stamboom/index.html written, " + Math.round(tree.length / 1024) + "K");
