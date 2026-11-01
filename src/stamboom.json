@@ -1,0 +1,28 @@
+{
+  "_uitleg": "Vul bij instagram en linkedin de volledige link in; een leeg veld toont geen icoon.",
+  "root": {
+    "people": [
+      { "name": "Ed Bossong", "instagram": "", "linkedin": "" },
+      { "name": "Marianne", "instagram": "", "linkedin": "" }
+    ],
+    "children": [
+      {
+        "people": [
+          { "name": "Daan", "instagram": "", "linkedin": "" },
+          { "name": "Sabine", "instagram": "", "linkedin": "" }
+        ],
+        "children": [
+          { "people": [{ "name": "Benjamin", "instagram": "", "linkedin": "" }] },
+          { "people": [{ "name": "Marie", "instagram": "", "linkedin": "" }] }
+        ]
+      },
+      {
+        "people": [
+          { "name": "Sten", "instagram": "", "linkedin": "https://www.linkedin.com/in/sten-bossong" },
+          { "name": "Nya", "instagram": "", "linkedin": "" }
+        ]
+      },
+      { "people": [{ "name": "Annabel", "instagram": "", "linkedin": "" }] }
+    ]
+  }
+}

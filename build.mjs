@@ -115,3 +115,38 @@ writeFileSync("l/index.html", links);
 const albums = readFileSync("src/foto-albums.html", "utf8").replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim());
 writeFileSync("foto-albums/index.html", albums);
 console.log("l/index.html written, " + Math.round(links.length / 1024) + "K");
+
+// Stamboom op /stamboom: gegevens in src/stamboom.json, als gewone HTML zonder framework.
+const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const iconInner = (f) => {
+  const s = readFileSync(f, "utf8");
+  return s.slice(s.indexOf(">") + 1, s.lastIndexOf("</svg>"));
+};
+const SOC = {
+  instagram: { label: "Instagram", svg: iconInner("src/icons/instagram.svg") },
+  linkedin: { label: "LinkedIn", svg: iconInner("src/icons/linkedin.svg") },
+};
+const person = (p) => {
+  const links = ["instagram", "linkedin"]
+    .filter((k) => p[k])
+    .map(
+      (k) =>
+        `<a href="${esc(p[k])}" target="_blank" rel="noopener" aria-label="${esc(p.name)} op ${SOC[k].label}"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">${SOC[k].svg}</svg></a>`
+    )
+    .join("");
+  return `<div class="p"><span class="name">${esc(p.name)}</span><span class="soc">${links}</span></div>`;
+};
+const branch = (n, pad) => {
+  const card = `<div class="node">${n.people.map(person).join('<span class="and">&amp;</span>')}</div>`;
+  const kids = n.children && n.children.length
+    ? `\n${pad}  <ul>\n${n.children.map((c) => branch(c, pad + "    ")).join("\n")}\n${pad}  </ul>`
+    : "";
+  return `${pad}<li>${card}${kids}\n${pad}</li>`;
+};
+const family = JSON.parse(readFileSync("src/stamboom.json", "utf8"));
+const tree = readFileSync("src/stamboom.html", "utf8")
+  .replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim())
+  .replace("<!--TREE-->", `        <ul>\n${branch(family.root, "          ")}\n        </ul>`);
+mkdirSync("stamboom", { recursive: true });
+writeFileSync("stamboom/index.html", tree);
+console.log("stamboom/index.html written, " + Math.round(tree.length / 1024) + "K");
