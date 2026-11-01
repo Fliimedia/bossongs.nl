@@ -99,20 +99,31 @@
             var node = li.querySelector(":scope > .node");
             var tie = node.querySelector(".tie");
             var a = box(tie || node);
-            var x0 = a.x, y0 = tie ? a.t : a.b + GAP;
+            var y0 = tie ? a.t : a.b + GAP;
             var cards = Array.prototype.map.call(kids.querySelectorAll(":scope > li > .node > .blood"), box);
             var bus = box(kids).t + (cards[0].t - box(kids).t) / 2;
-            // Per kind een eigen lijn met zachte bochten: omlaag, opzij, omlaag.
-            cards.forEach(function (c) {
-              var dx = c.x - x0, end = c.t - GAP;
-              if (Math.abs(dx) < 1) { d += "M" + r(x0) + " " + r(y0) + "V" + r(end); return; }
-              var k = Math.min(RAD, Math.abs(dx) / 2, (bus - y0) , (end - bus));
-              var s = dx > 0 ? 1 : -1;
-              d += "M" + r(x0) + " " + r(y0) + "V" + r(bus - k) +
-                "Q" + r(x0) + " " + r(bus) + " " + r(x0 + s * k) + " " + r(bus) +
-                "H" + r(c.x - s * k) +
-                "Q" + r(c.x) + " " + r(bus) + " " + r(c.x) + " " + r(bus + k) +
-                "V" + r(end);
+            var end = cards[0].t - GAP;
+            var cx = cards.map(function (c) { return c.x; });
+            // De verticale lijn van de ouders: midden op het huwelijksstreepje, of precies boven een kind
+            // als dat onder het streepje staat (dan geen knikje).
+            var x0 = a.x;
+            cx.forEach(function (x) { if (x >= a.l && x <= a.l + a.w) x0 = x; });
+            var L = Math.min.apply(null, cx), Rt = Math.max.apply(null, cx);
+            var k = Math.min(RAD, end - bus, bus - y0);
+            // Ouders omlaag tot de verbindingslijn.
+            d += "M" + r(x0) + " " + r(y0) + "V" + r(cx.length === 1 && Math.abs(cx[0] - x0) < 1 ? end : bus);
+            // Verbindingslijn met afgeronde buitenhoeken.
+            if (L < x0 - 0.5) {
+              var kl = Math.min(k, x0 - L);
+              d += "M" + r(L) + " " + r(end) + "V" + r(bus + kl) + "Q" + r(L) + " " + r(bus) + " " + r(L + kl) + " " + r(bus) + "H" + r(x0);
+            }
+            if (Rt > x0 + 0.5) {
+              var kr = Math.min(k, Rt - x0);
+              d += "M" + r(x0) + " " + r(bus) + "H" + r(Rt - kr) + "Q" + r(Rt) + " " + r(bus) + " " + r(Rt) + " " + r(bus + kr) + "V" + r(end);
+            }
+            // Kinderen ertussen: recht omlaag.
+            cx.forEach(function (x) {
+              if (x !== L && x !== Rt || (cx.length > 1 && Math.abs(x - x0) < 0.5)) d += "M" + r(x) + " " + r(bus) + "V" + r(end);
             });
           });
           tree.querySelectorAll(".extra").forEach(function (ex) {
