@@ -1,171 +1,194 @@
 {
-  "_uitleg": "first = voornaam, last = achternaam. blood = welke persoon in het stel het kind van de ouders erboven is (0 = eerste, 1 = tweede). instagram/linkedin: volledige link; leeg = geen icoon. above: een ouder boven een aangetrouwde persoon (via id).",
-  "root": {
-    "people": [
-      {
-        "first": "Coby",
-        "last": "Bom",
-        "instagram": "",
-        "linkedin": ""
-      },
-      {
-        "first": "Ton",
-        "last": "Bom",
-        "instagram": "",
-        "linkedin": ""
-      }
-    ],
-    "children": [
-      {
-        "people": [
-          {
-            "id": "ed",
-            "first": "Ed",
-            "last": "Bossong",
-            "instagram": "",
-            "linkedin": ""
-          },
-          {
-            "first": "Marianne",
-            "last": "Bom",
-            "instagram": "",
-            "linkedin": ""
-          }
-        ],
-        "blood": 1,
-        "children": [
-          {
-            "people": [
-              {
-                "first": "Daan",
-                "last": "Bossong",
-                "instagram": "",
-                "linkedin": ""
-              },
-              {
-                "first": "Sabine",
-                "last": "",
-                "instagram": "",
-                "linkedin": ""
-              }
-            ],
-            "children": [
-              {
-                "people": [
-                  {
-                    "first": "Benjamin",
-                    "last": "Bossong",
-                    "instagram": "",
-                    "linkedin": ""
-                  }
-                ]
-              },
-              {
-                "people": [
-                  {
-                    "first": "Marie",
-                    "last": "Bossong",
-                    "instagram": "",
-                    "linkedin": ""
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "people": [
-              {
-                "id": "sten",
-                "first": "Sten",
-                "last": "Bossong",
-                "instagram": "",
-                "linkedin": "https://www.linkedin.com/in/sten-bossong"
-              },
-              {
-                "first": "Nyarayek",
-                "last": "Bossong",
-                "instagram": "",
-                "linkedin": ""
-              }
-            ]
-          },
-          {
-            "people": [
-              {
-                "first": "Annabel",
-                "last": "Bossong",
-                "instagram": "",
-                "linkedin": ""
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "people": [
-          {
-            "first": "Sandra",
-            "last": "Bom-Fritz",
-            "instagram": "",
-            "linkedin": ""
-          },
-          {
-            "first": "Anders",
-            "last": "Fritz",
-            "instagram": "",
-            "linkedin": ""
-          }
-        ],
-        "children": [
-          {
-            "people": [
-              {
-                "first": "David",
-                "last": "Bom-Fritz",
-                "instagram": "",
-                "linkedin": ""
-              },
-              {
-                "first": "Julia",
-                "last": "",
-                "instagram": "",
-                "linkedin": ""
-              }
-            ]
-          },
-          {
-            "people": [
-              {
-                "first": "Amanda",
-                "last": "Bom-Fritz",
-                "instagram": "",
-                "linkedin": ""
-              },
-              {
-                "first": "Oreste",
-                "last": "",
-                "instagram": "",
-                "linkedin": ""
-              }
-            ]
-          },
-          {
-            "people": [
-              {
-                "first": "Franca",
-                "last": "Bom-Fritz",
-                "instagram": "",
-                "linkedin": ""
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  "above": [
+  "_uitleg": "families = de rij met Ed, zijn zus en de zus van Marianne, met hun kinderen eronder. parents = ouders boven die rij; of = de id's van hun kinderen. first/last = voor- en achternaam; instagram/linkedin: volledige link, leeg = geen icoon.",
+  "families": [
     {
-      "of": "ed",
+      "people": [
+        {
+          "id": "astrid",
+          "first": "Astrid",
+          "last": "Bossong",
+          "instagram": "",
+          "linkedin": ""
+        },
+        {
+          "first": "Ton",
+          "last": "Kouwenhoven",
+          "instagram": "",
+          "linkedin": ""
+        }
+      ],
+      "children": [
+        {
+          "people": [
+            {
+              "first": "Dennis",
+              "last": "Kouwenhoven",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        },
+        {
+          "people": [
+            {
+              "first": "Patricia",
+              "last": "Kouwenhoven",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "people": [
+        {
+          "id": "ed",
+          "first": "Ed",
+          "last": "Bossong",
+          "instagram": "",
+          "linkedin": ""
+        },
+        {
+          "first": "Marianne",
+          "last": "Bom",
+          "instagram": "",
+          "linkedin": "",
+          "id": "marianne"
+        }
+      ],
+      "children": [
+        {
+          "people": [
+            {
+              "first": "Daan",
+              "last": "Bossong",
+              "instagram": "",
+              "linkedin": ""
+            },
+            {
+              "first": "Sabine",
+              "last": "",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ],
+          "children": [
+            {
+              "people": [
+                {
+                  "first": "Benjamin",
+                  "last": "Bossong",
+                  "instagram": "",
+                  "linkedin": ""
+                }
+              ]
+            },
+            {
+              "people": [
+                {
+                  "first": "Marie",
+                  "last": "Bossong",
+                  "instagram": "",
+                  "linkedin": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "people": [
+            {
+              "id": "sten",
+              "first": "Sten",
+              "last": "Bossong",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/sten-bossong"
+            },
+            {
+              "first": "Nyarayek",
+              "last": "Bossong",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        },
+        {
+          "people": [
+            {
+              "first": "Annabel",
+              "last": "Bossong",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "people": [
+        {
+          "first": "Sandra",
+          "last": "Bom-Fritz",
+          "instagram": "",
+          "linkedin": "",
+          "id": "sandra"
+        },
+        {
+          "first": "Anders",
+          "last": "Fritz",
+          "instagram": "",
+          "linkedin": ""
+        }
+      ],
+      "children": [
+        {
+          "people": [
+            {
+              "first": "David",
+              "last": "Bom-Fritz",
+              "instagram": "",
+              "linkedin": ""
+            },
+            {
+              "first": "Julia",
+              "last": "",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        },
+        {
+          "people": [
+            {
+              "first": "Amanda",
+              "last": "Bom-Fritz",
+              "instagram": "",
+              "linkedin": ""
+            },
+            {
+              "first": "Oreste",
+              "last": "",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        },
+        {
+          "people": [
+            {
+              "first": "Franca",
+              "last": "Bom-Fritz",
+              "instagram": "",
+              "linkedin": ""
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parents": [
+    {
       "people": [
         {
           "first": "Mientje",
@@ -173,6 +196,30 @@
           "instagram": "",
           "linkedin": ""
         }
+      ],
+      "of": [
+        "astrid",
+        "ed"
+      ]
+    },
+    {
+      "people": [
+        {
+          "first": "Coby",
+          "last": "Bom",
+          "instagram": "",
+          "linkedin": ""
+        },
+        {
+          "first": "Ton",
+          "last": "Bom",
+          "instagram": "",
+          "linkedin": ""
+        }
+      ],
+      "of": [
+        "marianne",
+        "sandra"
       ]
     }
   ]

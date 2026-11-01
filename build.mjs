@@ -150,9 +150,14 @@ const tree = readFileSync("src/stamboom.html", "utf8")
   .replace("<!--LOGO-->", readFileSync("src/monogram.svg", "utf8").trim())
   .replace(
     "<!--TREE-->",
-    `        <ul>\n${branch(family.root, "          ")}\n        </ul>\n` +
-      (family.above || [])
-        .map((x) => `        <div class="extra" data-of="${esc(x.of)}">${x.people.map((p) => person(p, false)).join("")}</div>`)
+    `        <ul>\n${family.families.map((f) => branch(f, "          ")).join("\n")}\n        </ul>\n` +
+      family.parents
+        .map(
+          (x) =>
+            `        <div class="extra" data-of="${esc(x.of.join(" "))}"><div class="node">${x.people
+              .map((p) => person(p, false))
+              .join('<span class="tie"></span>')}</div></div>`
+        )
         .join("\n")
   );
 mkdirSync("stamboom", { recursive: true });

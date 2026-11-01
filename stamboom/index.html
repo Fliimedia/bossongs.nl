@@ -33,10 +33,10 @@
       h1{margin:0 0 2.25rem;font-weight:400;font-size:1.15rem;letter-spacing:0.02em;text-align:center;color:var(--muted);}
       .scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
       .scroll::-webkit-scrollbar{display:none;}
-      .tree{position:relative;width:max-content;margin:0 auto;padding:0 1.25rem;}
+      .tree{position:relative;width:max-content;margin:0 auto;padding:4.6rem 1.25rem 0;}
       .tree ul{display:flex;justify-content:center;align-items:flex-start;gap:0.9rem;margin:0;padding:2.1rem 0 0;}
       .tree > ul{padding-top:0;}
-      .tree > ul > li > ul{gap:2.6rem;}
+      .tree > ul{gap:2.6rem;}
       .tree li{list-style:none;display:flex;flex-direction:column;align-items:center;}
       .lines{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;}
       .lines path{fill:none;stroke:var(--line);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;}
@@ -54,7 +54,7 @@
       .soc a:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
       .extra{position:absolute;top:0;left:0;}
       @media (min-width:900px){.logo svg{height:2.2rem;}h1{font-size:1.35rem;margin-bottom:3rem;}
-        .tree ul{gap:1.6rem;padding-top:2.75rem;}.first{font-size:1.25rem;}.last{font-size:0.62rem;}.tie{width:1.3rem;margin:0.75rem 0.4rem 0;}.tree > ul > li > ul{gap:4rem;}.soc svg{width:0.9rem;height:0.9rem;}}
+        .tree ul{gap:1.6rem;padding-top:2.75rem;}.first{font-size:1.25rem;}.last{font-size:0.62rem;}.tie{width:1.3rem;margin:0.75rem 0.4rem 0;}.tree > ul{gap:3rem;}.tree{padding-top:5.8rem;}.soc svg{width:0.9rem;height:0.9rem;}}
     </style>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" />
   </head>
@@ -64,38 +64,43 @@
     <div class="scroll">
       <div class="tree">
         <ul>
-          <li><div class="node"><div class="p blood"><span class="first">Coby</span><span class="last">Bom</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Ton</span><span class="last">Bom</span><span class="soc"></span></div></div>
+          <li><div class="node"><div class="p blood" id="astrid"><span class="first">Astrid</span><span class="last">Bossong</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Ton</span><span class="last">Kouwenhoven</span><span class="soc"></span></div></div>
             <ul>
-              <li><div class="node"><div class="p" id="ed"><span class="first">Ed</span><span class="last">Bossong</span><span class="soc"></span></div><span class="tie"></span><div class="p blood"><span class="first">Marianne</span><span class="last">Bom</span><span class="soc"></span></div></div>
+              <li><div class="node"><div class="p blood"><span class="first">Dennis</span><span class="last">Kouwenhoven</span><span class="soc"></span></div></div>
+              </li>
+              <li><div class="node"><div class="p blood"><span class="first">Patricia</span><span class="last">Kouwenhoven</span><span class="soc"></span></div></div>
+              </li>
+            </ul>
+          </li>
+          <li><div class="node"><div class="p blood" id="ed"><span class="first">Ed</span><span class="last">Bossong</span><span class="soc"></span></div><span class="tie"></span><div class="p" id="marianne"><span class="first">Marianne</span><span class="last">Bom</span><span class="soc"></span></div></div>
+            <ul>
+              <li><div class="node"><div class="p blood"><span class="first">Daan</span><span class="last">Bossong</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Sabine</span><span class="soc"></span></div></div>
                 <ul>
-                  <li><div class="node"><div class="p blood"><span class="first">Daan</span><span class="last">Bossong</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Sabine</span><span class="soc"></span></div></div>
-                    <ul>
-                      <li><div class="node"><div class="p blood"><span class="first">Benjamin</span><span class="last">Bossong</span><span class="soc"></span></div></div>
-                      </li>
-                      <li><div class="node"><div class="p blood"><span class="first">Marie</span><span class="last">Bossong</span><span class="soc"></span></div></div>
-                      </li>
-                    </ul>
+                  <li><div class="node"><div class="p blood"><span class="first">Benjamin</span><span class="last">Bossong</span><span class="soc"></span></div></div>
                   </li>
-                  <li><div class="node"><div class="p blood" id="sten"><span class="first">Sten</span><span class="last">Bossong</span><span class="soc"><a href="https://www.linkedin.com/in/sten-bossong" target="_blank" rel="noopener" aria-label="Sten Bossong op LinkedIn"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,26H40A14,14,0,0,0,26,40V216a14,14,0,0,0,14,14H216a14,14,0,0,0,14-14V40A14,14,0,0,0,216,26Zm2,190a2,2,0,0,1-2,2H40a2,2,0,0,1-2-2V40a2,2,0,0,1,2-2H216a2,2,0,0,1,2,2ZM94,112v64a6,6,0,0,1-12,0V112a6,6,0,0,1,12,0Zm88,28v36a6,6,0,0,1-12,0V140a22,22,0,0,0-44,0v36a6,6,0,0,1-12,0V112a6,6,0,0,1,12,0v2.11A34,34,0,0,1,182,140ZM98,84A10,10,0,1,1,88,74,10,10,0,0,1,98,84Z"/></svg></a></span></div><span class="tie"></span><div class="p"><span class="first">Nyarayek</span><span class="last">Bossong</span><span class="soc"></span></div></div>
-                  </li>
-                  <li><div class="node"><div class="p blood"><span class="first">Annabel</span><span class="last">Bossong</span><span class="soc"></span></div></div>
+                  <li><div class="node"><div class="p blood"><span class="first">Marie</span><span class="last">Bossong</span><span class="soc"></span></div></div>
                   </li>
                 </ul>
               </li>
-              <li><div class="node"><div class="p blood"><span class="first">Sandra</span><span class="last">Bom-Fritz</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Anders</span><span class="last">Fritz</span><span class="soc"></span></div></div>
-                <ul>
-                  <li><div class="node"><div class="p blood"><span class="first">David</span><span class="last">Bom-Fritz</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Julia</span><span class="soc"></span></div></div>
-                  </li>
-                  <li><div class="node"><div class="p blood"><span class="first">Amanda</span><span class="last">Bom-Fritz</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Oreste</span><span class="soc"></span></div></div>
-                  </li>
-                  <li><div class="node"><div class="p blood"><span class="first">Franca</span><span class="last">Bom-Fritz</span><span class="soc"></span></div></div>
-                  </li>
-                </ul>
+              <li><div class="node"><div class="p blood" id="sten"><span class="first">Sten</span><span class="last">Bossong</span><span class="soc"><a href="https://www.linkedin.com/in/sten-bossong" target="_blank" rel="noopener" aria-label="Sten Bossong op LinkedIn"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,26H40A14,14,0,0,0,26,40V216a14,14,0,0,0,14,14H216a14,14,0,0,0,14-14V40A14,14,0,0,0,216,26Zm2,190a2,2,0,0,1-2,2H40a2,2,0,0,1-2-2V40a2,2,0,0,1,2-2H216a2,2,0,0,1,2,2ZM94,112v64a6,6,0,0,1-12,0V112a6,6,0,0,1,12,0Zm88,28v36a6,6,0,0,1-12,0V140a22,22,0,0,0-44,0v36a6,6,0,0,1-12,0V112a6,6,0,0,1,12,0v2.11A34,34,0,0,1,182,140ZM98,84A10,10,0,1,1,88,74,10,10,0,0,1,98,84Z"/></svg></a></span></div><span class="tie"></span><div class="p"><span class="first">Nyarayek</span><span class="last">Bossong</span><span class="soc"></span></div></div>
+              </li>
+              <li><div class="node"><div class="p blood"><span class="first">Annabel</span><span class="last">Bossong</span><span class="soc"></span></div></div>
+              </li>
+            </ul>
+          </li>
+          <li><div class="node"><div class="p blood" id="sandra"><span class="first">Sandra</span><span class="last">Bom-Fritz</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Anders</span><span class="last">Fritz</span><span class="soc"></span></div></div>
+            <ul>
+              <li><div class="node"><div class="p blood"><span class="first">David</span><span class="last">Bom-Fritz</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Julia</span><span class="soc"></span></div></div>
+              </li>
+              <li><div class="node"><div class="p blood"><span class="first">Amanda</span><span class="last">Bom-Fritz</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Oreste</span><span class="soc"></span></div></div>
+              </li>
+              <li><div class="node"><div class="p blood"><span class="first">Franca</span><span class="last">Bom-Fritz</span><span class="soc"></span></div></div>
               </li>
             </ul>
           </li>
         </ul>
-        <div class="extra" data-of="ed"><div class="p"><span class="first">Mientje</span><span class="last">Bouwman</span><span class="soc"></span></div></div>
+        <div class="extra" data-of="astrid ed"><div class="node"><div class="p"><span class="first">Mientje</span><span class="last">Bouwman</span><span class="soc"></span></div></div></div>
+        <div class="extra" data-of="marianne sandra"><div class="node"><div class="p"><span class="first">Coby</span><span class="last">Bom</span><span class="soc"></span></div><span class="tie"></span><div class="p"><span class="first">Ton</span><span class="last">Bom</span><span class="soc"></span></div></div></div>
       </div>
     </div>
     <script>
@@ -116,52 +121,51 @@
           var o = tree.getBoundingClientRect(), b = el.getBoundingClientRect();
           return { l: b.left - o.left, t: b.top - o.top, w: b.width, h: b.height, x: b.left - o.left + b.width / 2, b: b.bottom - o.top };
         }
+        // Eén gezin: van de ouders (streepje tussen een stel, of onder een ouder) omlaag naar een
+        // verbindingslijn met afgeronde buitenhoeken, en van daar recht omlaag naar elk kind.
+        function family(node, cards, from) {
+          var tie = node.querySelector(".tie");
+          var a = box(tie || node);
+          var y0 = tie ? a.t : a.b + GAP;
+          var bus = from + (cards[0].t - from) / 2;
+          var end = cards[0].t - GAP;
+          var cx = cards.map(function (c) { return c.x; });
+          var x0 = a.x;
+          cx.forEach(function (x) { if (x >= a.l && x <= a.l + a.w) x0 = x; });
+          var L = Math.min.apply(null, cx), Rt = Math.max.apply(null, cx);
+          var k = Math.min(RAD, end - bus, bus - y0);
+          var d = "M" + r(x0) + " " + r(y0) + "V" + r(cx.length === 1 && Math.abs(cx[0] - x0) < 1 ? end : bus);
+          if (L < x0 - 0.5) {
+            var kl = Math.min(k, x0 - L);
+            d += "M" + r(L) + " " + r(end) + "V" + r(bus + kl) + "Q" + r(L) + " " + r(bus) + " " + r(L + kl) + " " + r(bus) + "H" + r(x0);
+          }
+          if (Rt > x0 + 0.5) {
+            var kr = Math.min(k, Rt - x0);
+            d += "M" + r(x0) + " " + r(bus) + "H" + r(Rt - kr) + "Q" + r(Rt) + " " + r(bus) + " " + r(Rt) + " " + r(bus + kr) + "V" + r(end);
+          }
+          cx.forEach(function (x) {
+            if ((x !== L && x !== Rt) || (cx.length > 1 && Math.abs(x - x0) < 0.5)) d += "M" + r(x) + " " + r(bus) + "V" + r(end);
+          });
+          return d;
+        }
         function draw() {
-          // Een ouder boven een aangetrouwde persoon: boven die persoon, op de hoogte van de bovenste rij.
-          var top = box(tree.querySelector(":scope > ul > li > .node")).t;
+          // Ouders boven de eerste rij: gecentreerd boven hun kinderen.
           tree.querySelectorAll(".extra").forEach(function (ex) {
-            var target = box(document.getElementById(ex.getAttribute("data-of")));
-            ex.style.left = target.x - ex.offsetWidth / 2 + "px";
-            ex.style.top = top + "px";
+            var xs = ex.getAttribute("data-of").split(" ").map(function (id) { return box(document.getElementById(id)).x; });
+            var mid = (Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2;
+            ex.style.left = mid - ex.offsetWidth / 2 + "px";
+            ex.style.top = "0px";
           });
           var d = "";
           tree.querySelectorAll("li").forEach(function (li) {
             var kids = li.querySelector(":scope > ul");
             if (!kids) return;
-            var node = li.querySelector(":scope > .node");
-            var tie = node.querySelector(".tie");
-            var a = box(tie || node);
-            var y0 = tie ? a.t : a.b + GAP;
             var cards = Array.prototype.map.call(kids.querySelectorAll(":scope > li > .node > .blood"), box);
-            var bus = box(kids).t + (cards[0].t - box(kids).t) / 2;
-            var end = cards[0].t - GAP;
-            var cx = cards.map(function (c) { return c.x; });
-            // De verticale lijn van de ouders: midden op het huwelijksstreepje, of precies boven een kind
-            // als dat onder het streepje staat (dan geen knikje).
-            var x0 = a.x;
-            cx.forEach(function (x) { if (x >= a.l && x <= a.l + a.w) x0 = x; });
-            var L = Math.min.apply(null, cx), Rt = Math.max.apply(null, cx);
-            var k = Math.min(RAD, end - bus, bus - y0);
-            // Ouders omlaag tot de verbindingslijn.
-            d += "M" + r(x0) + " " + r(y0) + "V" + r(cx.length === 1 && Math.abs(cx[0] - x0) < 1 ? end : bus);
-            // Verbindingslijn met afgeronde buitenhoeken.
-            if (L < x0 - 0.5) {
-              var kl = Math.min(k, x0 - L);
-              d += "M" + r(L) + " " + r(end) + "V" + r(bus + kl) + "Q" + r(L) + " " + r(bus) + " " + r(L + kl) + " " + r(bus) + "H" + r(x0);
-            }
-            if (Rt > x0 + 0.5) {
-              var kr = Math.min(k, Rt - x0);
-              d += "M" + r(x0) + " " + r(bus) + "H" + r(Rt - kr) + "Q" + r(Rt) + " " + r(bus) + " " + r(Rt) + " " + r(bus + kr) + "V" + r(end);
-            }
-            // Kinderen ertussen: recht omlaag.
-            cx.forEach(function (x) {
-              if (x !== L && x !== Rt || (cx.length > 1 && Math.abs(x - x0) < 0.5)) d += "M" + r(x) + " " + r(bus) + "V" + r(end);
-            });
+            d += family(li.querySelector(":scope > .node"), cards, box(kids).t);
           });
           tree.querySelectorAll(".extra").forEach(function (ex) {
-            var p = box(ex.querySelector(".p"));
-            var target = box(document.getElementById(ex.getAttribute("data-of")));
-            d += "M" + r(p.x) + " " + r(p.b + GAP) + "V" + r(target.t - GAP);
+            var cards = ex.getAttribute("data-of").split(" ").map(function (id) { return box(document.getElementById(id)); });
+            d += family(ex.querySelector(".node"), cards, box(ex).b);
           });
           path.setAttribute("d", d);
           svg.setAttribute("width", tree.offsetWidth);
