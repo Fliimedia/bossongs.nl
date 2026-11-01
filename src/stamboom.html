@@ -39,9 +39,9 @@
       .tree > ul > li > ul{gap:2.6rem;}
       .tree li{list-style:none;display:flex;flex-direction:column;align-items:center;}
       .lines{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;}
-      .lines path{fill:none;stroke:var(--line);stroke-width:1;}
+      .lines path{fill:none;stroke:var(--line);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;}
       .node{display:flex;align-items:flex-start;}
-      .tie{width:0.9rem;height:1px;margin:0.62rem 0.3rem 0;background:var(--line);flex:none;}
+      .tie{width:0.9rem;height:1.1px;margin:0.62rem 0.35rem 0;border-radius:1px;background:var(--line);flex:none;}
       .p{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:3.4rem;padding:0 0.1rem;}
       .first{font-size:1.02rem;line-height:1.2;white-space:nowrap;}
       .last{margin-top:0.12rem;font-family:Inter,system-ui,sans-serif;font-size:0.56rem;line-height:1.2;letter-spacing:0.12em;
@@ -77,7 +77,8 @@
         var path = document.createElementNS(NS, "path");
         svg.appendChild(path);
         tree.appendChild(svg);
-        var GAP = 5; // ruimte tussen lijn en naam
+        var GAP = 6; // ruimte tussen lijn en naam
+        var RAD = 10; // straal van de bochten
         var r = function (n) { return Math.round(n) + 0.5; };
         function box(el) {
           var o = tree.getBoundingClientRect(), b = el.getBoundingClientRect();
@@ -101,10 +102,18 @@
             var x0 = a.x, y0 = tie ? a.t : a.b + GAP;
             var cards = Array.prototype.map.call(kids.querySelectorAll(":scope > li > .node > .blood"), box);
             var bus = box(kids).t + (cards[0].t - box(kids).t) / 2;
-            d += "M" + r(x0) + " " + r(y0) + "V" + r(bus);
-            var xs = cards.map(function (c) { return c.x; }).concat([x0]);
-            d += "M" + r(Math.min.apply(null, xs)) + " " + r(bus) + "H" + r(Math.max.apply(null, xs));
-            cards.forEach(function (c) { d += "M" + r(c.x) + " " + r(bus) + "V" + r(c.t - GAP); });
+            // Per kind een eigen lijn met zachte bochten: omlaag, opzij, omlaag.
+            cards.forEach(function (c) {
+              var dx = c.x - x0, end = c.t - GAP;
+              if (Math.abs(dx) < 1) { d += "M" + r(x0) + " " + r(y0) + "V" + r(end); return; }
+              var k = Math.min(RAD, Math.abs(dx) / 2, (bus - y0) , (end - bus));
+              var s = dx > 0 ? 1 : -1;
+              d += "M" + r(x0) + " " + r(y0) + "V" + r(bus - k) +
+                "Q" + r(x0) + " " + r(bus) + " " + r(x0 + s * k) + " " + r(bus) +
+                "H" + r(c.x - s * k) +
+                "Q" + r(c.x) + " " + r(bus) + " " + r(c.x) + " " + r(bus + k) +
+                "V" + r(end);
+            });
           });
           tree.querySelectorAll(".extra").forEach(function (ex) {
             var p = box(ex.querySelector(".p"));
