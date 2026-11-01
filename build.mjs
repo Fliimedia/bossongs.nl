@@ -137,7 +137,7 @@ const person = (p) => {
   return `<div class="p"><span class="name">${esc(p.name)}</span><span class="soc">${links}</span></div>`;
 };
 const branch = (n, pad) => {
-  const card = `<div class="node">${n.people.map(person).join('<span class="and">&amp;</span>')}</div>`;
+  const card = `<div class="node">${n.people.map(person).join('<span class="tie" aria-label="partner"></span>')}</div>`;
   const kids = n.children && n.children.length
     ? `\n${pad}  <ul>\n${n.children.map((c) => branch(c, pad + "    ")).join("\n")}\n${pad}  </ul>`
     : "";

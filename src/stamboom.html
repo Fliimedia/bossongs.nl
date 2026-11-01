@@ -33,32 +33,25 @@
       h1{margin:0 0 2rem;font-weight:400;font-size:1.9rem;line-height:1.1;letter-spacing:-0.01em;text-align:center;}
       .scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
       .scroll::-webkit-scrollbar{display:none;}
-      .tree{display:flex;justify-content:center;min-width:max-content;margin:0 auto;}
-      .tree ul{position:relative;display:flex;justify-content:center;margin:0;padding:1.4rem 0 0;}
+      .tree{position:relative;display:flex;justify-content:center;min-width:max-content;margin:0 auto;padding:0 0.25rem;}
+      .tree ul{display:flex;justify-content:center;align-items:flex-start;gap:0.4rem;margin:0;padding:1.75rem 0 0;}
       .tree > ul{padding-top:0;}
-      .tree li{position:relative;list-style:none;padding:1.4rem 0.22rem 0;display:flex;flex-direction:column;align-items:center;}
-      .tree li::before,.tree li::after{content:"";position:absolute;top:0;right:50%;width:50%;height:1.4rem;border-top:1px solid var(--line);}
-      .tree li::after{right:auto;left:50%;border-left:1px solid var(--line);}
-      .tree li:only-child::before,.tree li:only-child::after{display:none;}
-      .tree li:only-child{padding-top:0;}
-      .tree > ul > li{padding-top:0;}
-      .tree li:first-child::before,.tree li:last-child::after{border:0;}
-      .tree li:last-child::before{border-right:1px solid var(--line);border-radius:0 8px 0 0;}
-      .tree li:first-child::after{border-radius:8px 0 0 0;}
-      .tree ul ul::before{content:"";position:absolute;top:0;left:50%;height:1.4rem;border-left:1px solid var(--line);}
-      .tree li:only-child > .node{margin-top:0;}
-      .node{display:flex;flex-direction:column;align-items:center;gap:0.15rem;padding:0.6rem 0.75rem 0.55rem;border-radius:12px;
+      .tree li{list-style:none;display:flex;flex-direction:column;align-items:center;}
+      .lines{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;}
+      .lines path{fill:none;stroke:var(--line);stroke-width:1;}
+      .node{display:flex;align-items:center;}
+      .p{display:flex;align-items:center;gap:0.4rem;height:2.6rem;padding:0 0.7rem;border-radius:12px;
         background:rgba(255,255,255,0.45);box-shadow:inset 0 0 0 1px var(--hair);}
-      .p{display:flex;flex-direction:column;align-items:center;}
-      .name{font-size:1.15rem;line-height:1.2;white-space:nowrap;}
-      .and{color:var(--gold);font-size:0.95rem;line-height:1;}
-      .soc{display:flex;gap:0.35rem;margin-top:0.2rem;}
+      .name{font-size:1.15rem;line-height:1;white-space:nowrap;}
+      .tie{width:0.7rem;height:1px;background:var(--line);flex:none;}
+      .soc{display:flex;gap:0.3rem;}
       .soc:empty{display:none;}
       .soc a{display:inline-flex;color:var(--gold);line-height:0;border-radius:4px;}
       .soc a:hover{color:var(--ink);}
       .soc svg{width:1rem;height:1rem;}
-      @media (max-width:380px){.tree li{padding-left:0.12rem;padding-right:0.12rem;}.node{padding-left:0.55rem;padding-right:0.55rem;}.name{font-size:1.08rem;}}
-      @media (min-width:900px){.logo svg{height:3rem;}h1{font-size:2.6rem;margin-bottom:3rem;}.tree ul{padding-top:2rem;}.tree li{padding:2rem 0.6rem 0;}.tree li::before,.tree li::after,.tree ul ul::before{height:2rem;}.node{padding:0.9rem 1.3rem 0.8rem;border-radius:14px;}.name{font-size:1.5rem;}.and{font-size:1.15rem;}.soc svg{width:1.2rem;height:1.2rem;}}
+      @media (max-width:440px){.tree ul{gap:0.25rem;}.p{padding:0 0.5rem;height:2.4rem;gap:0.3rem;}.tie{width:0.45rem;}.name{font-size:1.05rem;}.soc svg{width:0.9rem;height:0.9rem;}}
+      @media (max-width:380px){.tree ul{gap:0.2rem;}.p{padding:0 0.42rem;}.name{font-size:1rem;}}
+      @media (min-width:900px){.logo svg{height:3rem;}h1{font-size:2.6rem;margin-bottom:3rem;}.tree ul{padding-top:2.5rem;gap:1.2rem;}.p{height:3.4rem;padding:0 1.2rem;border-radius:14px;gap:0.55rem;}.tie{width:1.4rem;}.name{font-size:1.5rem;}.soc svg{width:1.2rem;height:1.2rem;}}
       .soc a:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
     </style>
   </head>
@@ -70,5 +63,50 @@
 <!--TREE-->
       </div>
     </div>
+    <script>
+      // Lijnen: vanaf het midden tussen een stel (of onder een ouder) omlaag naar elk kind.
+      (function () {
+        var tree = document.querySelector(".tree");
+        var NS = "http://www.w3.org/2000/svg";
+        var svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("class", "lines");
+        svg.setAttribute("aria-hidden", "true");
+        var path = document.createElementNS(NS, "path");
+        svg.appendChild(path);
+        tree.appendChild(svg);
+        function draw() {
+          var o = tree.getBoundingClientRect();
+          var d = "";
+          var r = function (n) { return Math.round(n) + 0.5; };
+          tree.querySelectorAll("li").forEach(function (li) {
+            var kids = li.querySelector(":scope > ul");
+            if (!kids) return;
+            var node = li.querySelector(":scope > .node");
+            var tie = node.querySelector(".tie");
+            var a = (tie || node).getBoundingClientRect();
+            var x0 = a.left + a.width / 2 - o.left;
+            var y0 = (tie ? a.top + a.height / 2 : a.bottom) - o.top;
+            var cards = Array.prototype.map.call(kids.querySelectorAll(":scope > li > .node > .p:first-child"), function (p) {
+              var b = p.getBoundingClientRect();
+              return { x: b.left + b.width / 2 - o.left, y: b.top - o.top };
+            });
+            var top = kids.getBoundingClientRect().top - o.top;
+            var cy = cards[0].y;
+            var bus = top + (cy - top) / 2;
+            d += "M" + r(x0) + " " + r(y0) + "V" + r(bus);
+            var xs = cards.map(function (c) { return c.x; }).concat([x0]);
+            d += "M" + r(Math.min.apply(null, xs)) + " " + r(bus) + "H" + r(Math.max.apply(null, xs));
+            cards.forEach(function (c) { d += "M" + r(c.x) + " " + r(bus) + "V" + r(c.y); });
+          });
+          path.setAttribute("d", d);
+          svg.setAttribute("width", tree.offsetWidth);
+          svg.setAttribute("height", tree.offsetHeight);
+        }
+        draw();
+        window.addEventListener("resize", draw);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+        window.addEventListener("load", draw);
+      })();
+    </script>
   </body>
 </html>
